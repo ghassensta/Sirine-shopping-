@@ -11,7 +11,7 @@ use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboradController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\InspirationsController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProductController;
@@ -23,13 +23,13 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 Route::get('/', [AccueilController::class, 'nouveautes'])->name('welcome')->middleware('throttle:60,1');
 
 Route::get('/article/{slug}', action: [AccueilController::class, 'ProduitShow'])->name('preview-article');
-Route::get('/inspiration/{slug}', action: [AccueilController::class, 'InspirationShow'])->name('preview-inspiration');
+Route::get('/blog/{slug}', action: [AccueilController::class, 'BlogShow'])->name('preview-blog');
 Route::resource('/checkout', CheckoutController::class);
 Route::post('/order/submit', [CheckoutController::class, 'storeOrder'])
     ->name('order.submit');
 Route::get('/toutes/produits', [AccueilController::class, 'AllProduits'])->name('allproduits');
 
-Route::get('/toutes/inspirations', [AccueilController::class, 'AllInspirations'])->name('allinspirations');
+Route::get('/toutes/blogs', [AccueilController::class, 'AllBlogs'])->name('allblogs');
 Route::get('/cat', function () {
     return view('products.cat');
 });
@@ -37,9 +37,6 @@ Route::get('/show', function () {
     return view('products.show');
 });
 
-Route::get('/inspiration', function () {
-    return view('products.inspiration');
-});
 
 Route::get('/a-propos', [AboutController::class, 'index'])
     ->name('about');
@@ -101,21 +98,23 @@ Route::prefix('admin/paradis-deco')->group(function () {
         Route::get('dashborad', [DashboradController::class, 'index'])
             ->name('superadmin.dashborad');
 
-        Route::put('inspirations/toggle/{id}', [InspirationsController::class, 'toggleActive'])->name('inspirations.toggle');
+        Route::put('blogs/toggle/{id}', [BlogController::class, 'toggleActive'])->name('blogs.toggle');
         // CRUD commandes
         Route::resource('commandes', OrderController::class);
         Route::resource('produits', ProductController::class);
+        Route::get('categories/options', [CategoryController::class, 'getCategoryOptions'])->name('categories.options');
+        Route::get('categories/hierarchical', [CategoryController::class, 'hierarchical'])->name('categories.hierarchical');
         Route::resource('categories', CategoryController::class);
         Route::resource('configurations', ConfigurationController::class);
-        Route::resource('avis', AvisController::class);
-        Route::resource('inspirations', InspirationsController::class);
+        Route::resource('blogs', BlogController::class);
         Route::resource('avis', AvisController::class);
 
         //get-commandes-ajax
         Route::get('ajax/get-commandes', [AjaxController::class, 'getCommandes'])->name('commandes.get');
         Route::get('ajax/get-products', [AjaxController::class, 'getProducts'])->name('products.get');
         Route::get('ajax/get-category', [AjaxController::class, 'getCategory'])->name('category.get');
-        Route::get('ajax/get-inspiration', [AjaxController::class, 'getInspiration'])->name('inspirations.get');
+        Route::get('ajax/get-categories', [CategoryController::class, 'get'])->name('categories.get');
+        Route::get('ajax/get-blog', [AjaxController::class, 'getBlog'])->name('blogs.get');
         Route::get('ajax/get-avis', [AjaxController::class, 'getAvis'])->name('avis.get');
 
         Route::get('/commandes/{id}/edit-status', [OrderController::class, 'editStatus'])->name('commandes.edit-status');

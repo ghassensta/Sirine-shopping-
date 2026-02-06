@@ -9,7 +9,6 @@ class Product extends Model
     protected $table = "products";
 
     protected $fillable = [
-        'category_ids',
         'image_avant',
         'images',
         'name',
@@ -26,7 +25,6 @@ class Product extends Model
 
     protected $casts = [
         'images' => 'array',
-        'category_ids' => 'array',
         'price' => 'decimal:3',
         'stock' => 'integer',
         'is_active' => 'boolean',
@@ -40,6 +38,12 @@ class Product extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_product')
+                    ->withTimestamps();
     }
 
     public function avis()

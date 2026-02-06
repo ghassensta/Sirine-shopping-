@@ -181,11 +181,13 @@ class ProductController extends Controller
             'stock' => $validated['stock'],
             'description' => $validated['description'],
             'is_active' => $request->boolean('is_active', $product->is_active),
-            'category_ids' => $validated['category_ids'],
-               'meta_title' => $validated['meta_title'] ?? null,
+            'meta_title' => $validated['meta_title'] ?? null,
             'meta_keywords' => $validated['meta_keywords'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
         ]);
+
+        // Synchroniser les catégories (many-to-many)
+        $product->categories()->sync($validated['category_ids']);
 
         return redirect()->route('produits.index')
             ->with('message', 'Produit mis à jour avec succès');

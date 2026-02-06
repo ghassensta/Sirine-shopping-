@@ -7,7 +7,7 @@
             <span class="app-brand-logo demo">
                 <h1
                     style="color: #FFD700; font-size: 24px; font-weight: bold; margin: 0; font-family: Arial, sans-serif;">
-                    Paradis-<span style="color: #D4A017; font-style: italic;">Deco</span>
+                    Sirine <span style="color: #D4A017; font-style: italic;">Shopping</span>
                 </h1>
             </span>
         </a>
@@ -58,10 +58,10 @@
                 <div>Configuration</div>
             </a>
         </li>
-        <li class="menu-item {{ request()->routeIs('inspirations.*') ? 'active' : '' }}">
-            <a href="{{ route('inspirations.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-settings-up"></i>
-                <div>Inspirations</div>
+        <li class="menu-item {{ request()->routeIs('blogs.*') ? 'active' : '' }}">
+            <a href="{{ route('blogs.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-article"></i>
+                <div>Blog</div>
             </a>
         </li>
         <!-- reviews -->

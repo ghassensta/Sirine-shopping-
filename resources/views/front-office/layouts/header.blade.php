@@ -9,7 +9,58 @@
         <!-- Desktop Navigation -->
         <div class="hidden md:flex space-x-8">
             <a href="/" class="text-gray-600 hover:text-[#dfb54e] transition">Accueil</a>
-            <a href="{{ route('allproduits') }}" class="text-gray-600 hover:text-[#dfb54e] transition">Produits</a>
+
+            <!-- Categories Dropdown -->
+            <div class="relative group">
+                <button class="text-gray-600 hover:text-[#dfb54e] transition flex items-center">
+                    Produits
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div class="absolute left-0 mt-2 w-64 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-100">
+                    <div class="py-2">
+                        <!-- Lien vers tous les produits -->
+                        <a href="{{ route('allproduits') }}" class="block px-4 py-2 text-gray-700 hover:bg-[#dfb54e] hover:text-white transition">
+                            Tous les produits
+                        </a>
+
+                        @if(isset($categories) && $categories->count() > 0)
+                            <div class="border-t border-gray-100 my-2"></div>
+
+                            @foreach($categories as $category)
+                                <div class="relative group/sub">
+                                    <a href="{{ route('categorie.produits', $category->slug) }}"
+                                       class="flex items-center justify-between px-4 py-2 text-gray-700 hover:bg-[#dfb54e] hover:text-white transition">
+                                        {{ $category->name }}
+                                        @if($category->children && $category->children->count() > 0)
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        @endif
+                                    </a>
+
+                                    @if($category->children && $category->children->count() > 0)
+                                        <div class="absolute left-full top-0 w-64 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-300 z-50 border border-gray-100">
+                                            <div class="py-2">
+                                                @foreach($category->children as $child)
+                                                    <a href="{{ route('categorie.produits', $child->slug) }}"
+                                                       class="block px-4 py-2 text-gray-700 hover:bg-[#dfb54e] hover:text-white transition">
+                                                        {{ $child->name }}
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+            </div>
+
             <a href="{{ route('about') }}" class="text-gray-600 hover:text-[#dfb54e] transition">À propos</a>
             <a href="{{ route('contact') }}" class="text-gray-600 hover:text-[#dfb54e] transition">Contact</a>
         </div>
@@ -48,7 +99,46 @@
             </div>
             <nav class="flex flex-col p-6 space-y-6">
                 <a href="/" class="text-lg py-2 text-gray-600 hover:text-[#dfb54e] transition">Accueil</a>
-                <a href="{{ route('allproduits') }}" class="text-lg py-2 text-gray-600 hover:text-[#dfb54e] transition">Produits</a>
+
+                <!-- Categories Accordion -->
+                <div class="space-y-2">
+                    <button class="flex items-center justify-between w-full text-left text-lg py-2 text-gray-600 hover:text-[#dfb54e] transition"
+                            onclick="toggleMobileCategories()">
+                        <span>Produits</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform" id="categoriesArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div id="mobileCategories" class="ml-4 space-y-2 hidden">
+                        <a href="{{ route('allproduits') }}" class="block py-1 text-gray-600 hover:text-[#dfb54e] transition">
+                            Tous les produits
+                        </a>
+
+                        @if(isset($categories) && $categories->count() > 0)
+                            @foreach($categories as $category)
+                                <div>
+                                    <a href="{{ route('categorie.produits', $category->slug) }}"
+                                       class="block py-1 text-gray-600 hover:text-[#dfb54e] transition">
+                                        {{ $category->name }}
+                                    </a>
+
+                                    @if($category->children && $category->children->count() > 0)
+                                        <div class="ml-4 space-y-1">
+                                            @foreach($category->children as $child)
+                                                <a href="{{ route('categorie.produits', $child->slug) }}"
+                                                   class="block py-1 text-sm text-gray-500 hover:text-[#dfb54e] transition">
+                                                    {{ $child->name }}
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+
                 <a href="{{ route('about') }}" class="text-lg py-2 text-gray-600 hover:text-[#dfb54e] transition">À propos</a>
                 <a href="{{ route('contact') }}" class="text-lg py-2 text-gray-600 hover:text-[#dfb54e] transition">Contact</a>
             </nav>
@@ -95,6 +185,20 @@ document.addEventListener('DOMContentLoaded', function() {
             closeMenu();
         }
     });
+
+    // Fonction pour basculer l'affichage des catégories mobiles
+    window.toggleMobileCategories = function() {
+        const categoriesDiv = document.getElementById('mobileCategories');
+        const arrow = document.getElementById('categoriesArrow');
+
+        if (categoriesDiv.classList.contains('hidden')) {
+            categoriesDiv.classList.remove('hidden');
+            arrow.classList.add('rotate-180');
+        } else {
+            categoriesDiv.classList.add('hidden');
+            arrow.classList.remove('rotate-180');
+        }
+    };
 });
 </script>
 <style>

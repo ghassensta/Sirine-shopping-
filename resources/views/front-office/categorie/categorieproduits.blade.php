@@ -78,7 +78,7 @@
                 @if($selectedCategory)
                 <li class="flex items-center">
                     <span class="text-gray-400 mx-2">/</span>
-                    <span class="text-gray-900 text-sm font-medium">{{ $selectedCategory->name }}</span>
+                    <span class="text-gray-900 text-sm font-medium">{{ $selectedCategory->full_name ?? $selectedCategory->name }}</span>
                 </li>
                 @endif
             </ol>
@@ -91,30 +91,20 @@
     <div class="container mx-auto px-4">
         <div class="text-center mb-8">
             <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-dark mb-4">
-                {{ $selectedCategory ? $selectedCategory->name : 'Tous les Produits' }}
+                {{ $selectedCategory ? $selectedCategory->section_title : 'Tous les Produits' }}
             </h1>
             <p class="text-gray-600 text-lg max-w-2xl mx-auto">
-                {{ $selectedCategory->meta_description ?: 'Découvrez notre collection exclusive' }}
+                {{ $selectedCategory ? $selectedCategory->section_subtitle : 'Découvrez notre collection exclusive' }}
             </p>
             <div class="w-24 h-1 bg-primary mx-auto mt-6 rounded-full"></div>
         </div>
 
-        <!-- Stats -->
-        <div class="flex justify-center items-center space-x-6 mb-8">
-            <div class="text-center">
-                <div class="text-2xl font-bold text-primary">{{ $products->total() }}</div>
-                <div class="text-sm text-gray-500">Produits</div>
-            </div>
-            <div class="text-center">
-                <div class="text-2xl font-bold text-primary">{{ $categories->count() }}</div>
-                <div class="text-sm text-gray-500">Catégories</div>
-            </div>
-        </div>
+       
     </div>
 </section>
 
 <!-- Main Content -->
-<section class="py-8">
+<section class="bg-white py-8">
     <div class="container mx-auto px-4">
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Filters Sidebar -->
@@ -123,7 +113,7 @@
                     <!-- Categories -->
                     <div class="mb-8">
                         <h3 class="font-serif text-xl font-bold text-dark mb-4 pb-2 border-b">Catégories</h3>
-                        <ul class="space-y-2">
+                        <ul class="space-y-1">
                             <li>
                                 <a href="{{ route('allproduits') }}"
                                    class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition {{ !$selectedCategory ? 'active-category' : '' }}">
@@ -133,16 +123,62 @@
                                     </span>
                                 </a>
                             </li>
-                            @foreach($categories as $category)
-                            <li>
-                                <a href="{{ route('categorie.produits', $category->slug) }}"
-                                   class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition {{ $selectedCategory && $selectedCategory->id === $category->id ? 'active-category' : '' }}">
-                                    <span>{{ $category->name }}</span>
-                                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                        {{ $category->products_count }}
-                                    </span>
-                                </a>
-                            </li>
+                            
+                            <!-- Affichage hiérarchique des catégories -->
+                            @php
+                                $parentCategories = $categories->where('parent_id', null);
+                            @endphp
+                            
+                            @foreach($parentCategories as $parent)
+                                <li class="category-parent">
+                                    <a href="{{ route('categorie.produits', $parent->slug) }}"
+                                       class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition font-medium {{ $selectedCategory && $selectedCategory->id === $parent->id ? 'active-category' : '' }}">
+                                        <span>{{ $parent->name }}</span>
+                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                            {{ $parent->total_products_count ?? $parent->products_count ?? 0 }}
+                                        </span>
+                                    </a>
+                                    
+                                    <!-- Sous-catégories -->
+                                    @if($parent->children->count() > 0)
+                                        <ul class="ml-4 mt-1 space-y-1">
+                                            @foreach($parent->children as $child)
+                                                <li class="category-child">
+                                                    <a href="{{ route('categorie.produits', $child->slug) }}"
+                                                       class="flex items-center justify-between py-1.5 px-3 rounded-lg hover:bg-gray-50 transition text-sm {{ $selectedCategory && $selectedCategory->id === $child->id ? 'active-category' : '' }}">
+                                                        <span class="flex items-center">
+                                                            <i class="fas fa-chevron-right text-xs text-gray-400 mr-2"></i>
+                                                            {{ $child->name }}
+                                                        </span>
+                                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                                            {{ $child->total_products_count ?? $child->products_count ?? 0 }}
+                                                        </span>
+                                                    </a>
+                                                    
+                                                    <!-- Sous-sous-catégories -->
+                                                    @if($child->children->count() > 0)
+                                                        <ul class="ml-4 mt-1 space-y-1">
+                                                            @foreach($child->children as $grandChild)
+                                                                <li class="category-grandchild">
+                                                                    <a href="{{ route('categorie.produits', $grandChild->slug) }}"
+                                                                       class="flex items-center justify-between py-1 px-3 rounded-lg hover:bg-gray-50 transition text-sm text-gray-600 {{ $selectedCategory && $selectedCategory->id === $grandChild->id ? 'active-category text-gray-900 font-medium' : '' }}">
+                                                                        <span class="flex items-center">
+                                                                            <i class="fas fa-angle-right text-xs text-gray-300 mr-2"></i>
+                                                                            {{ $grandChild->name }}
+                                                                        </span>
+                                                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                                                            {{ $grandChild->total_products_count ?? $grandChild->products_count ?? 0 }}
+                                                                        </span>
+                                                                    </a>
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </li>
                             @endforeach
                         </ul>
                     </div>

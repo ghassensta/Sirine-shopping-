@@ -24,14 +24,14 @@
                        Explorer la collection
                        <i class="fas fa-arrow-right ml-2"></i>
                     </a>
-                    <a href="{{ route('inspirations.index') }}"
+                    <a href="{{ route('allblogs') }}"
                        class="inline-flex items-center px-6 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary/5 transition">
                        <i class="fas fa-book-open mr-2"></i>
                        Notre Blog
                     </a>
                 </div>
             </div>
-            <div class="relative animate-float">
+            <div class="relative animate-float hidden md:block">
                 <div class="relative rounded-2xl overflow-hidden shadow-2xl">
                     <img src="{{ asset('storage/' . ($config->homepage_banner ?? 'default-hero.jpg')) }}"
                          alt="Décoration élégante Sirine Shopping"
@@ -66,7 +66,7 @@
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
                         <div>
                             <h3 class="text-white text-xl font-bold">{{ $category->name }}</h3>
-                            <p class="text-gray-200 text-sm mt-1">{{ $category->product_count ?? 0 }} articles</p>
+                            <p class="text-gray-200 text-sm mt-1">{{ $category->products_count ?? 0 }} articles</p>
                         </div>
                     </div>
                 </a>
@@ -253,7 +253,7 @@
 
 
 <!-- Blog Section -->
-@if(isset($inspirations) && $inspirations->count() > 0)
+@if(isset($blogs) && $blogs->count() > 0)
 <section class="py-16 bg-white">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
@@ -261,15 +261,15 @@
                 Notre Blog Déco
             </h2>
             <p class="text-gray-600 max-w-2xl mx-auto">
-                Inspirations, tendances et conseils pour décorer votre intérieur
+                Articles, conseils et tendances pour décorer votre intérieur
             </p>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
-            @foreach($inspirations as $post)
+            @foreach($blogs as $post)
                 <article class="bg-light rounded-xl overflow-hidden hover:shadow-lg transition">
-                    <a href="{{ route('inspirations.show', $post->slug) }}">
-                        <img src="{{ asset('storage/' . $post->featured_image) }}"
+                    <a href="{{ route('preview-blog', $post->slug) }}">
+                        <img src="{{ $post->image ? asset('storage/' . $post->image) : asset('images/placeholder.jpg') }}"
                              alt="{{ $post->title }}"
                              class="w-full h-48 object-cover">
                     </a>
@@ -277,17 +277,17 @@
                         <div class="flex items-center text-sm text-gray-500 mb-3">
                             <span><i class="far fa-calendar mr-1"></i> {{ $post->created_at->format('d/m/Y') }}</span>
                             <span class="mx-2">•</span>
-                            <span><i class="far fa-clock mr-1"></i> {{ $post->read_time ?? '3 min' }}</span>
+                            <span><i class="far fa-clock mr-1"></i> 3 min</span>
                         </div>
                         <h3 class="font-semibold text-xl text-dark mb-3">
-                            <a href="{{ route('inspirations.show', $post->slug) }}" class="hover:text-primary transition">
+                            <a href="{{ route('preview-blog', $post->slug) }}" class="hover:text-primary transition">
                                 {{ Str::limit($post->title, 50) }}
                             </a>
                         </h3>
                         <p class="text-gray-600 mb-4">
-                            {{ Str::limit(strip_tags($post->excerpt), 100) }}
+                            {{ Str::limit(strip_tags($post->resume), 100) }}
                         </p>
-                        <a href="{{ route('inspirations.show', $post->slug) }}"
+                        <a href="{{ route('preview-blog', $post->slug) }}"
                            class="inline-flex items-center text-primary hover:text-secondary font-medium">
                             Lire l'article <i class="fas fa-arrow-right ml-2"></i>
                         </a>
@@ -297,7 +297,7 @@
         </div>
 
         <div class="text-center mt-12">
-            <a href="{{ route('inspirations.index') }}"
+            <a href="{{ route('allblogs') }}"
                class="inline-flex items-center px-6 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition">
                Voir tous les articles
                <i class="fas fa-arrow-right ml-2"></i>

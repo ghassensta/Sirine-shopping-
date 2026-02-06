@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Inspiration extends Model
+class Blog extends Model
 {
-    protected $table = 'inspirations';
+    protected $table = 'blogs';
 
     protected $fillable = [
         'image',
@@ -53,24 +53,24 @@ class Inspiration extends Model
         parent::boot();
 
         // Automatically generate unique slug if not provided
-        static::creating(function ($inspiration) {
-            if (empty($inspiration->slug)) {
-                $inspiration->slug = Str::slug($inspiration->title);
-                $baseSlug = $inspiration->slug;
+        static::creating(function ($blog) {
+            if (empty($blog->slug)) {
+                $blog->slug = Str::slug($blog->title);
+                $baseSlug = $blog->slug;
                 $counter = 1;
-                while (static::where('slug', $inspiration->slug)->exists()) {
-                    $inspiration->slug = $baseSlug . '-' . $counter++;
+                while (static::where('slug', $blog->slug)->exists()) {
+                    $blog->slug = $baseSlug . '-' . $counter++;
                 }
             }
         });
 
-        static::updating(function ($inspiration) {
-            if ($inspiration->isDirty('title') && empty($inspiration->slug)) {
-                $inspiration->slug = Str::slug($inspiration->title);
-                $baseSlug = $inspiration->slug;
+        static::updating(function ($blog) {
+            if ($blog->isDirty('title') && empty($blog->slug)) {
+                $blog->slug = Str::slug($blog->title);
+                $baseSlug = $blog->slug;
                 $counter = 1;
-                while (static::where('slug', $inspiration->slug)->where('id', '!=', $inspiration->id)->exists()) {
-                    $inspiration->slug = $baseSlug . '-' . $counter++;
+                while (static::where('slug', $blog->slug)->where('id', '!=', $blog->id)->exists()) {
+                    $blog->slug = $baseSlug . '-' . $counter++;
                 }
             }
         });

@@ -2,12 +2,12 @@
 
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
-        <h4 class="mb-4">Liste des Inspirations</h4>
+        <h4 class="mb-4">Liste des Articles de Blog</h4>
         <div class="row g-4">
             <div class="col-12">
                 <div class="card">
                     <div class="card-datatable table-responsive">
-                        <table class="datatables-inspirations table border-top">
+                        <table class="datatables-blogs table border-top">
                             <thead>
                                 <tr>
                                     <th></th>
@@ -81,13 +81,13 @@
     <script>
         'use strict';
         $(function() {
-            var dtInspirationTable = $('.datatables-inspirations');
+            var dtBlogTable = $('.datatables-blogs');
 
-            if (dtInspirationTable.length) {
-                var dtInspiration = dtInspirationTable.DataTable({
+            if (dtBlogTable.length) {
+                var dtBlog = dtBlogTable.DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('inspirations.get') }}",
+                    ajax: "{{ route('blogs.get') }}",
                     columns: [
                         { data: '' },
                         { data: 'image' },
@@ -138,8 +138,8 @@
                             searchable: false,
                             orderable: false,
                             render: function(data, type, full) {
-                                var editUrl = "{{ route('inspirations.edit', ':id') }}".replace(':id', full.id);
-                                var deleteUrl = "{{ route('inspirations.destroy', ':id') }}".replace(':id', full.id);
+                                var editUrl = "{{ route('blogs.edit', ':id') }}".replace(':id', full.id);
+                                var deleteUrl = "{{ route('blogs.destroy', ':id') }}".replace(':id', full.id);
                                 return '<div class="d-flex align-items-center">' +
                                     '<a href="' + editUrl + '" class="text-body"><i class="ti ti-edit ti-sm mx-2"></i></a>' +
                                     '<a href="javascript:;" data-id="' + full.id + '" data-url="' + deleteUrl +
@@ -176,10 +176,10 @@
                         searchPlaceholder: "Rechercher..."
                     },
                     buttons: [{
-                        text: '<i class="ti ti-plus me-0 me-sm-1 ti-xs"></i><span class="d-none d-sm-inline-block">Ajouter Inspiration</span>',
+                        text: '<i class="ti ti-plus me-0 me-sm-1 ti-xs"></i><span class="d-none d-sm-inline-block">Ajouter Article</span>',
                         className: 'add-new btn btn-primary ms-2 ms-sm-0',
                         action: function() {
-                            window.location.href = "{{ route('inspirations.create') }}";
+                            window.location.href = "{{ route('blogs.create') }}";
                         }
                     }],
                     responsive: {
@@ -208,12 +208,12 @@
             }
 
             // Toggle is_active status
-            dtInspirationTable.on('click', '.toggle-active', function() {
+            dtBlogTable.on('click', '.toggle-active', function() {
                 var id = $(this).data('id');
                 console.log(id);
                 var isChecked = $(this).is(':checked');
                 $.ajax({
-                    url: "{{ route('inspirations.toggle', ':id') }}".replace(':id', id),
+                    url: "{{ route('blogs.toggle', ':id') }}".replace(':id', id),
                     type: "put",
                     dataType: "json",
                     data: {
@@ -223,7 +223,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'Succès',
-                            text: 'Statut de l\'inspiration mis à jour avec succès.',
+                            text: 'Statut de l\'article de blog mis à jour avec succès.',
                             customClass: {
                                 confirmButton: 'btn btn-success'
                             }
@@ -243,8 +243,8 @@
                 });
             });
 
-            // Delete Inspiration
-            dtInspirationTable.on('click', '.delete-record', function() {
+            // Delete Blog Article
+            dtBlogTable.on('click', '.delete-record', function() {
                 var row = $(this).closest('tr');
                 var id = $(this).data('id');
                 var url = $(this).data('url');
@@ -271,11 +271,11 @@
                                 "_method": "DELETE"
                             },
                             success: function() {
-                                dtInspiration.row(row).remove().draw();
+                                dtBlog.row(row).remove().draw();
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Supprimé !',
-                                    text: 'L\'inspiration a été supprimée.',
+                                    text: 'L\'article de blog a été supprimé.',
                                     customClass: {
                                         confirmButton: 'btn btn-success'
                                     }
@@ -285,7 +285,7 @@
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Erreur',
-                                    text: 'Impossible de supprimer l\'inspiration.',
+                                    text: 'Impossible de supprimer l\'article de blog.',
                                     customClass: {
                                         confirmButton: 'btn btn-danger'
                                     }

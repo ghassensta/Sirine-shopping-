@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Inspiration;
+use App\Models\Blog;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\Product;
@@ -211,63 +211,77 @@ public function getCommandes(Request $request)
             'data' => $data,
         ]);
     }
-    public function getCategory(Request $request)
+   public function getCategory(Request $request)
     {
-        // DataTables parameters
-        $draw = (int) $request->input('draw', 1);
-        $start = (int) $request->input('start', 0);
-        $rowPerPage = (int) $request->input('length', 10);
-        $orderArr = $request->input('order', []);
-        $columnsArr = $request->input('columns', []);
+        $draw        = (int) $request->input('draw', 1);
+        $start       = (int) $request->input('start', 0);
+        $length      = (int) $request->input('length', 10);
         $searchValue = $request->input('search.value', '');
+        $order       = $request->input('order.0', []);
+        
+        $columnIndex = $order['column'] ?? 0;
+        $dir         = $order['dir'] ?? 'asc';
 
-        // Sorting column
-        $columnIndex = $orderArr[0]['column'] ?? 0;
-        $columnSortOrder = $orderArr[0]['dir'] ?? 'asc';
-        $columnName = $columnsArr[$columnIndex]['data'] ?? 'name';
+        $columns = $request->input('columns', []);
+        $columnName = $columns[$columnIndex]['data'] ?? 'name';
 
-        // Map DataTables columns to database columns
         $sortable = [
-            'id' => 'id',
-            'image' => 'image', // Changed from image_url
-            'name' => 'name',
-            'is_active' => 'is_active',
+            'id'         => 'id',
+            'image'      => 'image',
+            'name'       => 'name',
+            'is_active'  => 'is_active',
             'created_at' => 'created_at',
         ];
-        $orderBy = $sortable[$columnName] ?? 'created_at';
 
-        // Build query
-        $query = Category::select(['id', 'image', 'name', 'is_active', 'created_at']);
+        $orderBy = $sortable[$columnName] ?? 'name';
+
+        $query = Category::query()
+            ->select('id', 'parent_id', 'image', 'name', 'slug', 'is_active', 'created_at')
+            ->with('parent:id,name');
 
         if ($searchValue !== '') {
             $query->where('name', 'like', "%{$searchValue}%");
         }
 
-        $totalRecords = $query->count();
+        $totalRecords = Category::count();
+        $filteredRecords = $query->count();
 
-        $categories = $query->orderBy($orderBy, $columnSortOrder)
-            ->skip($start)
-            ->take($rowPerPage)
+        $categories = $query
+            ->orderBy($orderBy, $dir)
+            ->offset($start)
+            ->limit($length)
             ->get();
 
-        // Format data for DataTables
-        $data = $categories->map(fn($category) => [
-            'id' => $category->id,
-            'image' => $category->image_url ? '<img src="' . $category->image_url . '" width="50" alt="Category Image">' : '-',
-            'name' => $category->name,
-            'is_active' => $category->is_active ? '<span class="badge bg-label-success">Active</span>' : '<span class="badge bg-label-warning">Inactive</span>',
-            'created_at' => $category->created_at->format('Y-m-d H:i:s'),
-        ]);
+        $data = $categories->map(function ($cat) {
+            $imageHtml = $cat->image_url
+                ? '<img src="' . e($cat->image_url) . '" width="50" alt="' . e($cat->name) . '" class="rounded">'
+                : '<span class="text-muted">—</span>';
+
+            $statusHtml = $cat->is_active
+                ? '<span class="badge bg-label-success">Active</span>'
+                : '<span class="badge bg-label-warning">Inactive</span>';
+
+            $hierarchicalName = $cat->full_name ?? $cat->name;
+
+            return [
+                'id'          => $cat->id,
+                'image'       => $imageHtml,
+                'name'        => $hierarchicalName,
+                'parent_name' => $cat->parent ? $cat->parent->name : '—',
+                'is_active'   => $statusHtml,
+                'created_at'  => $cat->created_at->format('d/m/Y H:i'),
+            ];
+        })->toArray();
 
         return response()->json([
-            'draw' => $draw,
-            'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $totalRecords, // Update if adding more filters
-            'data' => $data,
+            'draw'            => $draw,
+            'recordsTotal'    => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data'            => $data,
         ]);
     }
 
-    public function getInspiration(Request $request)
+    public function getBlog(Request $request)
     {
         // DataTables parameters
         $draw = (int) $request->input('draw', 1);
@@ -295,7 +309,7 @@ public function getCommandes(Request $request)
         $orderBy = $sortable[$columnName] ?? 'created_at';
 
         // Build query
-        $query = Inspiration::select(['id', 'slug', 'image', 'title', 'resume', 'description', 'is_active', 'created_at']);
+        $query = Blog::select(['id', 'slug', 'image', 'title', 'resume', 'description', 'is_active', 'created_at']);
 
         // Apply search filter
         if ($searchValue !== '') {
@@ -307,27 +321,27 @@ public function getCommandes(Request $request)
         }
 
         // Total records before filtering
-        $totalRecords = Inspiration::count();
+        $totalRecords = Blog::count();
         // Total records after filtering
         $filteredRecords = $query->count();
 
         // Fetch paginated data
-        $inspirations = $query->orderBy($orderBy, $columnSortOrder)
+        $blogs = $query->orderBy($orderBy, $columnSortOrder)
             ->skip($start)
             ->take($rowPerPage)
             ->get();
 
         // Format data for DataTables
-        $data = $inspirations->map(fn($inspiration) => [
-            'id' => $inspiration->id,
-            'image' => $inspiration->image && Storage::disk('public')->exists($inspiration->image)
-                ? '<img src="' . Storage::url($inspiration->image) . '" width="50" alt="' . e($inspiration->title) . '">'
+        $data = $blogs->map(fn($blog) => [
+            'id' => $blog->id,
+            'image' => $blog->image && Storage::disk('public')->exists($blog->image)
+                ? '<img src="' . Storage::url($blog->image) . '" width="50" alt="' . e($blog->title) . '">'
                 : '-',
-            'title' => $inspiration->title,
-            'resume' => $inspiration->resume ? Str::limit(strip_tags($inspiration->resume), 50) : '-',
-            'description' => $inspiration->description ? Str::limit(strip_tags($inspiration->description), 50) : '-',
-            'is_active' => '<label class="switch "><input type="checkbox" class="toggle-active" data-id="' . $inspiration->id . '" ' . ($inspiration->is_active ? 'checked' : '') . '><span class="slider round"></span></label>',
-            'created_at' => $inspiration->created_at->format('Y-m-d H:i:s'),
+            'title' => $blog->title,
+            'resume' => $blog->resume ? Str::limit(strip_tags($blog->resume), 50) : '-',
+            'description' => $blog->description ? Str::limit(strip_tags($blog->description), 50) : '-',
+            'is_active' => '<label class="switch "><input type="checkbox" class="toggle-active" data-id="' . $blog->id . '" ' . ($blog->is_active ? 'checked' : '') . '><span class="slider round"></span></label>',
+            'created_at' => $blog->created_at->format('Y-m-d H:i:s'),
         ]);
 
         return response()->json([

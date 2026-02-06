@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inspiration;
+use App\Models\Blog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
 
-class InspirationsController extends Controller
+class BlogController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $inspirations = Inspiration::latest()->paginate(10);
-        return view('admin.inspirations.index', compact('inspirations'));
+        $blogs = Blog::latest()->paginate(10);
+        return view('admin.blogs.index', compact('blogs'));
     }
 
     /**
@@ -24,7 +24,7 @@ class InspirationsController extends Controller
      */
     public function create()
     {
-        return view('admin.inspirations.create');
+        return view('admin.blogs.create');
     }
 
     /**
@@ -50,14 +50,14 @@ class InspirationsController extends Controller
         // Vérifier l'unicité du slug
         $baseSlug = $data['slug'];
         $counter = 1;
-        while (Inspiration::where('slug', $data['slug'])->exists()) {
+        while (Blog::where('slug', $data['slug'])->exists()) {
             $data['slug'] = $baseSlug . '-' . $counter++;
         }
 
         // Gestion de l'image
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $filename = Str::slug($data['title']) . '-' . time() . '.webp';
-            $path = 'inspirations/' . $filename;
+            $path = 'blogs/' . $filename;
 
             // Convertir en WebP avec Intervention Image
             $image = Image::read($request->file('image'))->toWebp(80);
@@ -67,9 +67,9 @@ class InspirationsController extends Controller
             $data['image'] = $path;
         }
 
-        Inspiration::create($data);
+        Blog::create($data);
 
-        return redirect()->route('inspirations.index')->with('message', 'Inspiration created successfully.');
+        return redirect()->route('blogs.index')->with('message', 'Blog article created successfully.');
     }
 
     /**
@@ -77,8 +77,8 @@ class InspirationsController extends Controller
      */
     public function edit(string $id)
     {
-        $inspiration = Inspiration::where('id', $id)->firstOrFail();
-        return view('admin.inspirations.edit', compact('inspiration'));
+        $blog = Blog::where('id', $id)->firstOrFail();
+        return view('admin.blogs.edit', compact('blog'));
     }
 
     /**
@@ -96,28 +96,28 @@ class InspirationsController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $inspiration = Inspiration::where('id', $id)->firstOrFail();
+        $blog = Blog::where('id', $id)->firstOrFail();
         $data = $request->only(['title', 'slug', 'resume', 'description', 'meta_title', 'meta_description', 'is_active']);
 
         // Générer le slug si non fourni
         $data['slug'] = $data['slug'] ?? Str::slug($data['title']);
 
-        // Vérifier l'unicité du slug (sauf pour l'inspiration actuelle)
+        // Vérifier l'unicité du slug (sauf pour le blog actuel)
         $baseSlug = $data['slug'];
         $counter = 1;
-        while (Inspiration::where('slug', $data['slug'])->where('id', '!=', $id)->exists()) {
+        while (Blog::where('slug', $data['slug'])->where('id', '!=', $id)->exists()) {
             $data['slug'] = $baseSlug . '-' . $counter++;
         }
 
         // Gestion de l'image
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             // Supprimer l'ancienne image si elle existe
-            if ($inspiration->image) {
-                Storage::disk('public')->delete($inspiration->image);
+            if ($blog->image) {
+                Storage::disk('public')->delete($blog->image);
             }
 
             $filename = Str::slug($data['title']) . '-' . time() . '.webp';
-            $path = 'inspirations/' . $filename;
+            $path = 'blogs/' . $filename;
 
             // Convertir en WebP avec Intervention Image
             $image = Image::read($request->file('image'))->toWebp(80);
@@ -127,9 +127,9 @@ class InspirationsController extends Controller
             $data['image'] = $path;
         }
 
-        $inspiration->update($data);
+        $blog->update($data);
 
-        return redirect()->route('inspirations.index')->with('message', 'Inspiration updated successfully.');
+        return redirect()->route('blogs.index')->with('message', 'Blog article updated successfully.');
     }
 
     /**
@@ -137,30 +137,38 @@ class InspirationsController extends Controller
      */
     public function destroy(string $id)
     {
-        $inspiration = Inspiration::where('id', $id)->firstOrFail();
-        if ($inspiration->image) {
-            Storage::disk('public')->delete($inspiration->image);
+        $blog = Blog::findOrFail($id);
+        if ($blog->image) {
+            Storage::disk('public')->delete($blog->image);
         }
-        $inspiration->delete();
+        $blog->delete();
 
         return response()->json([
-            'message' => 'Inspiration deleted successfully.',
+            'message' => 'Blog article deleted successfully.',
         ]);
     }
 
     /**
-     * Toggle the is_active status of an inspiration.
+     * Display the specified resource.
      */
-    public function toggleActive(Request $request, string $id)
+    public function show(string $id)
     {
-        $inspiration = Inspiration::where('id', $id)->firstOrFail();
-        $inspiration->update([
-            'is_active' => !$inspiration->is_active,
-        ]);
+        //
+    }
+
+    /**
+     * Toggle active status
+     */
+    public function toggleActive($id)
+    {
+        $blog = Blog::findOrFail($id);
+        $blog->is_active = !$blog->is_active;
+        $blog->save();
 
         return response()->json([
-            'message' => 'Inspiration status updated successfully.',
-            'is_active' => $inspiration->is_active,
+            'success' => true,
+            'message' => 'Blog status updated successfully',
+            'is_active' => $blog->is_active
         ]);
     }
 }

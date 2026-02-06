@@ -208,7 +208,7 @@
             </ol>
         </div>
         <div class="footer">
-            <p>Généré par Paradis-Deco</p>
+            <p>Généré par Sirine Shopping</p>
         </div>
     </div>
 </body>

@@ -43,8 +43,8 @@ class ProfilSeeder extends Seeder
         // 2) Définition des utilisateurs à créer
         $users = [
             [
-                'name' => 'mohamedfatnassi',
-                'email' => 'mohamedfatnassi@paradis-deco.tn',
+                'name' => 'sirineshopping',
+                'email' => 'sirineshopping@admin.tn',
                 'password' => Hash::make('20202020'),
                 'role' => 'superadmin',
             ],

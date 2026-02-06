@@ -12,6 +12,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @php
+        use App\Models\Category;
+        $categories = Category::tree()->active()->with('children')->get();
+        
         $siteName       = $config->site_name ?? 'Sirine Shopping';
         $siteUrl        = config('app.url', url('/'));
         $siteDesc       = $config->meta_description ?? 'Boutique de décoration et accessoires en Tunisie : articles de décoration intérieure, accessoires design et objets décoratifs artisanaux.';
@@ -115,7 +118,7 @@
     </script>
 </head>
 
-<body class="bg-light font-sans text-dark">
+<body class="bg-light font-sans text-dark ">
 <!-- Loading Animation -->
 <div id="loadingBar"
      class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 origin-left transition-transform duration-500 ease-in-out z-50 hidden">
@@ -178,185 +181,13 @@
 <div id="cartOverlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
 
 <!-- Header -->
-<header class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm">
-    <nav class="container mx-auto px-4 py-3">
-        <div class="flex items-center justify-between">
-            <!-- Logo -->
-            <a href="/" class="flex items-center space-x-2">
-    <div class="w-24 h-24 rounded-full flex items-center justify-center relative overflow-hidden">
-        @if($config && $config->site_logo)
-            <img src="{{ asset('storage/' . $config->site_logo) }}" alt="Logo {{ $config->site_name }}" class="w-full h-full object-cover rounded-full">
-        @else
-            <span class="text-white font-serif font-bold text-xl">S</span>
-                @endif
-            </div>
-            <div>
-                <div class="font-serif text-xl font-bold text-dark">
-                    {{ $config->site_name ?? 'Sirine Shopping' }}
-                </div>
-                <div class="text-xs text-gray-500">Décoration & Accessoires</div>
-            </div>
-        </a>
+    @include('front-office.layouts.header')
 
-
-            <!-- Desktop Navigation -->
-            <div class="hidden md:flex space-x-8">
-                <a href="/" class="nav-link">Accueil</a>
-                <a href="{{ route('allproduits') }}" class="nav-link">Collection</a>
-                <div class="relative group">
-                    <a href="#" class="nav-link flex items-center">
-                        Catégories <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                    </a>
-                    <div class="absolute top-full left-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                        @if(isset($latestCategories))
-                            @foreach($latestCategories as $cat)
-                                <a href="{{ route('categorie.produits', $cat->slug) }}"
-                                   class="block px-4 py-2 hover:bg-primary/10 hover:text-primary">
-                                    {{ $cat->name }}
-                                </a>
-                            @endforeach
-                        @endif
-                    </div>
-                </div>
-                <a href="{{ route('inspirations.index') }}" class="nav-link">Blog</a>
-                <a href="{{ route('about') }}" class="nav-link">À propos</a>
-            </div>
-
-            <!-- Icons -->
-            <div class="flex items-center space-x-6">
-                <!-- Cart -->
-                <button class="cart-button relative p-2 hover:text-primary transition" aria-label="Panier">
-                    <i class="fas fa-shopping-bag text-xl"></i>
-                    <span id="cartCount" class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
-                </button>
-
-                <!-- Search -->
-                <button class="p-2 hover:text-primary transition">
-                    <i class="fas fa-search"></i>
-                </button>
-
-                <!-- Mobile Menu -->
-                <button id="mobileMenuButton" class="md:hidden p-2 hover:text-primary transition">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-</header>
-
-<!-- Mobile Menu -->
-<div id="mobileMenu" class="fixed inset-0 bg-black/50 z-50 hidden">
-    <div class="absolute right-0 top-0 h-full w-64 bg-white transform translate-x-full transition-transform">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-8">
-                <div class="font-serif text-xl font-bold">Menu</div>
-                <button id="closeMobileMenu" class="p-2 hover:text-primary">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <nav class="space-y-4">
-                <a href="/" class="block py-2 border-b">Accueil</a>
-                <a href="{{ route('allproduits') }}" class="block py-2 border-b">Collection</a>
-                <a href="{{ route('inspirations.index') }}" class="block py-2 border-b">Blog</a>
-                <a href="{{ route('about') }}" class="block py-2 border-b">À propos</a>
-                <a href="{{ route('contact') }}" class="block py-2 border-b">Contact</a>
-            </nav>
-        </div>
-    </div>
-</div>
 
 @yield('content')
 
 <!-- Footer -->
-<footer class="bg-dark text-white pt-12 pb-6">
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <!-- About -->
-            <div>
-                <div class="flex items-center space-x-2 mb-4">
-                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                        <span class="font-serif font-bold">S</span>
-                    </div>
-                    <div>
-                        <div class="font-serif text-xl font-bold">Sirine Shopping</div>
-                        <div class="text-sm text-gray-300">Décoration & Accessoires</div>
-                    </div>
-                </div>
-                <p class="text-gray-300 text-sm">
-                    {{ $siteDesc }}
-                </p>
-            </div>
-
-            <!-- Quick Links -->
-            <div>
-                <h3 class="font-serif text-lg font-bold mb-4">Navigation</h3>
-                <ul class="space-y-2">
-                    <li><a href="/" class="text-gray-300 hover:text-primary transition">Accueil</a></li>
-                    <li><a href="{{ route('allproduits') }}" class="text-gray-300 hover:text-primary transition">Collection</a></li>
-                    <li><a href="{{ route('inspirations.index') }}" class="text-gray-300 hover:text-primary transition">Blog</a></li>
-                    <li><a href="{{ route('about') }}" class="text-gray-300 hover:text-primary transition">À propos</a></li>
-                    <li><a href="{{ route('contact') }}" class="text-gray-300 hover:text-primary transition">Contact</a></li>
-                </ul>
-            </div>
-
-            <!-- Contact -->
-            <div>
-                <h3 class="font-serif text-lg font-bold mb-4">Contact</h3>
-                <ul class="space-y-3">
-                    <li class="flex items-start">
-                        <i class="fas fa-envelope mt-1 mr-3 text-primary"></i>
-                        <span class="text-gray-300">{{ $supportEmail }}</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-phone mt-1 mr-3 text-primary"></i>
-                        <span class="text-gray-300">{{ $supportPhone }}</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-map-marker-alt mt-1 mr-3 text-primary"></i>
-                        <span class="text-gray-300">{{ $addressText }}</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Social & Newsletter -->
-            <div>
-                <h3 class="font-serif text-lg font-bold mb-4">Suivez-nous</h3>
-                <div class="flex space-x-4 mb-6">
-                    <a href="https://www.facebook.com/profile.php?id=100076049144577"
-                       target="_blank"
-                       class="w-10 h-10 bg-gray-700 hover:bg-primary rounded-full flex items-center justify-center transition">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="w-10 h-10 bg-gray-700 hover:bg-pink-500 rounded-full flex items-center justify-center transition">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                </div>
-
-                <div class="mt-4">
-                    <p class="text-sm text-gray-300 mb-2">Inscrivez-vous à notre newsletter</p>
-                    <form class="flex">
-                        <input type="email" placeholder="Votre email"
-                               class="flex-1 px-3 py-2 text-dark rounded-l focus:outline-none">
-                        <button type="submit"
-                                class="bg-primary hover:bg-secondary text-white px-4 rounded-r transition">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400 text-sm">
-            <p>&copy; {{ date('Y') }} Sirine Shopping. Tous droits réservés.</p>
-            <div class="mt-2 space-x-4">
-                <a href="{{ route('politique-confidentialite') }}" class="hover:text-primary transition">Confidentialité</a>
-                <a href="{{ route('mentions-legales') }}" class="hover:text-primary transition">Mentions légales</a>
-                <a href="#" class="hover:text-primary transition">CGV</a>
-            </div>
-        </div>
-    </div>
-</footer>
-
+@include('front-office.layouts.footer')
 @yield('js')
 
 <!-- Main JavaScript -->
@@ -710,5 +541,9 @@ window.hideLoading = function() {
         @apply bg-primary/50;
     }
 </style>
+
+{{-- Inclusion du bouton WhatsApp flottant --}}
+@include('layouts.components.whatsapp-button')
+
 </body>
 </html>

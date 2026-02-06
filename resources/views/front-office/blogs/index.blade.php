@@ -1,12 +1,12 @@
 @extends('front-office.layouts.app')
 
-@section('title', $inspiration->meta_title ?? $inspiration->title . ' | Sirine Shopping')
+@section('title', $blog->meta_title ?? $blog->title . ' | Sirine Shopping')
 
 @section('meta')
-    <meta name="description" content="{{ $inspiration->meta_description ?? $inspiration->resume ?? 'Découvrez cette inspiration sur Sirine Shopping.' }}">
-    <meta property="og:title" content="{{ $inspiration->meta_title ?? $inspiration->title }}">
-    <meta property="og:description" content="{{ $inspiration->meta_description ?? $inspiration->resume ?? 'Découvrez cette inspiration sur Sirine Shopping.' }}">
-    <meta property="og:image" content="{{ $inspiration->image ? asset('storage/' . $inspiration->image) : asset('images/placeholder.jpg') }}">
+    <meta name="description" content="{{ $blog->meta_description ?? $blog->resume ?? 'Découvrez cet article de blog sur Sirine Shopping.' }}">
+    <meta property="og:title" content="{{ $blog->meta_title ?? $blog->title }}">
+    <meta property="og:description" content="{{ $blog->meta_description ?? $blog->resume ?? 'Découvrez cet article de blog sur Sirine Shopping.' }}">
+    <meta property="og:image" content="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/placeholder.jpg') }}">
     <meta name="author" content="Sirine Shopping">
     <meta name="publisher" content="Sirine Shopping">
 
@@ -67,9 +67,9 @@
             <ol class="flex items-center space-x-2">
                 <li><a href="/" class="hover:text-primary transition">Accueil</a></li>
                 <li class="text-gray-400">/</li>
-                <li><a href="{{ route('allinspirations') }}" class="hover:text-primary transition">Inspirations</a></li>
+                <li><a href="{{ route('allblogs') }}" class="hover:text-primary transition">Blog</a></li>
                 <li class="text-gray-400">/</li>
-                <li class="text-gray-900 font-medium">{{ Str::limit($inspiration->title, 35) }}</li>
+                <li class="text-gray-900 font-medium">{{ Str::limit($blog->title, 35) }}</li>
             </ol>
         </nav>
 
@@ -77,29 +77,29 @@
             <!-- Titre + Résumé -->
             <header class="text-center mb-12">
                 <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-5">
-                    {{ $inspiration->title }}
+                    {{ $blog->title }}
                 </h1>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                    {{ $inspiration->resume ?? 'Pas de résumé disponible pour cette inspiration.' }}
+                    {{ $blog->resume ?? 'Pas de résumé disponible pour cet article.' }}
                 </p>
             </header>
 
             <!-- Image principale -->
             <div class="mb-12 rounded-2xl overflow-hidden shadow-2xl">
-                @if ($inspiration->image)
+                @if ($blog->image)
                     <a href="#"
                        data-bs-toggle="modal"
                        data-bs-target="#imageModal"
-                       data-image="{{ asset('storage/' . $inspiration->image) }}"
+                       data-image="{{ asset('storage/' . $blog->image) }}"
                        class="block">
-                        <img src="{{ asset('storage/' . $inspiration->image) }}"
-                             alt="{{ $inspiration->title }}"
+                        <img src="{{ asset('storage/' . $blog->image) }}"
+                             alt="{{ $blog->title }}"
                              class="w-full h-auto max-h-[580px] object-cover transition-transform hover:scale-[1.02] duration-500"
                              loading="lazy">
                     </a>
                 @else
                     <img src="{{ asset('images/placeholder.jpg') }}"
-                         alt="Image d'inspiration décoration"
+                         alt="Image article blog"
                          class="w-full h-auto max-h-[580px] object-cover"
                          loading="lazy">
                 @endif
@@ -107,22 +107,22 @@
 
             <!-- Contenu principal (zone nettoyée) -->
             <div class="content prose prose-lg prose-headings:text-gray-900 prose-a:text-primary max-w-none mb-16">
-                {!! $inspiration->description ?? '<p class="text-gray-500 italic">Aucune description détaillée disponible pour le moment.</p>' !!}
+                {!! $blog->description ?? '<p class="text-gray-500 italic">Aucune description détaillée disponible pour le moment.</p>' !!}
             </div>
 
             <!-- Galerie -->
-            @if ($inspiration->gallery && count($inspiration->gallery) > 0)
+            @if ($blog->gallery && count($blog->gallery) > 0)
                 <section class="mb-16">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center md:text-left">Galerie d'inspiration</h2>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center md:text-left">Galerie d'images</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        @foreach ($inspiration->gallery as $image)
+                        @foreach ($blog->gallery as $image)
                             <div class="group rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300">
                                 <a href="#"
                                    data-bs-toggle="modal"
                                    data-bs-target="#imageModal"
                                    data-image="{{ asset('storage/' . $image) }}">
                                     <img src="{{ asset('storage/' . $image) }}"
-                                         alt="{{ $inspiration->title }} - photo {{ $loop->iteration }}"
+                                         alt="{{ $blog->title }} - photo {{ $loop->iteration }}"
                                          class="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-110"
                                          loading="lazy">
                                 </a>
@@ -132,13 +132,13 @@
                 </section>
             @endif
 
-            <!-- Inspirations similaires -->
-            @if ($relatedInspirations && $relatedInspirations->count() > 0)
+            <!-- Articles similaires -->
+            @if ($relatedBlogs && $relatedBlogs->count() > 0)
                 <section class="mt-20">
                     <h2 class="text-3xl font-bold text-gray-900 mb-10 text-center">Vous aimerez peut-être aussi...</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        @foreach ($relatedInspirations as $related)
-                            <a href="{{ route('preview-inspiration', $related->slug) }}"
+                        @foreach ($relatedBlogs as $related)
+                            <a href="{{ route('preview-blog', $related->slug) }}"
                                class="group block rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 bg-white">
                                 <div class="relative overflow-hidden aspect-[4/3]">
                                     <img src="{{ $related->image ? asset('storage/' . $related->image) : asset('images/placeholder.jpg') }}"

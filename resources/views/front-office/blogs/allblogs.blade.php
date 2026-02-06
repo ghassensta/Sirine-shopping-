@@ -1,14 +1,14 @@
 @extends('front-office.layouts.app')
 
-@section('title', 'Toutes nos inspirations | Sirine Shopping')
+@section('title', 'Tous nos articles de blog | Sirine Shopping')
 
 @section('meta')
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta name="description" content="Sirine Shopping : découvrez notre collection complète d'inspirations pour sublimer votre intérieur en Tunisie.">
-    <meta name="keywords" content="inspirations déco Tunisie, décoration intérieure, idées déco, artisanat tunisien, design intérieur, inspirations maison">
+    <meta name="description" content="Sirine Shopping : découvrez tous nos articles de blog pour des conseils déco, astuces et tendances en Tunisie.">
+    <meta name="keywords" content="blog déco Tunisie, articles décoration, conseils déco, astuces maison, design intérieur, tendances déco">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <meta name="theme-color" content="#FDD835">
     <meta name="author" content="Sirine Shopping">
@@ -53,34 +53,34 @@
                                 <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                                 </svg>
-                                <span class="ml-1 text-xs sm:text-sm font-medium text-gray-900 md:ml-2">Inspirations</span>
+                                <span class="ml-1 text-xs sm:text-sm font-medium text-gray-900 md:ml-2">Blog</span>
                             </div>
                         </li>
                     </ol>
                 </nav>
             </div>
 
-            <!-- Inspirations Count -->
+            <!-- Articles Count -->
             <div class="mb-4 sm:mb-6 flex justify-between items-center">
                 <p class="text-sm sm:text-base text-gray-600">
-                    <span class="font-medium text-gray-900">{{ $inspirations->total() }}</span> inspirations disponibles
+                    <span class="font-medium text-gray-900">{{ $blogs->total() }}</span> articles disponibles
                 </p>
             </div>
 
-            <!-- Inspirations Grid -->
+            <!-- Blogs Grid -->
             <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                @forelse($inspirations as $inspiration)
+                @forelse($blogs as $blog)
                     <article class="bg-white rounded-xl overflow-hidden group transition-all duration-300 hover:shadow-lg border border-gray-100 hover:border-gray-200">
                         <!-- Image Section -->
                         <div class="relative overflow-hidden aspect-square">
-                            <a href="{{ route('preview-inspiration', $inspiration->slug) }}" class="block h-full">
-                                <img src="{{ $inspiration->image ? asset('storage/' . $inspiration->image) : asset('images/placeholder.jpg') }}"
-                                    alt="{{ $inspiration->title }}"
+                            <a href="{{ route('preview-blog', $blog->slug) }}" class="block h-full">
+                                <img src="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/placeholder.jpg') }}"
+                                    alt="{{ $blog->title }}"
                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                     loading="lazy" />
                             </a>
-                            <!-- Badge for New Inspirations -->
-                            @if($inspiration->created_at->diffInDays(now()) < 30)
+                            <!-- Badge for New Articles -->
+                            @if($blog->created_at->diffInDays(now()) < 30)
                                 <div class="absolute top-2 right-2">
                                     <span class="bg-[#228B22] text-white text-xs font-semibold px-2 py-1 rounded-full uppercase shadow-sm">Nouveau</span>
                                 </div>
@@ -90,9 +90,13 @@
                         <!-- Content Section -->
                         <div class="p-4">
                             <h3 class="text-base font-semibold text-gray-900 hover:text-primary transition-colors mb-1 line-clamp-2">
-                                <a href="{{ route('preview-inspiration', $inspiration->slug) }}">{{ $inspiration->title }}</a>
+                                <a href="{{ route('preview-blog', $blog->slug) }}" class="hover:text-primary transition-colors">
+                                    {{ $blog->title }}
+                                </a>
                             </h3>
-                            <p class="text-gray-500 text-xs sm:text-sm line-clamp-2 mb-2">{!! $inspiration->resume ?? 'Pas de résumé disponible.' !!}</p>
+                            <p class="text-sm text-gray-600 line-clamp-2 mb-3">
+                                {{ $blog->resume ?? 'Découvrez cet article de blog intéressant.' }}
+                            </p>
                         </div>
                     </article>
                 @empty
@@ -101,8 +105,8 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <h3 class="text-xl font-medium text-gray-700 mb-2">Aucune inspiration trouvée</h3>
-                            <p class="text-gray-500 mb-6">Revenez bientôt pour découvrir de nouvelles inspirations.</p>
+                            <h3 class="text-xl font-medium text-gray-700 mb-2">Aucun article trouvé</h3>
+                            <p class="text-gray-500 mb-6">Revenez bientôt pour découvrir de nouveaux articles.</p>
                             <a href="{{ route('home') }}" class="inline-block px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-medium">
                                 Retour à l'accueil
                             </a>
@@ -112,9 +116,9 @@
             </div>
 
             <!-- Pagination -->
-            @if($inspirations->hasPages())
+            @if($blogs->hasPages())
                 <div class="mt-8 sm:mt-12 border-t border-gray-100 pt-8">
-                    {{ $inspirations->links('vendor.pagination.tailwind') }}
+                    {{ $blogs->links('vendor.pagination.tailwind') }}
                 </div>
             @endif
         </div>

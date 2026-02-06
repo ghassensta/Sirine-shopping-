@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Inspiration;
+use App\Models\Blog;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,9 +19,14 @@ class AccueilController extends Controller
             ->take(10)
             ->get();
 
-        $latestCategorys = Category::where('is_active', true)->latest()->take(4)->get();
+        $latestCategorys = Category::where('is_active', true)
+            ->onlyParents() // Seulement les catégories racines
+            ->withCount('products')
+            ->orderByDesc('products_count')
+            ->take(4)
+            ->get();
 
-        $inspirations = Inspiration::where('is_active', true)->latest()->take(4)->get();
+        $blogs = Blog::where('is_active', true)->latest()->take(4)->get();
 
         $testimonials = Avis::where('approved', true)
             ->with('product:id,name')
@@ -34,7 +39,7 @@ class AccueilController extends Controller
         return view('front-office.acceuil.index', [
             'latestProducts' => $latestProducts,
             'latestCategories' => $latestCategorys,
-            'inspirations' => $inspirations,
+            'blogs' => $blogs,
             'testimonials' => $testimonials
         ]);
     }
@@ -139,19 +144,10 @@ class AccueilController extends Controller
 
     private function sidebarCategories()
     {
-        return Category::query()
-            ->where('is_active', true)
-            ->select('categories.*')
-            ->selectRaw(
-                "(SELECT COUNT(*)
-                        FROM products
-                    WHERE products.is_active = 1
-                        AND JSON_CONTAINS(
-                            products.category_ids,
-                            JSON_QUOTE(CAST(categories.id AS CHAR))
-                        )
-                    ) AS products_count"
-            )
+        return Category::where('is_active', true)
+            ->withCount(['products' => function($query) {
+                $query->where('is_active', true);
+            }])
             ->orderByDesc('products_count')
             ->limit(4)
             ->get();
@@ -172,8 +168,9 @@ class AccueilController extends Controller
         $selectedCategory = Category::where('slug', $slug)->firstOrFail();
 
         $products = Product::active()
-            ->where(fn($q) => $q->whereJsonContains('category_ids', $selectedCategory->id)
-                ->orWhereJsonContains('category_ids', (string) $selectedCategory->id))
+            ->whereHas('categories', function($query) use ($selectedCategory) {
+                $query->where('categories.id', $selectedCategory->id);
+            })
             ->latest()
             ->paginate(12);
 
@@ -185,10 +182,27 @@ class AccueilController extends Controller
         ]);
     }
 
-    public function AllInspirations()
+    public function AllBlogs()
     {
-        return view('front-office.inspirations.allinspirations', [
-            'inspirations' => Inspiration::active()->latest()->paginate(10),
+        return view('front-office.blogs.allblogs', [
+            'blogs' => Blog::active()->latest()->paginate(10),
         ]);
+    }
+
+    public function BlogShow($slug)
+    {
+        // Récupérer le blog avec ses relations
+        $blog = Blog::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        // Blogs similaires/récents (sauf le blog actuel)
+        $relatedBlogs = Blog::where('is_active', true)
+            ->where('id', '!=', $blog->id)
+            ->latest()
+            ->limit(4)
+            ->get();
+
+        return view('front-office.blogs.show', compact('blog', 'relatedBlogs'));
     }
 }
