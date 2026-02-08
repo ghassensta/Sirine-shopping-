@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('meta_title')->nullable();
             $table->string('meta_keywords')->nullable();
             $table->text('meta_description')->nullable();
+            $table->boolean('is_publish')->default(true);
+            $table->integer('order')->default(0);
             $table->timestamps();
             $table->softDeletes();                            // pour suppression en douceur
             

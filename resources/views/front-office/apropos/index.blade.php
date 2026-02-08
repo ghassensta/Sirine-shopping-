@@ -15,11 +15,11 @@
 @endsection
 
 @section('content')
-    <section class="relative py-20 bg-gray-900 text-white overflow-hidden">
-        <div class="container mx-auto px-6 relative z-10">
+    <section class="relative py-16 bg-primary text-white overflow-hidden animate-slide-up">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center max-w-3xl mx-auto">
-                <h1 class="text-4xl md:text-5xl font-bold mb-6">Sirine Shopping : Votre Boutique Déco en Ligne</h1>
-                <p class="text-xl text-gray-300 mb-8">Spécialistes en décoration intérieure à M'saken, Sousse - Meubles, luminaires et accessoires maison à prix tunisiens</p>
+                <h1 class="text-clamp(2rem, 5vw, 3rem) font-serif font-bold mb-6">Sirine Shopping : Votre Boutique Déco en Ligne</h1>
+                <p class="text-base text-gray-200 mb-8 leading-relaxed">Spécialistes en décoration intérieure à M'saken, Sousse - Meubles, luminaires et accessoires maison à prix tunisiens</p>
             </div>
         </div>
         <div class="absolute inset-0 bg-black/50"></div>
@@ -28,16 +28,16 @@
     </section>
 
     <!-- NOTRE HISTOIRE -->
-    <section class="py-16 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row items-center gap-12">
+    <section class="py-16 bg-light animate-slide-up">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center gap-8 lg:gap-12">
                 <div class="md:w-1/2">
                     <img src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80"
                         alt="Boutique de décoration en ligne Tunisie - Meubles et accessoires"
-                        class="rounded-xl shadow-lg w-full h-auto object-cover min-h-[400px]">
+                        class="rounded-xl shadow-lg w-full h-auto object-cover min-h-[300px]">
                 </div>
                 <div class="md:w-1/2">
-                    <h2 class="text-3xl font-bold mb-6">Notre Histoire à M'saken</h2>
+                    <h2 class="text-clamp(1.5rem, 4vw, 2rem) font-serif font-bold text-dark mb-6">Notre Histoire à M'saken</h2>
                     <div class="prose max-w-none">
                         <p><strong>Sirine Shopping</strong>, <strong>boutique en ligne de décoration</strong> basée à <strong>M'saken, Sousse</strong>, apporte une touche d'élégance aux foyers tunisiens depuis 2015. Notre plateforme e-commerce spécialisée dans la <strong>décoration intérieure</strong> propose des centaines de références soigneusement sélectionnées.</p>
 
@@ -51,23 +51,23 @@
     </section>
 
     <!-- NOS CATÉGORIES PHARES -->
-    <section class="py-16 bg-gray-50">
-        <div class="container mx-auto px-6">
+    <section class="py-16 bg-white animate-slide-up">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold">Nos Collections</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">Découvrez nos gammes de produits les plus appréciées</p>
+                <h2 class="text-clamp(1.5rem, 4vw, 2rem) font-serif font-bold text-dark">Nos Collections</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-base leading-relaxed">Découvrez nos gammes de produits les plus appréciées</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
                 @foreach($categories as $category)
                 <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition duration-300">
                     <img src="{{ $category->image_url }}"
                         alt="Catégorie {{ $category->name }}"
                         class="w-full h-64 object-cover">
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">{{ $category->name }}</h3>
-                        <p class="text-gray-600 mb-4">{{ Str::limit($category->description ?? 'Découvrez notre collection ' . $category->name, 100) }}</p>
-                        <a href="{{ route('categorie.produits', $category->slug) }}" class="text-primary font-semibold">Voir la collection →</a>
+                        <h3 class="text-lg font-serif font-bold text-dark mb-2">{{ $category->name }}</h3>
+                        <p class="text-gray-600 mb-4 text-sm leading-relaxed">{{ Str::limit($category->description ?? 'Découvrez notre collection ' . $category->name, 100) }}</p>
+                        <a href="{{ route('categorie.produits', $category->slug) }}" class="inline-block bg-primary hover:bg-secondary text-white py-2 px-4 rounded-lg font-semibold transition min-h-[44px] flex items-center">Voir la collection</a>
                     </div>
                 </div>
                 @endforeach
@@ -76,52 +76,52 @@
     </section>
 
     <!-- AVANTAGES E-COMMERCE -->
-    <section class="py-16 bg-white">
-        <div class="container mx-auto px-6">
+    <section class="py-16 bg-light animate-slide-up">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold">Pourquoi Choisir Sirine Shopping ?</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">Les avantages de notre boutique en ligne à M'saken</p>
+                <h2 class="text-clamp(1.5rem, 4vw, 2rem) font-serif font-bold text-dark">Pourquoi Choisir Sirine Shopping ?</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-base leading-relaxed">Les avantages de notre boutique en ligne à M'saken</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="text-center p-6">
-                    <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-truck text-primary text-2xl"></i>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                <div class="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-truck text-primary text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Livraison Rapide</h3>
-                    <p class="text-gray-600">Expédition sous 48h dans toute la région de Sousse et environs</p>
+                    <h3 class="text-lg font-serif font-bold text-dark mb-2">Livraison Rapide</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Expédition sous 48h dans toute la région de Sousse et environs</p>
                 </div>
-                <div class="text-center p-6">
-                    <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-tag text-primary text-2xl"></i>
+                <div class="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-tag text-primary text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Prix Compétitifs</h3>
-                    <p class="text-gray-600">Des prix adaptés au marché local avec des promotions régulières</p>
+                    <h3 class="text-lg font-serif font-bold text-dark mb-2">Prix Compétitifs</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Des prix adaptés au marché local avec des promotions régulières</p>
                 </div>
-                <div class="text-center p-6">
-                    <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-store text-primary text-2xl"></i>
+                <div class="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-store text-primary text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Showroom à M'saken</h3>
-                    <p class="text-gray-600">Venez découvrir nos produits en vrai avant d'acheter</p>
+                    <h3 class="text-lg font-serif font-bold text-dark mb-2">Showroom à M'saken</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Venez découvrir nos produits en vrai avant d'acheter</p>
                 </div>
-                <div class="text-center p-6">
-                    <div class="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-headset text-primary text-2xl"></i>
+                <div class="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-headset text-primary text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Conseils Experts</h3>
-                    <p class="text-gray-600">Notre équipe vous guide dans vos choix de décoration</p>
+                    <h3 class="text-lg font-serif font-bold text-dark mb-2">Conseils Experts</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Notre équipe vous guide dans vos choix de décoration</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- GUIDE D'ACHAT -->
-    <section class="py-16 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row gap-12">
-                <div class="md:w-1/2">
-                    <h2 class="text-3xl font-bold mb-6">Conseils Déco par Sirine Shopping</h2>
+    <section class="py-16 bg-white animate-slide-up">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+                <div class="lg:w-1/2">
+                    <h2 class="text-clamp(1.5rem, 4vw, 2rem) font-serif font-bold text-dark mb-6">Conseils Déco par Sirine Shopping</h2>
                     <div class="prose max-w-none">
                         <p>Nos experts en décoration basés à M'saken partagent leurs conseils pour aménager votre intérieur :</p>
 
@@ -135,7 +135,7 @@
                         <p class="mt-4">Contactez-nous pour des conseils personnalisés sur votre projet déco.</p>
                     </div>
                 </div>
-                <div class="md:w-1/2">
+                <div class="lg:w-1/2">
                     <img src="https://images.unsplash.com/photo-1600121848594-d8644e57abab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
                         alt="Conseils décoration intérieur - Sirine Shopping M'saken"
                         class="rounded-xl shadow-lg w-full h-auto object-cover min-h-[300px]">
@@ -145,14 +145,14 @@
     </section>
 
     <!-- TEMOIGNAGES -->
-    <section class="py-16 bg-white">
-        <div class="container mx-auto px-6">
+    <section class="py-16 bg-light animate-slide-up">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold">Nos Clients Témoignent</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">Ce que disent nos clients de la région de Sousse</p>
+                <h2 class="text-clamp(1.5rem, 4vw, 2rem) font-serif font-bold text-dark">Nos Clients Témoignent</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-base leading-relaxed">Ce que disent nos clients de la région de Sousse</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
                 @foreach($avis as $avi)
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <div class="flex items-center mb-4">
@@ -184,12 +184,12 @@
 
     <!-- CTA BOUTIQUE -->
     <section class="py-16 bg-primary">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-3xl font-bold mb-6">Prêt à Embellir Votre Intérieur ?</h2>
-            <p class="text-xl mb-8 max-w-2xl mx-auto">Découvrez notre catalogue complet de meubles et accessoires déco sur notre boutique en ligne</p>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-clamp(1.5rem, 4vw, 2rem) font-serif font-bold mb-6">Prêt à Embellir Votre Intérieur ?</h2>
+            <p class="text-base mb-8 max-w-2xl mx-auto leading-relaxed">Découvrez notre catalogue complet de meubles et accessoires déco sur notre boutique en ligne</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="{{ route('allproduits') }}" class="bg-white text-primary font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300">Visiter la Boutique</a>
-                <a href="{{ route('contact') }}" class="bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-lg hover:bg-white hover:text-primary transition duration-300">Nous Contacter</a>
+                <a href="{{ route('allproduits') }}" class="bg-white text-primary font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition min-h-[44px] flex items-center justify-center">Visiter la Boutique</a>
+                <a href="{{ route('contact') }}" class="bg-transparent border-2 border-white text-white font-semibold py-3 px-6 rounded-lg hover:bg-white hover:text-primary transition min-h-[44px] flex items-center justify-center">Nous Contacter</a>
             </div>
         </div>
     </section>

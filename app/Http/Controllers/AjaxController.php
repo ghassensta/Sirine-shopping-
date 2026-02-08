@@ -211,76 +211,89 @@ public function getCommandes(Request $request)
             'data' => $data,
         ]);
     }
-   public function getCategory(Request $request)
-    {
-        $draw        = (int) $request->input('draw', 1);
-        $start       = (int) $request->input('start', 0);
-        $length      = (int) $request->input('length', 10);
-        $searchValue = $request->input('search.value', '');
-        $order       = $request->input('order.0', []);
-        
-        $columnIndex = $order['column'] ?? 0;
-        $dir         = $order['dir'] ?? 'asc';
+public function getCategory(Request $request)
+{
+    $draw        = (int) $request->input('draw', 1);
+    $start       = (int) $request->input('start', 0);
+    $length      = (int) $request->input('length', 10);
+    $searchValue = trim($request->input('search.value', ''));
 
-        $columns = $request->input('columns', []);
-        $columnName = $columns[$columnIndex]['data'] ?? 'name';
+    // Index de la colonne sur laquelle trier
+    $order       = $request->input('order.0', []);
+    $columnIndex = $order['column'] ?? 2; // par défaut : colonne "name"
+    $dir         = $order['dir'] ?? 'asc';
 
-        $sortable = [
-            'id'         => 'id',
-            'image'      => 'image',
-            'name'       => 'name',
-            'is_active'  => 'is_active',
-            'created_at' => 'created_at',
-        ];
+    // Mapping colonnes DataTables → colonnes base de données
+    $columns = $request->input('columns', []);
+    $columnName = $columns[$columnIndex]['data'] ?? 'name';
 
-        $orderBy = $sortable[$columnName] ?? 'name';
+    $sortable = [
+        'id'          => 'id',
+        'image'       => 'image',           // tri sur image inutile, mais accepté
+        'name'        => 'name',            // on trie sur name (car hierarchical_name est un accessor)
+        'parent_name' => 'parent_id',       // tri sur parent_id
+        'is_publish'  => 'is_publish',
+        'is_active'   => 'is_active',
+        'order'       => 'order',
+        'created_at'  => 'created_at',
+    ];
 
-        $query = Category::query()
-            ->select('id', 'parent_id', 'image', 'name', 'slug', 'is_active', 'created_at')
-            ->with('parent:id,name');
+    $orderBy = $sortable[$columnName] ?? 'name';
 
-        if ($searchValue !== '') {
-            $query->where('name', 'like', "%{$searchValue}%");
-        }
+    // Requête de base
+    $query = Category::query()
+        ->select('categories.id', 'categories.parent_id', 'categories.image', 'categories.name', 'categories.slug',
+                 'categories.is_publish', 'categories.order', 'categories.is_active', 'categories.created_at')
+        ->with('parent:id,name');
 
-        $totalRecords = Category::count();
-        $filteredRecords = $query->count();
-
-        $categories = $query
-            ->orderBy($orderBy, $dir)
-            ->offset($start)
-            ->limit($length)
-            ->get();
-
-        $data = $categories->map(function ($cat) {
-            $imageHtml = $cat->image_url
-                ? '<img src="' . e($cat->image_url) . '" width="50" alt="' . e($cat->name) . '" class="rounded">'
-                : '<span class="text-muted">—</span>';
-
-            $statusHtml = $cat->is_active
-                ? '<span class="badge bg-label-success">Active</span>'
-                : '<span class="badge bg-label-warning">Inactive</span>';
-
-            $hierarchicalName = $cat->full_name ?? $cat->name;
-
-            return [
-                'id'          => $cat->id,
-                'image'       => $imageHtml,
-                'name'        => $hierarchicalName,
-                'parent_name' => $cat->parent ? $cat->parent->name : '—',
-                'is_active'   => $statusHtml,
-                'created_at'  => $cat->created_at->format('d/m/Y H:i'),
-            ];
-        })->toArray();
-
-        return response()->json([
-            'draw'            => $draw,
-            'recordsTotal'    => $totalRecords,
-            'recordsFiltered' => $filteredRecords,
-            'data'            => $data,
-        ]);
+    // Recherche globale
+    if ($searchValue !== '') {
+        $query->where(function ($q) use ($searchValue) {
+            $q->where('name', 'like', "%{$searchValue}%")
+              ->orWhereHas('parent', function ($sub) use ($searchValue) {
+                  $sub->where('name', 'like', "%{$searchValue}%");
+              });
+        });
     }
 
+    // Nombre total et filtré
+    $totalRecords    = Category::count();
+    $filteredRecords = $query->count();
+
+    // Tri + pagination
+    $categories = $query
+        ->orderBy($orderBy, $dir)
+        ->offset($start)
+        ->limit($length)
+        ->get();
+
+    // Formatage des données pour DataTables
+    $data = $categories->map(function ($cat) {
+        return [
+            'id'          => $cat->id,
+            'image'       => $cat->image_url
+                ? '<img src="' . e($cat->image_url) . '" width="50" alt="' . e($cat->name) . '" class="rounded">'
+                : '<span class="text-muted">—</span>',
+            'name'        => $cat->full_name ?? $cat->name,
+            'parent_name' => $cat->parent ? e($cat->parent->name) : '—',
+            'is_publish'  => $cat->is_publish
+                ? '<span class="badge bg-label-success">Publiée</span>'
+                : '<span class="badge bg-label-danger">Non publiée</span>',
+            'is_active'   => $cat->is_active
+                ? '<span class="badge bg-label-success">Active</span>'
+                : '<span class="badge bg-label-warning">Inactive</span>',
+            'order'       => $cat->order ?? '—',
+            'created_at'  => $cat->created_at?->format('d/m/Y H:i') ?? '—',
+        ];
+    })->toArray();
+
+    return response()->json([
+        'draw'            => $draw,
+        'recordsTotal'    => $totalRecords,
+        'recordsFiltered' => $filteredRecords,
+        'data'            => $data,
+    ]);
+}
     public function getBlog(Request $request)
     {
         // DataTables parameters

@@ -32,50 +32,50 @@
 
 @section('content')
 <!-- CONTACT -->
-<section class="py-16 bg-gray-50">
-    <div class="container mx-auto px-6">
+<section class="py-16 bg-light animate-slide-up">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h1 class="text-3xl font-bold">Contactez-Nous</h1>
-            <h2 class="text-gray-600 max-w-2xl mx-auto">Nous sommes à votre écoute pour toute question ou demande d'information.</h2>
+            <h1 class="text-clamp(2rem, 5vw, 3rem) font-serif font-bold text-dark mb-4">Contactez-Nous</h1>
+            <p class="text-gray-600 max-w-2xl mx-auto text-base leading-relaxed">Nous sommes à votre écoute pour toute question ou demande d'information.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             <!-- Formulaire de contact -->
-            <div class="bg-white p-8 rounded-xl shadow-md">
-                <h3 class="text-xl font-bold mb-6">Envoyez-nous un message</h3>
+            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-xl font-serif font-bold text-dark mb-6">Envoyez-nous un message</h3>
                 <form action="{{ route('contact.submit') }}" method="POST">
                     @csrf
                     <div class="mb-4">
-                        <label for="name" class="block text-gray-700 mb-2">Nom complet</label>
+                        <label for="name" class="block text-gray-700 font-medium mb-2">Nom complet</label>
                         <input type="text" id="name" name="name" required
-                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition">
                     </div>
                     <div class="mb-4">
-                        <label for="email" class="block text-gray-700 mb-2">Email</label>
+                        <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
                         <input type="email" id="email" name="email" required
-                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition">
                     </div>
                     <div class="mb-4">
-                        <label for="phone" class="block text-gray-700 mb-2">Téléphone</label>
+                        <label for="phone" class="block text-gray-700 font-medium mb-2">Téléphone</label>
                         <input type="tel" id="phone" name="phone"
-                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition">
                     </div>
                     <div class="mb-4">
-                        <label for="message" class="block text-gray-700 mb-2">Message</label>
+                        <label for="message" class="block text-gray-700 font-medium mb-2">Message</label>
                         <textarea id="message" name="message" rows="5" required
-                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition resize-vertical"></textarea>
                     </div>
                     <button type="submit"
-                        class="bg-gray-200/80 font-bold hover:bg-primary-dark px-6 py-3 rounded-lg transition w-full">
+                        class="bg-primary hover:bg-secondary text-white font-semibold py-3 px-6 rounded-lg transition w-full min-h-[44px]">
                         Envoyer le message
                     </button>
                 </form>
             </div>
 
             <!-- Informations de contact -->
-            <div>
+            <div class="space-y-6">
                 <div class="bg-white p-8 rounded-xl shadow-md mb-6">
-                    <h3 class="text-xl font-bold mb-4">Nos coordonnées</h3>
+                    <h3 class="text-xl font-serif font-bold text-dark mb-4">Nos coordonnées</h3>
                     <div class="space-y-4">
                         <div class="flex items-start">
                             <i class="fas fa-map-marker-alt text-primary mt-1 mr-4"></i>
@@ -122,9 +122,9 @@
 
 <!-- FAQ -->
 <section class="py-16 bg-white">
-    <div class="container mx-auto px-6">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold">Questions Fréquentes</h2>
+            <h2 class="text-clamp(1.5rem, 4vw, 2rem) font-serif font-bold text-dark">Questions Fréquentes</h2>
             <p class="text-gray-600 max-w-2xl mx-auto">Trouvez rapidement des réponses à vos questions.</p>
         </div>
 

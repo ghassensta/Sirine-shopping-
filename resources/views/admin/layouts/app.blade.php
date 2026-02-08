@@ -11,7 +11,7 @@
     <meta name="robots" content="noindex, nofollow">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/cover-image-removebg-preview.png') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/logo-sirine.png') }}" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

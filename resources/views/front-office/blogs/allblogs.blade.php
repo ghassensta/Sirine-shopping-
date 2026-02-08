@@ -21,21 +21,23 @@
 
 @section('content')
     <!-- Hero Section -->
-    <section class="relative bg-gradient-to-b from-gray-50 to-white py-12 md:py-20">
-        <div class="container mx-auto px-4 sm:px-6 text-center">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-                Nos Inspirations Déco
-            </h1>
-            <p class="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-6 sm:mb-8">
-                Trouvez l'inspiration pour transformer votre intérieur avec nos idées uniques et tendances.
-            </p>
-            <div class="w-20 sm:w-24 h-1 bg-primary mx-auto rounded-full"></div>
+    <section class="relative py-16 md:py-24 overflow-hidden bg-gradient-to-br from-light to-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <h1 class="font-serif text-3xl md:text-4xl font-bold text-dark mb-4">
+                    Nos Inspirations Déco
+                </h1>
+                <p class="text-gray-600 text-lg max-w-2xl mx-auto mb-6">
+                    Trouvez l'inspiration pour transformer votre intérieur avec nos idées uniques et tendances.
+                </p>
+                <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
+            </div>
         </div>
     </section>
 
     <!-- Main Content -->
-    <section class="py-8 sm:py-12 bg-white">
-        <div class="container mx-auto px-4 sm:px-6">
+    <section class="py-16 bg-light">
+        <div class="container mx-auto px-4">
             <!-- Breadcrumb -->
             <div class="mb-6 sm:mb-8">
                 <nav class="flex" aria-label="Breadcrumb">
@@ -125,7 +127,7 @@
     </section>
 
     <!-- Newsletter -->
-    <section class="py-12 sm:py-16 bg-gray-50 border-t border-gray-100">
+    <section class="py-12 sm:py-16 bg-light border-t border-gray-100">
         <div class="container mx-auto px-4 sm:px-6 max-w-4xl text-center">
             <div class="bg-white p-8 sm:p-10 rounded-xl shadow-sm border border-gray-100">
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Restez informé</h2>

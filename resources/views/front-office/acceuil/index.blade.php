@@ -3,6 +3,7 @@
 @section('title', 'Sirine Shopping - Décoration & Accessoires Élégants')
 
 @section('content')
+
 <!-- Hero Section -->
 <section class="relative py-16 md:py-24 overflow-hidden bg-gradient-to-br from-light to-white">
     <div class="container mx-auto px-4 relative z-10">
@@ -24,11 +25,6 @@
                        Explorer la collection
                        <i class="fas fa-arrow-right ml-2"></i>
                     </a>
-                    <a href="{{ route('allblogs') }}"
-                       class="inline-flex items-center px-6 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary/5 transition">
-                       <i class="fas fa-book-open mr-2"></i>
-                       Notre Blog
-                    </a>
                 </div>
             </div>
             <div class="relative animate-float hidden md:block">
@@ -44,7 +40,7 @@
     </div>
 </section>
 
-<!-- Categories -->
+<!-- Categories classiques (grille) -->
 <section class="py-16 bg-white">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
@@ -91,10 +87,10 @@
             <div class="flex items-center space-x-4">
                 <!-- Navigation buttons -->
                 <button class="swiper-prev-btn hidden md:flex w-10 h-10 bg-white border border-gray-200 rounded-full items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm">
-                    <i class="fas fa-chevron-left"></i>
+                    <i class="fas fa-chevron-left hidden md:block"></i>
                 </button>
                 <button class="swiper-next-btn hidden md:flex w-10 h-10 bg-white border border-gray-200 rounded-full items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm">
-                    <i class="fas fa-chevron-right"></i>
+                    <i class="fas fa-chevron-right hidden md:block"></i>
                 </button>
                 <a href="{{ route('allproduits') }}" class="text-primary hover:text-secondary font-semibold whitespace-nowrap">
                     Voir tout <i class="fas fa-arrow-right ml-1"></i>
@@ -251,60 +247,224 @@
 </section>
 
 
-
-<!-- Blog Section -->
-@if(isset($blogs) && $blogs->count() > 0)
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-            <h2 class="font-serif text-3xl md:text-4xl font-bold text-dark mb-4">
-                Notre Blog Déco
-            </h2>
-            <p class="text-gray-600 max-w-2xl mx-auto">
-                Articles, conseils et tendances pour décorer votre intérieur
-            </p>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-8">
-            @foreach($blogs as $post)
-                <article class="bg-light rounded-xl overflow-hidden hover:shadow-lg transition">
-                    <a href="{{ route('preview-blog', $post->slug) }}">
-                        <img src="{{ $post->image ? asset('storage/' . $post->image) : asset('images/placeholder.jpg') }}"
-                             alt="{{ $post->title }}"
-                             class="w-full h-48 object-cover">
-                    </a>
-                    <div class="p-6">
-                        <div class="flex items-center text-sm text-gray-500 mb-3">
-                            <span><i class="far fa-calendar mr-1"></i> {{ $post->created_at->format('d/m/Y') }}</span>
-                            <span class="mx-2">•</span>
-                            <span><i class="far fa-clock mr-1"></i> 3 min</span>
-                        </div>
-                        <h3 class="font-semibold text-xl text-dark mb-3">
-                            <a href="{{ route('preview-blog', $post->slug) }}" class="hover:text-primary transition">
-                                {{ Str::limit($post->title, 50) }}
-                            </a>
-                        </h3>
-                        <p class="text-gray-600 mb-4">
-                            {{ Str::limit(strip_tags($post->resume), 100) }}
+<!-- === SLIDER CATÉGORIES PUBLIÉES (même style que produits vedette) === -->
+@if($categoriesWithProducts->count() > 0)
+    @foreach($categoriesWithProducts as $index => $category)
+        <section class="py-16 {{ $index % 2 === 0 ? 'bg-white' : 'bg-light' }}">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-12">
+                    <div class="mb-6 md:mb-0">
+                        <h2 class="font-serif text-3xl md:text-4xl font-bold text-dark">
+                            {{ $category->title_section ?: $category->name }}
+                        </h2>
+                        <p class="text-gray-600 mt-2">
+                            {{ $category->sous_title_section ?: 'Découvrez notre sélection exclusive' }}
                         </p>
-                        <a href="{{ route('preview-blog', $post->slug) }}"
-                           class="inline-flex items-center text-primary hover:text-secondary font-medium">
-                            Lire l'article <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="{{ route('categorie.produits', $category->slug) }}"
+                           class="text-primary hover:text-secondary font-semibold whitespace-nowrap">
+                            Voir toute la collection <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
-                </article>
-            @endforeach
-        </div>
+                </div>
 
-        <div class="text-center mt-12">
-            <a href="{{ route('allblogs') }}"
-               class="inline-flex items-center px-6 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition">
-               Voir tous les articles
-               <i class="fas fa-arrow-right ml-2"></i>
-            </a>
+                <div class="relative">
+                    <div class="swiper-categories-{{ $index }} overflow-hidden">
+                        <div class="swiper-wrapper">
+                            @forelse ($category->recentProducts as $product)
+                                @if($product->is_active)
+                                    <div class="swiper-slide">
+                                        <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-primary h-full flex flex-col">
+                                            <!-- Image avec badges -->
+                                            <div class="relative overflow-hidden group">
+                                                <a href="{{ route('preview-article', $product->slug) }}" class="block">
+                                                    <img src="{{ asset('storage/' . $product->image_avant) }}"
+                                                         alt="{{ $product->name }}"
+                                                         class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500">
+                                                </a>
+
+                                                <!-- Badges overlay -->
+                                                <div class="absolute top-3 left-3 flex flex-col space-y-2">
+                                                    @if($product->stock <= 5 && $product->stock > 0)
+                                                        <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full animate-pulse">
+                                                            Stock limité
+                                                        </span>
+                                                    @endif
+                                                    @if($product->stock == 0)
+                                                        <span class="bg-gray-600 text-white text-xs px-3 py-1 rounded-full">
+                                                            Épuisé
+                                                        </span>
+                                                    @endif
+                                                    @if($product->price_baree && $product->price_baree > $product->price)
+                                                        <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">
+                                                            Promo -{{ round((($product->price_baree - $product->price) / $product->price_baree) * 100) }}%
+                                                        </span>
+                                                    @endif
+                                                </div>
+
+                                                <!-- Quick actions -->
+                                                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                    <button class="w-8 h-8 bg-white rounded-full shadow flex items-center justify-center hover:bg-primary hover:text-white transition"
+                                                            onclick="addToWishlist({{ $product->id }})">
+                                                        <i class="far fa-heart"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Product info -->
+                                            <div class="p-6 flex flex-col flex-grow">
+                                                <h3 class="font-semibold text-lg text-dark mb-2">
+                                                    <a href="{{ route('preview-article', $product->slug) }}"
+                                                       class="hover:text-primary transition-colors">
+                                                        {{ Str::limit($product->name, 40) }}
+                                                    </a>
+                                                </h3>
+
+                                                <!-- Rating -->
+                                                @if($product->average_rating)
+                                                    <div class="flex items-center mb-3">
+                                                        <div class="flex text-yellow-400 mr-2">
+                                                            @for($i = 1; $i <= 5; $i++)
+                                                                <i class="fas fa-star text-sm {{ $i <= $product->average_rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                                                            @endfor
+                                                        </div>
+                                                        <span class="text-gray-500 text-sm">
+                                                            ({{ $product->total_reviews ?? 0 }})
+                                                        </span>
+                                                    </div>
+                                                @endif
+
+                                                <!-- Description -->
+                                                <p class="text-gray-500 text-sm mb-4 flex-grow">
+                                                    {{ Str::limit(strip_tags($product->description), 70) }}
+                                                </p>
+
+                                                <!-- Price and action -->
+                                                <div class="flex justify-between items-center mt-auto">
+                                                    <div>
+                                                        @if($product->price_baree && $product->price_baree > $product->price)
+                                                            <div class="flex items-center">
+                                                                <span class="font-bold text-xl text-primary">
+                                                                    {{ number_format($product->price, 2) }} DT
+                                                                </span>
+                                                                <span class="ml-2 text-gray-400 line-through text-sm">
+                                                                    {{ number_format($product->price_baree, 2) }} DT
+                                                                </span>
+                                                            </div>
+                                                        @else
+                                                            <span class="font-bold text-xl text-primary">
+                                                                {{ number_format($product->price, 2) }} DT
+                                                            </span>
+                                                        @endif
+                                                    </div>
+
+                                                    <button onclick="addToCart(this)"
+                                                            data-id="{{ $product->id }}"
+                                                            data-name="{{ $product->name }}"
+                                                            data-price="{{ $product->price }}"
+                                                            data-image="{{ asset('storage/' . $product->image_avant) }}"
+                                                            data-stock="{{ $product->stock }}"
+                                                            class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-secondary transition-all duration-300 hover:scale-110 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                                            {{ $product->stock == 0 ? 'disabled' : '' }}>
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            @empty
+                                <div class="swiper-slide">
+                                    <div class="text-center py-12 w-full">
+                                        <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-box-open text-gray-400 text-3xl"></i>
+                                        </div>
+                                        <p class="text-gray-500 text-lg">Aucun produit disponible dans cette catégorie</p>
+                                    </div>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Navigation + Pagination pour ce slider catégorie -->
+                    <div class="swiper-pagination-{{ $index }} flex justify-center space-x-2 mt-8"></div>
+
+                    <div class="flex justify-center mt-6 md:hidden">
+                        <div class="flex space-x-4">
+                            <button class="swiper-categories-prev-{{ $index }} w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="swiper-categories-next-{{ $index }} w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <div class="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="swiper-progress-bar-{{ $index }} h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endforeach
+@endif
+
+<!-- Blog Section -->
+@if($blogs->count() > 0)
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="font-serif text-3xl md:text-4xl font-bold text-dark mb-4">
+                    Notre Blog Déco
+                </h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Articles, conseils et tendances pour décorer votre intérieur
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                @foreach($blogs as $post)
+                    <article class="bg-light rounded-xl overflow-hidden hover:shadow-lg transition">
+                        <a href="{{ route('preview-blog', $post->slug) }}">
+                            <img src="{{ $post->image ? asset('storage/' . $post->image) : asset('images/placeholder.jpg') }}"
+                                 alt="{{ $post->title }}"
+                                 class="w-full h-48 object-cover">
+                        </a>
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-500 mb-3">
+                                <span><i class="far fa-calendar mr-1"></i> {{ $post->created_at->format('d/m/Y') }}</span>
+                                <span class="mx-2">•</span>
+                                <span><i class="far fa-clock mr-1"></i> 3 min</span>
+                            </div>
+                            <h3 class="font-semibold text-xl text-dark mb-3">
+                                <a href="{{ route('preview-blog', $post->slug) }}" class="hover:text-primary transition">
+                                    {{ Str::limit($post->title, 50) }}
+                                </a>
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                {{ Str::limit(strip_tags($post->resume), 100) }}
+                            </p>
+                            <a href="{{ route('preview-blog', $post->slug) }}"
+                               class="inline-flex items-center text-primary hover:text-secondary font-medium">
+                                Lire l'article <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="{{ route('allblogs') }}"
+                   class="inline-flex items-center px-6 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition">
+                    Voir tous les articles
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 @endif
 
 <!-- Features -->
@@ -339,102 +499,81 @@
 </section>
 
 <!-- Testimonials -->
-@if(isset($testimonials) && $testimonials->count() > 0)
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-            <h2 class="font-serif text-3xl md:text-4xl font-bold text-dark mb-4">
-                Ils nous font confiance
-            </h2>
-            <p class="text-gray-600">Ce que nos clients disent de nous</p>
-        </div>
+@if($testimonials->count() > 0)
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="font-serif text-3xl md:text-4xl font-bold text-dark mb-4">
+                    Ils nous font confiance
+                </h2>
+                <p class="text-gray-600">Ce que nos clients disent de nous</p>
+            </div>
 
-        <div class="grid md:grid-cols-3 gap-8">
-            @foreach($testimonials as $testimonial)
-                <div class="bg-light p-6 rounded-xl">
-                    <div class="flex items-center mb-4">
-                        @for($i = 1; $i <= 5; $i++)
-                            <i class="fas fa-star {{ $i <= $testimonial->rating ? 'text-yellow-400' : 'text-gray-300' }} mr-1"></i>
-                        @endfor
-                    </div>
-                    <p class="text-gray-600 italic mb-6">"{{ Str::limit($testimonial->comment, 120) }}"</p>
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
-                            <span class="font-bold">{{ substr($testimonial->name, 0, 1) }}</span>
+            <div class="grid md:grid-cols-3 gap-8">
+                @foreach($testimonials as $testimonial)
+                    <div class="bg-light p-6 rounded-xl">
+                        <div class="flex items-center mb-4">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fas fa-star {{ $i <= $testimonial->rating ? 'text-yellow-400' : 'text-gray-300' }} mr-1"></i>
+                            @endfor
                         </div>
-                        <div>
-                            <div class="font-semibold">{{ $testimonial->name }}</div>
-                            <div class="text-sm text-gray-500">{{ $testimonial->location ?? 'Client' }}</div>
+                        <p class="text-gray-600 italic mb-6">"{{ Str::limit($testimonial->comment, 120) }}"</p>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                                <span class="font-bold">{{ substr($testimonial->name, 0, 1) }}</span>
+                            </div>
+                            <div>
+                                <div class="font-semibold">{{ $testimonial->name }}</div>
+                                <div class="text-sm text-gray-500">{{ $testimonial->location ?? 'Client' }}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 @endif
+
 @endsection
+
 @section('css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
 @endsection
+
 @section('js')
-<!-- Inclure Swiper CSS et JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialiser le carousel Swiper
-    const swiper = new Swiper('.swiper-container', {
+document.addEventListener('DOMContentLoaded', function () {
+    // Slider Produits vedette (original)
+    const swiperProducts = new Swiper('.swiper-container', {
         slidesPerView: 1,
         spaceBetween: 20,
         loop: true,
-        autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-        },
+        autoplay: { delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true },
         speed: 600,
         grabCursor: true,
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
+        pagination: { el: '.swiper-pagination', clickable: true,
             renderBullet: function (index, className) {
                 return '<span class="' + className + ' w-2 h-2 bg-gray-300 rounded-full inline-block mx-1"></span>';
-            },
+            }
         },
         navigation: {
             nextEl: '.swiper-next-btn, .swiper-next-btn-mobile',
-            prevEl: '.swiper-prev-btn, .swiper-prev-btn-mobile',
+            prevEl: '.swiper-prev-btn, .swiper-prev-btn-mobile'
         },
         breakpoints: {
-            640: {
-                slidesPerView: 2,
-                spaceBetween: 20,
-            },
-            768: {
-                slidesPerView: 3,
-                spaceBetween: 25,
-            },
-            1024: {
-                slidesPerView: 4,
-                spaceBetween: 30,
-            },
+            640: { slidesPerView: 2, spaceBetween: 20 },
+            768: { slidesPerView: 3, spaceBetween: 25 },
+            1024: { slidesPerView: 4, spaceBetween: 30 }
         },
         on: {
-            init: function() {
-                updateProgressBar(this);
-            },
-            slideChange: function() {
-                updateProgressBar(this);
-            },
-            autoplayTimeLeft: function(swiper, time, progress) {
-                updateProgressBar(swiper, progress);
-            }
+            init: function() { updateProgressBar(this); },
+            slideChange: function() { updateProgressBar(this); },
+            autoplayTimeLeft: function(swiper, time, progress) { updateProgressBar(swiper, progress); }
         }
     });
 
-    // Mettre à jour la barre de progression
     function updateProgressBar(swiperInstance, progress = null) {
         const progressBar = document.querySelector('.swiper-progress-bar');
         if (progressBar) {
@@ -449,31 +588,69 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Pause au survol
     const swiperContainer = document.querySelector('.swiper-container');
     if (swiperContainer) {
-        swiperContainer.addEventListener('mouseenter', function() {
-            swiper.autoplay.stop();
-        });
-
-        swiperContainer.addEventListener('mouseleave', function() {
-            swiper.autoplay.start();
-        });
+        swiperContainer.addEventListener('mouseenter', () => swiperProducts.autoplay.stop());
+        swiperContainer.addEventListener('mouseleave', () => swiperProducts.autoplay.start());
     }
 
-    // Animation d'ajout au panier améliorée
+    // Sliders catégories (un par catégorie)
+    @foreach($categoriesWithProducts as $index => $category)
+        const swiperCat{{ $index }} = new Swiper('.swiper-categories-{{ $index }}', {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            loop: true,
+            autoplay: { delay: 6000, disableOnInteraction: false, pauseOnMouseEnter: true },
+            pagination: { el: '.swiper-pagination-{{ $index }}', clickable: true,
+                renderBullet: function (index, className) {
+                    return '<span class="' + className + ' w-2 h-2 bg-gray-300 rounded-full inline-block mx-1"></span>';
+                }
+            },
+            navigation: {
+                nextEl: '.swiper-categories-next-{{ $index }}',
+                prevEl: '.swiper-categories-prev-{{ $index }}'
+            },
+            breakpoints: {
+                640: { slidesPerView: 2, spaceBetween: 20 },
+                768: { slidesPerView: 3, spaceBetween: 25 },
+                1024: { slidesPerView: 4, spaceBetween: 30 }
+            }
+        });
+
+        // Progress bar par catégorie
+        function updateProgressCat{{ $index }}(swiperInstance, progress = null) {
+            const bar = document.querySelector('.swiper-progress-bar-{{ $index }}');
+            if (bar) {
+                if (progress !== null) {
+                    bar.style.width = (progress * 100) + '%';
+                } else {
+                    const total = swiperInstance.slides.length - (swiperInstance.params.loop ? 2 : 0);
+                    const idx = swiperInstance.realIndex;
+                    const perc = ((idx + 1) / total) * 100;
+                    bar.style.width = perc + '%';
+                }
+            }
+        }
+
+        swiperCat{{ $index }}.on('init slideChange autoplayTimeLeft', function() {
+            updateProgressCat{{ $index }}(this);
+        });
+
+        // Pause au survol pour chaque slider catégorie
+        document.querySelector('.swiper-categories-{{ $index }}')?.addEventListener('mouseenter', () => swiperCat{{ $index }}.autoplay.stop());
+        document.querySelector('.swiper-categories-{{ $index }}')?.addEventListener('mouseleave', () => swiperCat{{ $index }}.autoplay.start());
+    @endforeach
+
+    // Fonctions addToCart, addToWishlist, showToast (inchangées)
     window.addToCart = function(button) {
-        const productCard = button.closest('.swiper-slide > div');
+        const productCard = button.closest('.swiper-slide > div') || button.closest('.bg-white');
         const originalContent = button.innerHTML;
 
-        // Animation du bouton
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         button.disabled = true;
         button.classList.remove('hover:scale-110');
 
-        // Simuler l'ajout au panier
         setTimeout(() => {
-            // Votre logique d'ajout au panier
             const product = {
                 id: parseInt(button.dataset.id),
                 name: button.dataset.name,
@@ -483,48 +660,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 quantity: 1
             };
 
-            // Appeler votre fonction cart.addProduct
             if (window.cart && typeof window.cart.addProduct === 'function') {
                 window.cart.addProduct(product);
             }
 
-            // Animation de succès
             button.innerHTML = '<i class="fas fa-check"></i>';
             button.classList.remove('bg-primary', 'hover:bg-secondary');
             button.classList.add('bg-green-500');
 
-            // Ajouter effet sur la carte
-            productCard.classList.add('ring-2', 'ring-green-500');
+            if (productCard) productCard.classList.add('ring-2', 'ring-green-500');
 
-            // Restaurer après 1.5 secondes
             setTimeout(() => {
                 button.innerHTML = originalContent;
                 button.disabled = false;
                 button.classList.remove('bg-green-500');
                 button.classList.add('bg-primary', 'hover:bg-secondary', 'hover:scale-110');
-                productCard.classList.remove('ring-2', 'ring-green-500');
+                if (productCard) productCard.classList.remove('ring-2', 'ring-green-500');
             }, 1500);
-
         }, 500);
     };
 
-    // Gestionnaire de favoris
     window.addToWishlist = function(productId) {
         const button = event.target.closest('button');
         const heartIcon = button.querySelector('i');
 
-        // Animation
         heartIcon.classList.remove('far');
         heartIcon.classList.add('fas', 'text-red-500');
         button.classList.add('bg-red-500', 'text-white');
 
-        // Afficher notification
         showToast('Ajouté aux favoris !', 'success');
     };
 
-    // Fonction toast
     function showToast(message, type = 'success') {
-        // Créer le toast
         const toast = document.createElement('div');
         toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white transform translate-y-full opacity-0 transition-all duration-300 z-50 ${
             type === 'success' ? 'bg-green-500' :
@@ -539,19 +706,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.appendChild(toast);
 
-        // Afficher avec animation
         setTimeout(() => {
             toast.classList.remove('translate-y-full', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
         }, 10);
 
-        // Supprimer après 3 secondes
         setTimeout(() => {
             toast.classList.remove('translate-y-0', 'opacity-100');
             toast.classList.add('translate-y-full', 'opacity-0');
-            setTimeout(() => {
-                document.body.removeChild(toast);
-            }, 300);
+            setTimeout(() => document.body.removeChild(toast), 300);
         }, 3000);
     }
 });

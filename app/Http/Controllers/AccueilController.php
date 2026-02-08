@@ -34,13 +34,22 @@ class AccueilController extends Controller
             ->take(3)
             ->get();
 
+        $categoriesWithProducts = $latestCategorys->map(function ($category) {
+                $category->recentProducts = $category->products()
+                    ->where('products.is_active', true)
+                    ->latest()
+                    ->take(6)                         // 6 produits par catégorie (ajustable)
+                    ->get();
 
-
+        return $category;
+    });
+    //dd($categoriesWithProducts);
         return view('front-office.acceuil.index', [
             'latestProducts' => $latestProducts,
             'latestCategories' => $latestCategorys,
             'blogs' => $blogs,
-            'testimonials' => $testimonials
+            'testimonials' => $testimonials,
+            'categoriesWithProducts'=>$categoriesWithProducts
         ]);
     }
 

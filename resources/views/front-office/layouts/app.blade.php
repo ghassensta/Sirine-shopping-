@@ -118,7 +118,7 @@
     </script>
 </head>
 
-<body class="bg-light font-sans text-dark ">
+<body class="bg-light font-sans text-dark min-h-screen flex flex-col">
 <!-- Loading Animation -->
 <div id="loadingBar"
      class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 origin-left transition-transform duration-500 ease-in-out z-50 hidden">
@@ -126,27 +126,27 @@
 
 <!-- Cart Offcanvas -->
 <div id="cartOffcanvas"
-     class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+     class="fixed inset-y-0 right-0 w-full sm:w-80 md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
     <div class="flex flex-col h-full">
         <!-- Header -->
-        <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-primary/5 to-white">
-            <h2 class="text-2xl font-serif font-bold text-dark">
+        <div class="flex justify-between items-center p-4 border-b bg-gradient-to-r from-primary/5 to-white">
+            <h2 class="text-xl font-serif font-bold text-dark">
                 <i class="fas fa-shopping-bag mr-2"></i>Votre Panier
             </h2>
-            <button id="closeCartOffcanvas" class="p-2 hover:text-primary transition">
+            <button id="closeCartOffcanvas" class="p-2 hover:text-primary transition min-w-[44px] min-h-[44px]">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
         </div>
 
         <!-- Cart Content -->
-        <div class="flex-1 p-6 overflow-y-auto">
+        <div class="flex-1 p-4 overflow-y-auto">
             <div id="cartItems" class="space-y-4">
                 <!-- Dynamic content -->
             </div>
         </div>
 
         <!-- Cart Summary -->
-        <div class="p-6 border-t bg-gray-50">
+        <div class="p-4 border-t bg-gray-50">
             <div class="space-y-3 mb-6">
                 <div class="flex justify-between">
                     <span>Sous-total</span>
@@ -327,12 +327,12 @@ class CartManager {
                     <p class="text-primary font-bold mt-1">${item.price.toFixed(2)} ${CONFIG.currency}</p>
                     <div class="flex items-center mt-2">
                         <button onclick="cart.updateQuantity(${item.id}, -1)"
-                                class="w-8 h-8 flex items-center justify-center border rounded-l hover:bg-gray-100">
+                                class="w-10 h-10 flex items-center justify-center border rounded-l hover:bg-gray-100 min-w-[44px] min-h-[44px]">
                             <i class="fas fa-minus text-xs"></i>
                         </button>
                         <span class="w-10 text-center border-y">${item.quantity}</span>
                         <button onclick="cart.updateQuantity(${item.id}, 1)"
-                                class="w-8 h-8 flex items-center justify-center border rounded-r hover:bg-gray-100">
+                                class="w-8 h-8 flex items-center justify-center border rounded-r hover:bg-gray-100 min-w-[44px] min-h-[44px]">
                             <i class="fas fa-plus text-xs"></i>
                         </button>
                     </div>

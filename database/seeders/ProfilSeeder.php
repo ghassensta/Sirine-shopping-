@@ -77,7 +77,6 @@ class ProfilSeeder extends Seeder
 
         $statuts = [
             ['name' => 'Annulé', 'is_publish' => true],
-            ['name' => 'Livré et payé', 'is_publish' => true],
             ['name' => 'Livrée et payée', 'is_publish' => true],
             ['name' => 'En cours de traitement', 'is_publish' => false],
             ['name' => 'En cours de livraison', 'is_publish' => false],

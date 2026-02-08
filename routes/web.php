@@ -60,8 +60,7 @@ Route::get('/politique-confidentialite', [AboutController::class, 'PolitiqueConf
 
 Route::get('/mentions-legales', [AboutController::class, 'MentionsLegales'])
     ->name('mentions-legales');
-// --- Toutes les routes admin sous /admin/paradis-deco ---
-Route::prefix('admin/paradis-deco')->group(function () {
+Route::prefix('admin/sirine-shopping')->group(function () {
     //
     // 1) Routes accessibles aux **invités** seulement
     //

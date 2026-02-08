@@ -19,6 +19,7 @@
                         <th>Image</th>
                         <th>Nom / Hiérarchie</th>
                         <th>Parent</th>
+                        <th>Visibilité</th>
                         <th>Statut</th>
                         <th>Créée le</th>
                         <th class="text-end">Actions</th>
@@ -30,9 +31,7 @@
 
 </div>
 
-<!-- ============================================================= -->
-<!-- MODAL AJOUT CATEGORIE                                         -->
-<!-- ============================================================= -->
+<!-- MODAL AJOUT -->
 <div class="modal fade" id="modalAddCategory" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -46,9 +45,8 @@
 
                 <div class="modal-body">
                     <div class="row g-3">
-
                         <div class="col-md-6">
-                            <label class="form-label">Nom de la catégorie <span class="text-danger">*</span></label>
+                            <label class="form-label">Nom <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control" required placeholder="Ex: Vêtements femme">
                         </div>
 
@@ -72,7 +70,28 @@
                             </select>
                         </div>
 
-                        <!-- SEO optionnel -->
+                        <div class="col-md-6">
+                            <label class="form-label">Titre de section</label>
+                            <input type="text" name="title_section" class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Sous-titre de section</label>
+                            <input type="text" name="sous_title_section" class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Ordre d'affichage</label>
+                            <input type="number" name="order" class="form-control" min="0" value="999">
+                        </div>
+
+                        <div class="col-md-6 d-flex align-items-center pt-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_publish" id="add_is_publish" value="1" >
+                                <label class="form-check-label" for="add_is_publish">Publiée / Visible</label>
+                            </div>
+                        </div>
+
                         <div class="col-12 mt-4">
                             <h6 class="mb-3">Référencement (SEO) — optionnel</h6>
                         </div>
@@ -90,7 +109,6 @@
                         <div class="col-12">
                             <div class="alert alert-danger mt-3" id="addCategoryErrors" role="alert" style="display:none;"></div>
                         </div>
-
                     </div>
                 </div>
 
@@ -103,9 +121,7 @@
     </div>
 </div>
 
-<!-- ============================================================= -->
-<!-- MODAL MODIFICATION CATEGORIE                                  -->
-<!-- ============================================================= -->
+<!-- MODAL MODIFICATION -->
 <div class="modal fade" id="modalEditCategory" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -121,9 +137,8 @@
 
                 <div class="modal-body">
                     <div class="row g-3">
-
                         <div class="col-md-6">
-                            <label class="form-label">Nom de la catégorie <span class="text-danger">*</span></label>
+                            <label class="form-label">Nom <span class="text-danger">*</span></label>
                             <input type="text" name="name" id="edit_name" class="form-control" required>
                         </div>
 
@@ -151,6 +166,28 @@
                             </select>
                         </div>
 
+                        <div class="col-md-6">
+                            <label class="form-label">Titre de section</label>
+                            <input type="text" name="title_section" id="edit_title_section" class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Sous-titre de section</label>
+                            <input type="text" name="sous_title_section" id="edit_sous_title_section" class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Ordre d'affichage</label>
+                            <input type="number" name="order" id="edit_order" class="form-control" min="0">
+                        </div>
+
+                        <div class="col-md-6 d-flex align-items-center pt-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_publish" id="edit_is_publish" value="1">
+                                <label class="form-check-label" for="edit_is_publish">Publiée / Visible</label>
+                            </div>
+                        </div>
+
                         <div class="col-12 mt-4">
                             <h6 class="mb-3">Référencement (SEO) — optionnel</h6>
                         </div>
@@ -168,7 +205,6 @@
                         <div class="col-12">
                             <div class="alert alert-danger mt-3" id="editCategoryErrors" role="alert" style="display:none;"></div>
                         </div>
-
                     </div>
                 </div>
 
@@ -199,6 +235,10 @@
 // CHARGEMENT HIÉRARCHIQUE DES CATÉGORIES PARENTES
 // =============================================================
 function loadHierarchicalParents(selector, excludeId = null, selectedId = null) {
+    if ($(selector).hasClass('select2-hidden-accessible')) {
+        $(selector).select2('destroy');
+    }
+
     $.ajax({
         url: '{{ route("categories.hierarchical") }}',
         type: 'GET',
@@ -209,9 +249,18 @@ function loadHierarchicalParents(selector, excludeId = null, selectedId = null) 
                 let selected = (item.id == selectedId) ? ' selected' : '';
                 html += `<option value="${item.id}"${selected}>${item.name}</option>`;
             });
+
             $(selector).html(html);
-            if ($(selector).hasClass('select2-hidden-accessible')) {
-                $(selector).trigger('change');
+
+            $(selector).select2({
+                dropdownParent: $(selector).closest('.modal'),
+                placeholder: "Sélectionner une catégorie parente",
+                allowClear: true,
+                width: '100%'
+            });
+
+            if (selectedId) {
+                $(selector).val(selectedId).trigger('change');
             }
         },
         error: function() {
@@ -234,6 +283,7 @@ $(document).ready(function() {
             { data: 'image' },
             { data: 'name' },
             { data: 'parent_name' },
+            { data: 'is_publish' },
             { data: 'is_active' },
             { data: 'created_at' },
             { data: null, orderable: false, searchable: false, className: 'text-end' }
@@ -287,6 +337,9 @@ $(document).ready(function() {
         e.preventDefault();
         const formData = new FormData(this);
 
+        // IMPORTANT : forcer l'envoi de is_publish (1 ou 0)
+        formData.set('is_publish', $('#add_is_publish').is(':checked') ? '1' : '0');
+
         $.ajax({
             url: '{{ route("categories.store") }}',
             type: 'POST',
@@ -321,6 +374,10 @@ $(document).ready(function() {
         $.get('{{ route("categories.show", ":id") }}'.replace(':id', id), function(data) {
             $('#edit_id').val(data.id);
             $('#edit_name').val(data.name);
+            $('#edit_title_section').val(data.title_section || '');
+            $('#edit_sous_title_section').val(data.sous_title_section || '');
+            $('#edit_order').val(data.order || 999);
+            $('#edit_is_publish').prop('checked', !!data.is_publish);
             $('#edit_is_active').val(data.is_active ? '1' : '0');
             $('#edit_meta_title').val(data.meta_title || '');
             $('#edit_meta_description').val(data.meta_description || '');
@@ -348,6 +405,9 @@ $(document).ready(function() {
         e.preventDefault();
         const formData = new FormData(this);
         formData.append('_method', 'PUT');
+
+        // IMPORTANT : forcer l'envoi de is_publish (1 ou 0)
+        formData.set('is_publish', $('#edit_is_publish').is(':checked') ? '1' : '0');
 
         $.ajax({
             url: $(this).attr('action'),
@@ -409,14 +469,6 @@ $(document).ready(function() {
                 });
             }
         });
-    });
-
-    // Initialisation Select2 pour les modals
-    $('.parent-select-add, .parent-select-edit').select2({
-        dropdownParent: $('#modalAddCategory, #modalEditCategory'),
-        placeholder: "Sélectionner une catégorie parente",
-        allowClear: true,
-        width: '100%'
     });
 
 });

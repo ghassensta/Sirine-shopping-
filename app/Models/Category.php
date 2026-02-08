@@ -19,6 +19,8 @@ class Category extends Model
         'is_active',
         'title_section',
         'sous_title_section',
+        'is_publish',
+        'order',
         // SEO
         'meta_title',
         'meta_keywords',
@@ -29,6 +31,7 @@ class Category extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'is_active' => 'boolean',
+        'is_publish'=>'boolean'
     ];
 
     /* =======================
