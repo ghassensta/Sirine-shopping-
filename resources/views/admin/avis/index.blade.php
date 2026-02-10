@@ -63,7 +63,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="rating" class="form-label">Note</label>
-                            <select name="rating" id="rating" class="form-select" required>
+                            <select name="rating" id="rating" class="form-select select2" required>
                                 <option value="1">1 étoile</option>
                                 <option value="2">2 étoiles</option>
                                 <option value="3">3 étoiles</option>
@@ -81,7 +81,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="approved" class="form-label">Statut</label>
-                            <select name="approved" id="approved" class="form-select">
+                            <select name="approved" id="approved" class="form-select select2">
                                 <option value="1">Approuvé</option>
                                 <option value="0" selected>En attente</option>
                             </select>
@@ -156,6 +156,13 @@
         'use strict';
 
         $(function() {
+            // ── Initialisation du filtre principal ──────────────────────────────
+            $('.select2filtre').select2({
+                placeholder: 'Tous les produits',
+                allowClear: true,
+                dropdownParent: $('body')  // ou $('#createAvisModal') si tu veux mais body suffit ici
+            });
+
             var dtAvisTable = $('.datatables-avis');
 
             if (dtAvisTable.length) {
@@ -167,7 +174,7 @@
                         type: "GET",
                         data: function(d) {
                             d._token = '{{ csrf_token() }}';
-                            d.product_id = $('select[name="product_id"]').val();
+                            d.product_id = $('#product-select').val();
                         }
                     },
                     columns: [
@@ -298,15 +305,24 @@
                 });
             }
 
-            $('.select2filtre, .select2').select2({
-                placeholder: 'Sélectionner un produit',
-                allowClear: true,
+            // ── Select2 du filtre principal ────────────────────────────────
+            $('#product-select').select2({
+                dropdownParent: $('body'),
+                placeholder: 'Tous les produits',
+                allowClear: true
             });
 
-            $('select[name="product_id"]').on('change', function() {
+            $('#product-select').on('change', function() {
                 dtAvis.ajax.reload();
             });
 
+            // ── Select2 du modal création (statique) ───────────────────────
+            $('#createAvisModal .select2').select2({
+                dropdownParent: $('#createAvisModal .modal-content'),
+                width: '100%'
+            });
+
+            // ── Création via AJAX ──────────────────────────────────────────
             $('#createAvisForm').on('submit', function(e) {
                 e.preventDefault();
                 $.ajax({
@@ -337,19 +353,28 @@
                 });
             });
 
+            // ── Édition (chargement dynamique + ré-init Select2) ───────────
             $(document).on('click', '.edit-record', function(e) {
                 e.preventDefault();
                 const id = $(this).data('id');
                 const editUrl = $(this).data('url');
 
-                $('#editAvisContent').load(editUrl, function() {
-                    $('#editAvisModal').modal('show');
-                    $('#editAvisContent .select2').select2({
-                        dropdownParent: $('#editAvisModal')
-                    });
+                $('#editAvisContent').load(editUrl, function(response, status, xhr) {
+                    if (status === "success") {
+                        $('#editAvisModal').modal('show');
+
+                        // Réinitialiser Select2 dans le contenu chargé dynamiquement
+                        $('#editAvisContent .select2').select2({
+                            dropdownParent: $('#editAvisModal .modal-content'),
+                            width: '100%'
+                        });
+                    } else {
+                        console.error('Erreur chargement modal édition:', xhr);
+                    }
                 });
             });
 
+            // ── Suppression ─────────────────────────────────────────────────
             dtAvisTable.on('click', '.delete-record', function() {
                 var row = $(this).closest('tr');
                 var url = $(this).data('url');
@@ -393,6 +418,7 @@
                 });
             });
 
+            // Amélioration visuelle DataTables
             setTimeout(() => {
                 $('.dataTables_filter .form-control').removeClass('form-control-sm').addClass('form-control');
                 $('.dataTables_length .form-select').removeClass('form-select-sm').addClass('form-select');

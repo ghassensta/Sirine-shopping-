@@ -36,7 +36,7 @@
     </section>
 
     <!-- Main Content -->
-    <section class="py-16 bg-light">
+    <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <!-- Breadcrumb -->
             <div class="mb-6 sm:mb-8">
