@@ -63,7 +63,6 @@ class ConfigurationController extends Controller
             /* langues dispos */
             'default_language'        => 'required|string|in:en,fr,es',
             /* devises autorisées */
-            'currency'                => 'required|string|in:USD,EUR,GBP',
             'meta_title'              => 'nullable|string|max:255',
             'meta_description'        => 'nullable|string|max:1000',
             'shipping_cost'           => 'required|numeric|min:0',

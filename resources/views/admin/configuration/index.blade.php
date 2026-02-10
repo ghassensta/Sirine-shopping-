@@ -57,20 +57,7 @@
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <!-- Currency -->
-                            <div class="mb-3">
-                                <label for="currency" class="form-label fw-semibold">Devise</label>
-                                <select class="form-select" id="currency" name="currency" required>
-                                    <option value="EUR" {{ old('currency', $settings->currency ?? null) == 'EUR' ? 'selected' : '' }}>EUR (€)</option>
-                                    <option value="USD" {{ old('currency', $settings->currency ?? null) == 'USD' ? 'selected' : '' }}>USD ($)</option>
-                                    <!-- Add more currencies as needed -->
-                                </select>
-                                @error('currency')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
+                           
                             <!-- Meta Title -->
                             <div class="mb-3">
                                 <label for="meta_title" class="form-label fw-semibold">Titre Meta</label>

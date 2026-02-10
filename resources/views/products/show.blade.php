@@ -92,7 +92,7 @@
                 class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="flex items-start justify-between">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">Votre Panier (3)</h3>
+                        <span class="text-lg leading-6 font-medium text-gray-900">Votre Panier (3)</span>
                         <button id="closeCartModal" type="button"
                             class="text-gray-400 hover:text-gray-500 focus:outline-none">
                             <span class="sr-only">Fermer</span>

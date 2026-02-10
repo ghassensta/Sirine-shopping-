@@ -106,30 +106,16 @@
 
                     <div class="row">
                         <!-- Prix -->
-                        <div class="mb-3 col-md-4">
+                        <div class="mb-3 col-md-6">
                             <label class="form-label fw-bold" for="price">Prix <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
                                 <span class="input-group-text"><i class="ti ti-moneybag"></i></span>
-                                <input type="number" name="price" class="form-control" id="price" step="0.001"
-                                    value="{{ old('price', isset($product) ? $product->price : '') }}" placeholder="0.000"
+                                <input type="number" name="price" class="form-control" id="price" step="0.01"
+                                    value="{{ old('price', isset($product) ? $product->price : '') }}" placeholder="0.00"
                                     required>
                                 <div class="invalid-feedback">Veuillez entrer un prix valide.</div>
                             </div>
                             @error('price')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Ancien Prix -->
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label fw-bold" for="price_baree">Ancien Prix</label>
-                            <div class="input-group input-group-merge">
-                                <span class="input-group-text"><i class="ti ti-tag-off"></i></span>
-                                <input type="number" name="price_baree" class="form-control" id="price_baree" step="0.001"
-                                    value="{{ old('price_baree', isset($product) ? $product->price_baree : '') }}" placeholder="0.000">
-                                <div class="invalid-feedback">Veuillez entrer un prix valide.</div>
-                            </div>
-                            @error('price_baree')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
@@ -159,55 +145,6 @@
                             placeholder="Décrivez votre produit..." required>{{ old('description', isset($product) ? $product->description : '') }}</textarea>
                         <div class="invalid-feedback">Veuillez entrer une description.</div>
                         @error('description')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <!-- OG Image -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold" for="og_image">
-                            Image pour les réseaux sociaux (OG Image)
-                        </label>
-                        <input type="file" name="og_image" id="og_image" class="form-control" accept="image/*">
-                        @if(isset($product) && $product->og_image)
-                            <div class="mt-2">
-                                <img src="{{ asset('storage/' . $product->og_image) }}" alt="OG Image" style="max-width: 200px;">
-                            </div>
-                        @endif
-                        @error('og_image')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <!-- Available Sizes -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold" for="available_sizes">
-                            Tailles disponibles
-                            <small class="text-muted">(Séparez les tailles par des virgules, ex: S,M,L,XL)</small>
-                        </label>
-                        <input type="text" name="available_sizes" id="available_sizes" class="form-control"
-                            value="{{ old('available_sizes', isset($product) && $product->available_sizes ? implode(',', json_decode($product->available_sizes, true)) : '') }}"
-                            placeholder="Ex: S,M,L,XL">
-                        @error('available_sizes')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <!-- Available Colors -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold" for="available_colors">
-                            Couleurs disponibles
-                            <small class="text-muted">(Séparez les couleurs par des virgules, ex: Rouge,Bleu,Vert)</small>
-                        </label>
-                        <input type="text" name="available_colors" id="available_colors" class="form-control"
-                            value="{{ old('available_colors', isset($product) && $product->available_colors ? implode(',', array_map(function($color) {
-                                return is_array($color) ? $color['name'] : $color;
-                            }, json_decode($product->available_colors, true))) : '') }}"
-                            placeholder="Ex: Rouge,Bleu,Vert">
-                        <small class="form-text text-muted">
-                            Pour ajouter un code couleur hexadécimal, utilisez le format: Rouge:#FF0000,Bleu:#0000FF
-                        </small>
-                        @error('available_colors')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
