@@ -130,7 +130,7 @@ public function getCommandes(Request $request)
     ]);
 }
 
-  public function getProducts(Request $request)
+    public function getProducts(Request $request)
     {
         // 1) Paramètres DataTables avec valeurs par défaut
         $draw = (int) $request->input('draw', 1);
@@ -147,8 +147,8 @@ public function getCommandes(Request $request)
         // Colonnes triables
         $sortable = [
             'id' => 'products.id',
-            'image_avant' => 'products.image_avant', // Updated to support sorting by image_avant
-            'images' => 'products.created_at', // Fallback
+            'image_avant' => 'products.image_avant',
+            'images' => 'products.created_at',
             'name' => 'products.name',
             'description' => 'products.description',
             'price' => 'products.price',
@@ -158,8 +158,10 @@ public function getCommandes(Request $request)
         ];
         $orderBy = $sortable[$columnName] ?? 'products.created_at';
 
-        // 2) Requête filtrée
-        $query = Product::query();
+        // 2) Requête filtrée avec chargement des catégories
+        $query = Product::with(['categories' => function($q) {
+            $q->select('categories.id', 'categories.name');
+        }]);
 
         if (!empty($searchValue)) {
             $query->where('products.name', 'like', "%{$searchValue}%");
@@ -172,35 +174,22 @@ public function getCommandes(Request $request)
             ->take($rowPerPage)
             ->get();
 
-        // 3) Précharger les noms des catégories
-        $allCategories = Category::pluck('name', 'id')->toArray();
-
-        // 4) Formatage DataTables
-        $data = $products->map(function ($p) use ($allCategories) {
-            $categoryNames = [];
-
-            if (is_array($p->category_ids)) {
-                foreach ($p->category_ids as $id) {
-                    if (isset($allCategories[$id])) {
-                        $categoryNames[] = $allCategories[$id];
-                    }
-                }
-            }
-
+        // 3) Formatage DataTables
+        $data = $products->map(function ($product) {
             return [
-                'id' => $p->id,
-                'image_avant' => $p->image_avant, // Include cover image
-                'images' => $p->images ?? [],
-                'categories' => $categoryNames,
-                'name' => $p->name,
-                'description' => $p->description,
-                'price' => $p->price,
-                'stock' => $p->stock,
-                'is_active' => $p->is_active,
-                'meta_title' => $p->meta_title,
-                'meta_description' => $p->meta_description,
-                'meta_keywords' => $p->meta_keywords,
-                'slug' => $p->slug,
+                'id' => $product->id,
+                'image_avant' => $product->image_avant,
+                'images' => $product->images ?? [],
+                'categories' => $product->categories->pluck('name')->toArray(),
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => $product->price,
+                'stock' => $product->stock,
+                'is_active' => $product->is_active,
+                'meta_title' => $product->meta_title,
+                'meta_description' => $product->meta_description,
+                'meta_keywords' => $product->meta_keywords,
+                'slug' => $product->slug,
             ];
         });
 
@@ -211,7 +200,8 @@ public function getCommandes(Request $request)
             'data' => $data,
         ]);
     }
-public function getCategory(Request $request)
+
+    public function getCategory(Request $request)
 {
     $draw        = (int) $request->input('draw', 1);
     $start       = (int) $request->input('start', 0);

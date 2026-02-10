@@ -107,12 +107,28 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             <!-- Product Gallery -->
             <div class="lg:sticky lg:top-4">
-                <!-- Main Image -->
+                <!-- Main Image with Zoom -->
                 <div class="relative mb-4 bg-white rounded-xl shadow-sm overflow-hidden group">
-                    <img id="mainImage"
-                         src="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
-                         alt="{{ $product->name }}"
-                         class="w-full h-96 object-contain transform group-hover:scale-105 transition-transform duration-300" />
+                    <div id="zoom-container" class="relative overflow-hidden">
+                        <img id="mainImage"
+                             src="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
+                             alt="{{ $product->name }}"
+                             class="w-full h-96 object-contain cursor-zoom-in transition-transform duration-300"
+                             loading="lazy" />
+
+                        <!-- Zoom Lens -->
+                        <div id="zoom-lens" class="absolute w-20 h-20 bg-white/50 border border-primary rounded-full pointer-events-none opacity-0 transition-opacity"></div>
+                    </div>
+
+                    <!-- Zoom Modal -->
+                    <div id="zoom-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
+                        <div class="relative max-w-4xl max-h-full">
+                            <img id="zoomed-image" src="" alt="" class="max-w-full max-h-full object-contain" />
+                            <button id="close-zoom" class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition">
+                                <i class="fas fa-times text-gray-800"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     <!-- Navigation Arrows -->
                     <button id="prevImage"
@@ -143,12 +159,14 @@
                                 Nouveau
                             </span>
                         @endif
-                        @if($product->discount_price)
-                            <span class="bg-primary text-white text-xs px-3 py-1 rounded-full">
-                                -{{ round((($product->price - $product->discount_price) / $product->price) * 100) }}%
+                        @if($product->price_baree && $product->price_baree > $product->price)
+                            <span class="bg-primary text-white text-xs px-3 py-1 rounded-full font-semibold">
+                                -{{ round((($product->price_baree - $product->price) / $product->price_baree) * 100) }}%
                             </span>
                         @endif
                     </div>
+
+                  
                 </div>
 
                 <!-- Thumbnails -->
@@ -176,7 +194,7 @@
                         <img src="{{ asset('storage/' . $image) }}"
                              alt="{{ $product->name }} - image {{ $index + 1 }}"
                              loading="lazy"
-                             class="w-20 h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-primary transition-all duration-300 hover:scale-105"
+                             class="w-20 h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-primary transition-all duration-300 hover:scale-105 flex-shrink-0"
                              data-index="{{ $index }}" />
                     @endforeach
                 </div>
@@ -228,16 +246,16 @@
 
                     <!-- Price -->
                     <div class="mb-6">
-                        @if($product->discount_price)
+                        @if($product->price_baree && $product->price_baree > $product->price)
                             <div class="flex items-baseline">
                                 <span class="text-3xl font-bold text-primary mr-3">
-                                    {{ number_format($product->discount_price, 2) }} DT
-                                </span>
-                                <span class="text-xl text-gray-400 line-through">
                                     {{ number_format($product->price, 2) }} DT
                                 </span>
-                                <span class="ml-3 bg-primary/10 text-primary text-sm px-2 py-1 rounded">
-                                    Économisez {{ number_format($product->price - $product->discount_price, 2) }} DT
+                                <span class="text-xl text-gray-400 line-through">
+                                    {{ number_format($product->price_baree, 2) }} DT
+                                </span>
+                                <span class="ml-3 bg-primary/10 text-primary text-sm px-2 py-1 rounded font-semibold">
+                                    Économisez {{ number_format($product->price_baree - $product->price, 2) }} DT
                                 </span>
                             </div>
                         @else
@@ -245,55 +263,42 @@
                                 {{ number_format($product->price, 2) }} DT
                             </span>
                         @endif
-                        <p class="text-sm text-gray-500 mt-1">TVA incluse</p>
+                        <p class="text-sm text-gray-500 mt-1">TVA incluse • Livraison calculée à l'étape suivante</p>
                     </div>
 
-                    <!-- Description -->
+                    <!-- Variants (Sizes/Colors) -->
+                    @if($product->available_sizes || $product->available_colors)
                     <div class="mb-6">
-                        <h2 class="text-lg font-semibold mb-3 text-dark">Description</h2>
-                        <div class="text-gray-600 prose max-w-none">
-                            {!! $product->description !!}
-                        </div>
-                    </div>
-
-                    <!-- Specifications -->
-                    @if($product->specifications || $product->dimensions)
-                    <div class="mb-6">
-                        <h2 class="text-lg font-semibold mb-3 text-dark">Caractéristiques</h2>
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            @if($product->specifications)
-                                @foreach(json_decode($product->specifications, true) ?? [] as $key => $value)
-                                <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-500">{{ $key }}</span>
-                                    <span class="text-dark font-medium">{{ $value }}</span>
-                                </div>
+                        @if($product->available_sizes)
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-dark mb-2">Taille</h3>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach(json_decode($product->available_sizes, true) ?? [] as $size)
+                                <button class="size-btn border border-gray-300 hover:border-primary px-3 py-2 rounded-lg text-sm transition-colors" data-size="{{ $size }}">
+                                    {{ $size }}
+                                </button>
                                 @endforeach
-                            @endif
-                            @if($product->dimensions)
-                            <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Dimensions</span>
-                                <span class="text-dark font-medium">{{ $product->dimensions }}</span>
                             </div>
-                            @endif
-                            @if($product->material)
-                            <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Matériau</span>
-                                <span class="text-dark font-medium">{{ $product->material }}</span>
-                            </div>
-                            @endif
-                            @if($product->color)
-                            <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-500">Couleur</span>
-                                <span class="text-dark font-medium">{{ $product->color }}</span>
-                            </div>
-                            @endif
                         </div>
+                        @endif
+
+                        @if($product->available_colors)
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-dark mb-2">Couleur</h3>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach(json_decode($product->available_colors, true) ?? [] as $color)
+                                <button class="color-btn border-2 border-gray-300 hover:border-primary w-8 h-8 rounded-full transition-all" data-color="{{ $color }}" style="background-color: {{ $color }}" title="{{ $color }}">
+                                </button>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     @endif
 
                     <!-- Add to Cart -->
                     <div class="mb-6">
-                        <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-4 mb-4">
                             <!-- Quantity Selector -->
                             <div class="flex items-center border border-gray-300 rounded-lg">
                                 <button class="px-3 py-2 text-gray-600 hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
@@ -311,85 +316,67 @@
                                 </button>
                             </div>
 
-                            <!-- Add to Cart Button -->
-                            <button onclick="addToCart(this)"
-                                    data-id="{{ $product->id }}"
-                                    data-name="{{ $product->name }}"
-                                    data-price="{{ $product->discount_price ?? $product->price }}"
-                                    data-image="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
-                                    data-stock="{{ $product->stock }}"
-                                    class="flex-1 bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium transition flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-300 disabled:cursor-not-allowed"
-                                    {{ $product->stock == 0 ? 'disabled' : '' }}>
-                                <i class="fas fa-shopping-cart mr-2"></i>
-                                <span id="buttonText">Ajouter au panier</span>
-                                <svg class="animate-spin h-5 w-5 text-white hidden ml-2" id="addToCartSpinner"
-                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path>
-                                </svg>
-                            </button>
+                            <!-- Stock Info -->
+                            @if($product->stock > 0)
+                            <span class="text-sm text-gray-500">{{ $product->stock }} en stock</span>
+                            @endif
                         </div>
+
+                        <!-- Add to Cart Button -->
+                        <button onclick="addToCart(this)"
+                                data-id="{{ $product->id }}"
+                                data-name="{{ $product->name }}"
+                                data-price="{{ $product->price }}"
+                                data-image="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
+                                data-stock="{{ $product->stock }}"
+                                class="w-full bg-primary hover:bg-secondary text-white py-4 px-6 rounded-lg font-medium transition flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                {{ $product->stock == 0 ? 'disabled' : '' }}>
+                            <i class="fas fa-shopping-cart mr-2"></i>
+                            <span id="buttonText">{{ $product->stock > 0 ? 'Ajouter au panier' : 'Indisponible' }}</span>
+                            <svg class="animate-spin h-5 w-5 text-white hidden ml-2" id="addToCartSpinner"
+                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path>
+                            </svg>
+                        </button>
                     </div>
 
-                    <!-- Delivery Info -->
-                    <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-primary mb-6">
-                        <div class="flex items-start">
-                            <i class="fas fa-truck text-primary mr-3 mt-1"></i>
-                            <div>
-                                <h3 class="font-semibold mb-1">Livraison rapide</h3>
-                                <p class="text-sm text-gray-600">
-                                    Livraison en 24-48h à Tunis et 2-3 jours pour le reste du pays.
-                                    Livraison gratuite à partir de {{ $config->free_shipping_limit ?? 120 }} DT.
-                                    <a href="" class="text-primary hover:underline ml-1">En savoir plus</a>
-                                </p>
-                            </div>
+                    <!-- Additional Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-gray-50 p-4 rounded-lg text-center">
+                            <i class="fas fa-truck text-primary text-xl mb-2"></i>
+                            <h4 class="font-semibold text-sm mb-1">Livraison rapide</h4>
+                            <p class="text-xs text-gray-600">24-48h en Tunisie</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg text-center">
+                            <i class="fas fa-shield-alt text-primary text-xl mb-2"></i>
+                            <h4 class="font-semibold text-sm mb-1">Paiement sécurisé</h4>
+                            <p class="text-xs text-gray-600">SSL & cartes bancaires</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg text-center">
+                            <i class="fas fa-undo-alt text-primary text-xl mb-2"></i>
+                            <h4 class="font-semibold text-sm mb-1">Retour facile</h4>
+                            <p class="text-xs text-gray-600">30 jours satisfait</p>
                         </div>
                     </div>
 
                     <!-- Share -->
-                    <div class="flex items-center pt-4 border-t border-gray-200">
-                        <span class="text-sm text-gray-600 mr-3">Partager :</span>
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                        <span class="text-sm text-gray-600">Partager :</span>
                         <div class="flex space-x-3">
-                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
-                               target="_blank"
-                               class="w-8 h-8 bg-gray-100 hover:bg-blue-600 hover:text-white rounded-full flex items-center justify-center transition">
+                            <button onclick="shareProduct('facebook')" class="w-8 h-8 bg-gray-100 hover:bg-blue-600 hover:text-white rounded-full flex items-center justify-center transition" aria-label="Partager sur Facebook">
                                 <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($product->name) }}"
-                               target="_blank"
-                               class="w-8 h-8 bg-gray-100 hover:bg-blue-400 hover:text-white rounded-full flex items-center justify-center transition">
+                            </button>
+                            <button onclick="shareProduct('twitter')" class="w-8 h-8 bg-gray-100 hover:bg-blue-400 hover:text-white rounded-full flex items-center justify-center transition" aria-label="Partager sur Twitter">
                                 <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="https://pinterest.com/pin/create/button/?url={{ urlencode(url()->current()) }}&media={{ urlencode(asset('storage/' . ($product->image_avant ?? 'default.jpg'))) }}&description={{ urlencode($product->name) }}"
-                               target="_blank"
-                               class="w-8 h-8 bg-gray-100 hover:bg-red-600 hover:text-white rounded-full flex items-center justify-center transition">
-                                <i class="fab fa-pinterest-p"></i>
-                            </a>
-                            <a href="https://wa.me/?text={{ urlencode('Regarde ce produit: ' . $product->name . ' ' . url()->current()) }}"
-                               target="_blank"
-                               class="w-8 h-8 bg-gray-100 hover:bg-green-500 hover:text-white rounded-full flex items-center justify-center transition">
+                            </button>
+                            <button onclick="shareProduct('whatsapp')" class="w-8 h-8 bg-gray-100 hover:bg-green-500 hover:text-white rounded-full flex items-center justify-center transition" aria-label="Partager sur WhatsApp">
                                 <i class="fab fa-whatsapp"></i>
-                            </a>
+                            </button>
+                            <button onclick="shareProduct('copy')" class="w-8 h-8 bg-gray-100 hover:bg-gray-600 hover:text-white rounded-full flex items-center justify-center transition" aria-label="Copier le lien">
+                                <i class="fas fa-link"></i>
+                            </button>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Additional Info -->
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white p-4 rounded-lg shadow-sm text-center">
-                        <i class="fas fa-undo-alt text-primary text-xl mb-2"></i>
-                        <h4 class="font-semibold text-sm mb-1">Retour facile</h4>
-                        <p class="text-xs text-gray-600">30 jours pour changer d'avis</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-sm text-center">
-                        <i class="fas fa-shield-alt text-primary text-xl mb-2"></i>
-                        <h4 class="font-semibold text-sm mb-1">Paiement sécurisé</h4>
-                        <p class="text-xs text-gray-600">CB, virement, espèces</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-sm text-center">
-                        <i class="fas fa-headset text-primary text-xl mb-2"></i>
-                        <h4 class="font-semibold text-sm mb-1">Support client</h4>
-                        <p class="text-xs text-gray-600">7j/7 par email & téléphone</p>
                     </div>
                 </div>
             </div>
@@ -436,8 +423,8 @@
 
                     <!-- Write Review -->
                     <div>
-                        <h4 class="font-semibold mb-4">Donnez votre avis</h4>
-                        <p class="text-gray-600 mb-4">Partagez votre expérience avec ce produit</p>
+                        <h4 class="font-semibold mb-4">Partagez votre avis</h4>
+                        <p class="text-gray-600 mb-4">Votre retour nous aide à nous améliorer</p>
                         <button id="writeReviewBtn"
                                 class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium w-full transition">
                             <i class="fas fa-pen mr-2"></i> Écrire un avis
@@ -454,14 +441,14 @@
 
                         <!-- Rating -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Votre note</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Votre note *</label>
                             <div class="flex space-x-1" id="starRating">
                                 @for($i = 1; $i <= 5; $i++)
                                 <button type="button"
-                                        class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition"
+                                        class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-colors"
                                         data-rating="{{ $i }}"
                                         aria-label="{{ $i }} étoile{{ $i > 1 ? 's' : '' }}">
-                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
                                 </button>
                                 @endfor
                             </div>
@@ -471,9 +458,9 @@
 
                         <!-- Comment -->
                         <div>
-                            <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Votre commentaire</label>
+                            <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Votre commentaire *</label>
                             <textarea id="comment" name="comment" rows="4"
-                                      class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary"
+                                      class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary resize-none"
                                       placeholder="Partagez votre expérience avec ce produit..."
                                       required></textarea>
                             <p id="commentError" class="hidden text-red-500 text-sm mt-1">Veuillez entrer un commentaire.</p>
@@ -487,11 +474,19 @@
                                    placeholder="Votre nom ou pseudo">
                         </div>
 
+                        <!-- Location -->
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 mb-2">Ville</label>
+                            <input type="text" id="location" name="location"
+                                   class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary"
+                                   placeholder="Votre ville (optionnel)">
+                        </div>
+
                         <!-- Buttons -->
                         <div class="flex space-x-4">
                             <button type="submit"
-                                    class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium transition">
-                                Soumettre l'avis
+                                    class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fas fa-paper-plane mr-2"></i> Publier l'avis
                             </button>
                             <button type="button" id="cancelReview"
                                     class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-6 rounded-lg font-medium transition">
@@ -499,58 +494,74 @@
                             </button>
                         </div>
                     </form>
-                    <div id="successMessage" class="hidden text-green-600 text-sm mt-4">
+                    <div id="successMessage" class="hidden text-green-600 text-sm mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
                         <i class="fas fa-check-circle mr-2"></i>
                         Merci pour votre avis ! Il sera affiché après modération.
                     </div>
-                    <div id="errorMessage" class="hidden text-red-600 text-sm mt-4">
+                    <div id="errorMessage" class="hidden text-red-600 text-sm mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
                         <i class="fas fa-exclamation-circle mr-2"></i>
-                        <span id="errorText"></span>
+                        <span id="errorText">Une erreur est survenue.</span>
                     </div>
                 </div>
 
                 <!-- Reviews List -->
-                <div class="space-y-6">
-                    @forelse ($reviews as $review)
-                    <div class="border-b border-gray-200 pb-6 last:border-0">
+                <div id="reviewsList" class="space-y-6">
+                    @forelse ($reviews->take(5) as $review)
+                    <div class="border-b border-gray-200 pb-6 last:border-0 review-item">
                         <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <div class="flex text-yellow-400 mb-1">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
-                                    @endfor
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <div class="flex text-yellow-400 mr-3">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fas fa-star {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                                        @endfor
+                                    </div>
+                                    <span class="text-sm text-gray-500">{{ $review->created_at->format('d/m/Y') }}</span>
+                                    @if($review->approved)
+                                    <span class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1"></i> Approuvé
+                                    </span>
+                                    @endif
                                 </div>
-                                <h4 class="font-semibold text-dark">{{ $review->comment }}</h4>
-                            </div>
-                            <span class="text-sm text-gray-500">{{ $review->created_at->diffForHumans() }}</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
-                                <span class="font-bold text-primary">{{ strtoupper(substr($review->name, 0, 1)) }}</span>
-                            </div>
-                            <div>
-                                <p class="font-medium text-dark">{{ $review->name }}</p>
-                                @if($review->location)
-                                <p class="text-sm text-gray-500">{{ $review->location }}</p>
-                                @endif
+                                <p class="text-gray-700 mb-3 leading-relaxed">{{ $review->comment }}</p>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                                        <span class="font-bold text-primary">{{ strtoupper(substr($review->name, 0, 1)) }}</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-dark">{{ $review->name }}</p>
+                                        @if($review->location)
+                                        <p class="text-sm text-gray-500">{{ $review->location }}</p>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     @empty
                     <div class="text-center py-8">
-                        <i class="fas fa-comment text-gray-300 text-4xl mb-3"></i>
-                        <p class="text-gray-600">Aucun avis pour ce produit pour le moment.</p>
-                        <p class="text-sm text-gray-500 mt-1">Soyez le premier à donner votre avis !</p>
+                        <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-comment text-gray-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-medium text-gray-700 mb-2">Aucun avis</h3>
+                        <p class="text-gray-500 mb-4">Soyez le premier à donner votre avis !</p>
                     </div>
                     @endforelse
                 </div>
 
-                
+                <!-- Load More Reviews -->
+                @if($reviews->count() > 5)
+                <div class="text-center mt-8">
+                    <button id="loadMoreReviews" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-medium transition">
+                        <i class="fas fa-plus mr-2"></i> Charger plus d'avis ({{ $reviews->count() - 5 }})
+                    </button>
+                </div>
+                @endif
             </div>
         </div>
         @endif
 
-        <!-- Related Products -->
+        <!-- Related Products Slider -->
         @if(isset($similarProducts) && $similarProducts->count() > 0)
         <div class="mt-16">
             <div class="flex justify-between items-center mb-8">
@@ -560,91 +571,88 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                @foreach($similarProducts as $item)
-                <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-primary group">
-                    <div class="relative overflow-hidden">
-                        <a href="{{ route('preview-article', $item->slug) }}" class="block">
-                            <img src="{{ asset('storage/' . ($item->image_avant ?? 'default.jpg')) }}"
-                                 alt="{{ $item->name }}"
-                                 class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500">
-                        </a>
-                        @if($item->created_at->diffInDays(now()) < 10)
-                        <span class="absolute top-3 right-3 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                            Nouveau
-                        </span>
-                        @endif
-                    </div>
+            <!-- Swiper Container -->
+            <div class="relative">
+                <div class="swiper related-products overflow-hidden">
+                    <div class="swiper-wrapper">
+                        @foreach($similarProducts as $item)
+                        <div class="swiper-slide">
+                            <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-primary group">
+                                <div class="relative overflow-hidden">
+                                    <a href="{{ route('preview-article', $item->slug) }}" class="block">
+                                        <img src="{{ asset('storage/' . ($item->image_avant ?? 'default.jpg')) }}"
+                                             alt="{{ $item->name }}"
+                                             class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                                             loading="lazy">
+                                    </a>
+                                    @if($item->created_at->diffInDays(now()) < 10)
+                                    <span class="absolute top-3 right-3 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                                        Nouveau
+                                    </span>
+                                    @endif
+                                    @if($item->price_baree && $item->price_baree > $item->price)
+                                    <span class="absolute top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded font-semibold">
+                                        -{{ round((($item->price_baree - $item->price) / $item->price_baree) * 100) }}%
+                                    </span>
+                                    @endif
+                                </div>
 
-                    <div class="p-4">
-                        <h3 class="font-semibold text-dark mb-2 hover:text-primary transition">
-                            <a href="{{ route('preview-article', $item->slug) }}">
-                                {{ Str::limit($item->name, 40) }}
-                            </a>
-                        </h3>
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-dark mb-2 hover:text-primary transition">
+                                        <a href="{{ route('preview-article', $item->slug) }}">
+                                            {{ Str::limit($item->name, 40) }}
+                                        </a>
+                                    </h3>
 
-                        <div class="flex justify-between items-center mt-4">
-                            <span class="font-bold text-lg text-primary">
-                                {{ number_format($item->price, 2) }} DT
-                            </span>
+                                    <div class="flex justify-between items-center mt-4">
+                                        @if($item->price_baree && $item->price_baree > $item->price)
+                                            <div class="flex items-center">
+                                                <span class="font-bold text-lg text-primary">
+                                                    {{ number_format($item->price, 2) }} DT
+                                                </span>
+                                                <span class="ml-2 text-sm text-gray-400 line-through">
+                                                    {{ number_format($item->price_baree, 2) }} DT
+                                                </span>
+                                            </div>
+                                        @else
+                                            <span class="font-bold text-lg text-primary">
+                                                {{ number_format($item->price, 2) }} DT
+                                            </span>
+                                        @endif
 
-                            <button onclick="addToCart(this)"
-                                    data-id="{{ $item->id }}"
-                                    data-name="{{ $item->name }}"
-                                    data-price="{{ $item->price }}"
-                                    data-image="{{ asset('storage/' . ($item->image_avant ?? 'default.jpg')) }}"
-                                    data-stock="{{ $item->stock }}"
-                                    class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-secondary transition hover:scale-110"
-                                    {{ $item->stock == 0 ? 'disabled' : '' }}>
-                                <i class="fas fa-plus"></i>
-                            </button>
+                                        <button onclick="addToCart(this)"
+                                                data-id="{{ $item->id }}"
+                                                data-name="{{ $item->name }}"
+                                                data-price="{{ $item->price }}"
+                                                data-image="{{ asset('storage/' . ($item->image_avant ?? 'default.jpg')) }}"
+                                                data-stock="{{ $item->stock }}"
+                                                class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-secondary transition hover:scale-110"
+                                                {{ $item->stock == 0 ? 'disabled' : '' }}>
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        @endforeach
                     </div>
                 </div>
-                @endforeach
+
+                <!-- Navigation -->
+                <div class="flex justify-center mt-6">
+                    <div class="flex space-x-4">
+                        <button class="swiper-button-prev-related w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="swiper-button-next-related w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         @endif
     </main>
-
-    <!-- Features Section -->
-    <section class="bg-dark text-white py-12 mt-12">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-4 gap-8">
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-shipping-fast text-2xl"></i>
-                    </div>
-                    <h3 class="font-semibold mb-2">Livraison Rapide</h3>
-                    <p class="text-gray-300 text-sm">Partout en Tunisie</p>
-                </div>
-
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-shield-alt text-2xl"></i>
-                    </div>
-                    <h3 class="font-semibold mb-2">Paiement Sécurisé</h3>
-                    <p class="text-gray-300 text-sm">Transactions 100% sécurisées</p>
-                </div>
-
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-undo-alt text-2xl"></i>
-                    </div>
-                    <h3 class="font-semibold mb-2">Retour Facile</h3>
-                    <p class="text-gray-300 text-sm">30 jours pour changer d'avis</p>
-                </div>
-
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-headset text-2xl"></i>
-                    </div>
-                    <h3 class="font-semibold mb-2">Support Client</h3>
-                    <p class="text-gray-300 text-sm">7j/7 par email & téléphone</p>
-                </div>
-            </div>
-        </div>
-    </section>
 @endsection
 
 @section('css')
@@ -666,32 +674,51 @@
         transform: translateY(-50%) scale(1.1);
     }
 
-    .product-image-enter {
-        opacity: 0;
-        transform: scale(0.95);
+    .cursor-zoom-in {
+        cursor: zoom-in;
     }
 
-    .product-image-enter-active {
-        opacity: 1;
-        transform: scale(1);
-        transition: opacity 300ms, transform 300ms;
+    #zoom-lens {
+        pointer-events: none;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
     }
 
-    .product-image-exit {
-        opacity: 1;
-        transform: scale(1);
+    .size-btn.selected {
+        border-color: #D4AF37;
+        background-color: #D4AF37;
+        color: white;
     }
 
-    .product-image-exit-active {
-        opacity: 0;
-        transform: scale(0.95);
-        transition: opacity 300ms, transform 300ms;
+    .color-btn.selected {
+        border-width: 3px;
+        transform: scale(1.1);
+    }
+
+    .swiper-button-disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .review-item {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>
 @endsection
 
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Variables
@@ -703,11 +730,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const addToCartButton = document.querySelector('button[onclick="addToCart(this)"]');
     const buttonText = document.getElementById('buttonText');
     const spinner = document.getElementById('addToCartSpinner');
+    const zoomContainer = document.getElementById('zoom-container');
+    const zoomLens = document.getElementById('zoom-lens');
+    const zoomModal = document.getElementById('zoom-modal');
+    const zoomedImage = document.getElementById('zoomed-image');
+    const closeZoom = document.getElementById('close-zoom');
 
     let currentIndex = 0;
     const images = Array.from(thumbnails).map(img => img.src);
+    let selectedSize = null;
+    let selectedColor = null;
 
-    // Image Gallery
+    // Image Gallery with Zoom
     if (thumbnails.length > 0) {
         // Preload images
         images.forEach(src => {
@@ -725,6 +759,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             setTimeout(() => {
                 mainImage.src = images[index];
+                zoomedImage.src = images[index];
                 mainImage.style.opacity = '1';
                 mainImage.style.transform = 'scale(1)';
 
@@ -751,28 +786,83 @@ document.addEventListener('DOMContentLoaded', function() {
         if (nextButton) {
             nextButton.addEventListener('click', () => changeImage(currentIndex + 1));
         }
-
-        // Touch swipe for mobile
-        let touchStartX = 0;
-        mainImage.parentElement.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-        });
-
-        mainImage.parentElement.addEventListener('touchend', (e) => {
-            const touchEndX = e.changedTouches[0].clientX;
-            const diff = touchStartX - touchEndX;
-
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) {
-                    // Swipe left
-                    changeImage(currentIndex + 1);
-                } else {
-                    // Swipe right
-                    changeImage(currentIndex - 1);
-                }
-            }
-        });
     }
+
+    // Zoom functionality
+    let isZooming = false;
+
+    const updateZoomLens = (e) => {
+        if (!isZooming) return;
+
+        const rect = zoomContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const lensSize = 80;
+        const lensX = Math.max(0, Math.min(x - lensSize/2, rect.width - lensSize));
+        const lensY = Math.max(0, Math.min(y - lensSize/2, rect.height - lensSize));
+
+        zoomLens.style.left = lensX + 'px';
+        zoomLens.style.top = lensY + 'px';
+        zoomLens.style.opacity = '1';
+
+        // Update zoomed image position
+        const scaleX = (x / rect.width) * 100;
+        const scaleY = (y / rect.height) * 100;
+        zoomedImage.style.transformOrigin = `${scaleX}% ${scaleY}%`;
+        zoomedImage.style.transform = 'scale(2)';
+    };
+
+    zoomContainer.addEventListener('mouseenter', () => {
+        isZooming = true;
+        zoomLens.style.opacity = '1';
+        mainImage.style.cursor = 'zoom-in';
+    });
+
+    zoomContainer.addEventListener('mouseleave', () => {
+        isZooming = false;
+        zoomLens.style.opacity = '0';
+        mainImage.style.cursor = 'zoom-in';
+        zoomedImage.style.transform = 'scale(1)';
+    });
+
+    zoomContainer.addEventListener('mousemove', updateZoomLens);
+
+    // Click to open zoom modal
+    zoomContainer.addEventListener('click', () => {
+        zoomModal.classList.remove('hidden');
+        zoomedImage.src = mainImage.src;
+        document.body.style.overflow = 'hidden';
+    });
+
+    closeZoom.addEventListener('click', () => {
+        zoomModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    });
+
+    zoomModal.addEventListener('click', (e) => {
+        if (e.target === zoomModal) {
+            zoomModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Variants selection
+    document.querySelectorAll('.size-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedSize = this.dataset.size;
+        });
+    });
+
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedColor = this.dataset.color;
+        });
+    });
 
     // Quantity Management
     window.updateQuantity = (change) => {
@@ -791,12 +881,17 @@ document.addEventListener('DOMContentLoaded', function() {
         quantityElement.textContent = currentQuantity;
     };
 
-    // Add to Cart with your existing logic
+    // Add to Cart
     window.addToCart = function(button) {
-        // Your existing addToCart logic
         const productCard = button.closest('.swiper-slide > div, .bg-white.rounded-xl');
         const originalContent = button.innerHTML;
         const quantity = parseInt(quantityElement?.textContent || 1);
+
+        // Validation
+        if (quantity > parseInt(button.dataset.stock)) {
+            showNotification('Quantité non disponible en stock.', 'error');
+            return;
+        }
 
         // Animation du bouton
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -805,14 +900,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Simuler l'ajout au panier
         setTimeout(() => {
-            // Votre logique d'ajout au panier existante
             const product = {
                 id: parseInt(button.dataset.id),
                 name: button.dataset.name,
                 price: parseFloat(button.dataset.price),
                 image: button.dataset.image,
                 stock: parseInt(button.dataset.stock),
-                quantity: quantity
+                quantity: quantity,
+                size: selectedSize,
+                color: selectedColor
             };
 
             // Appeler votre fonction cart.addProduct
@@ -820,15 +916,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.cart.addProduct(product);
             }
 
-            // Animation de succès
-            button.innerHTML = '<i class="fas fa-check"></i>';
-            button.classList.remove('bg-primary', 'hover:bg-secondary');
-            button.classList.add('bg-green-500');
-
             // Ajouter effet sur la carte
             if (productCard) {
                 productCard.classList.add('ring-2', 'ring-green-500');
             }
+
+            showNotification('Produit ajouté au panier !', 'success');
 
             // Restaurer après 1.5 secondes
             setTimeout(() => {
@@ -844,6 +937,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     };
 
+   
+
+    // Share functionality
+    window.shareProduct = function(platform) {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent(document.title);
+
+        let shareUrl = '';
+
+        switch(platform) {
+            case 'facebook':
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                break;
+            case 'twitter':
+                shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+                break;
+            case 'whatsapp':
+                shareUrl = `https://wa.me/?text=${title} ${url}`;
+                break;
+            case 'copy':
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    showNotification('Lien copié !', 'success');
+                });
+                return;
+        }
+
+        if (shareUrl) {
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+        }
+    };
+
     // Review System
     const writeReviewBtn = document.getElementById('writeReviewBtn');
     const reviewForm = document.getElementById('reviewForm');
@@ -851,6 +975,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const reviewFormSubmit = document.getElementById('reviewFormSubmit');
     const starButtons = document.querySelectorAll('.star-btn');
     const ratingInput = document.getElementById('rating');
+    const loadMoreBtn = document.getElementById('loadMoreReviews');
 
     if (writeReviewBtn && reviewForm) {
         writeReviewBtn.addEventListener('click', () => {
@@ -866,8 +991,9 @@ document.addEventListener('DOMContentLoaded', function() {
             reviewForm.classList.add('hidden');
             reviewFormSubmit.reset();
             starButtons.forEach(btn => {
-                btn.classList.remove('text-yellow-400');
-                btn.classList.add('text-gray-300');
+                const icon = btn.querySelector('i');
+                icon.classList.remove('fas', 'text-yellow-400');
+                icon.classList.add('far', 'text-gray-300');
             });
             ratingInput.value = '';
         });
@@ -880,12 +1006,13 @@ document.addEventListener('DOMContentLoaded', function() {
             ratingInput.value = rating;
 
             starButtons.forEach((btn, index) => {
+                const icon = btn.querySelector('i');
                 if (index < rating) {
-                    btn.classList.remove('text-gray-300');
-                    btn.classList.add('text-yellow-400');
+                    icon.classList.remove('far', 'text-gray-300');
+                    icon.classList.add('fas', 'text-yellow-400');
                 } else {
-                    btn.classList.remove('text-yellow-400');
-                    btn.classList.add('text-gray-300');
+                    icon.classList.remove('fas', 'text-yellow-400');
+                    icon.classList.add('far', 'text-gray-300');
                 }
             });
         });
@@ -895,6 +1022,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (reviewFormSubmit) {
         reviewFormSubmit.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Validation
+            if (!ratingInput.value) {
+                document.getElementById('ratingError').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('ratingError').classList.add('hidden');
+            }
 
             const formData = new FormData(this);
 
@@ -913,8 +1048,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('errorMessage').classList.add('hidden');
                     reviewFormSubmit.reset();
                     starButtons.forEach(btn => {
-                        btn.classList.remove('text-yellow-400');
-                        btn.classList.add('text-gray-300');
+                        const icon = btn.querySelector('i');
+                        icon.classList.remove('fas', 'text-yellow-400');
+                        icon.classList.add('far', 'text-gray-300');
                     });
                     ratingInput.value = '';
 
@@ -937,16 +1073,89 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Load more reviews
+    if (loadMoreBtn) {
+        let reviewsLoaded = 5;
+        const totalReviews = {{ $reviews->count() }};
+
+        loadMoreBtn.addEventListener('click', function() {
+            const nextReviews = {{ $reviews->slice(5)->toJson() }};
+            const reviewsToLoad = Math.min(5, totalReviews - reviewsLoaded);
+
+            if (reviewsToLoad > 0) {
+                const reviewsList = document.getElementById('reviewsList');
+
+                for (let i = 0; i < reviewsToLoad; i++) {
+                    const review = nextReviews[reviewsLoaded - 5 + i];
+                    if (review) {
+                        const reviewElement = document.createElement('div');
+                        reviewElement.className = 'border-b border-gray-200 pb-6 last:border-0 review-item';
+                        reviewElement.innerHTML = `
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-2">
+                                        <div class="flex text-yellow-400 mr-3">
+                                            ${Array.from({length: 5}, (_, j) =>
+                                                `<i class="fas fa-star ${j < review.rating ? 'text-yellow-400' : 'text-gray-300'}"></i>`
+                                            ).join('')}
+                                        </div>
+                                        <span class="text-sm text-gray-500">${new Date(review.created_at).toLocaleDateString('fr-FR')}</span>
+                                        ${review.approved ? '<span class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800"><i class="fas fa-check mr-1"></i> Approuvé</span>' : ''}
+                                    </div>
+                                    <p class="text-gray-700 mb-3 leading-relaxed">${review.comment}</p>
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                                            <span class="font-bold text-primary">${review.name.charAt(0).toUpperCase()}</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-dark">${review.name}</p>
+                                            ${review.location ? `<p class="text-sm text-gray-500">${review.location}</p>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        reviewsList.appendChild(reviewElement);
+                        reviewsLoaded++;
+                    }
+                }
+
+                if (reviewsLoaded >= totalReviews) {
+                    loadMoreBtn.style.display = 'none';
+                } else {
+                    loadMoreBtn.innerHTML = `<i class="fas fa-plus mr-2"></i> Charger plus d'avis (${totalReviews - reviewsLoaded})`;
+                }
+            }
+        });
+    }
+
+    // Related Products Slider
+    const relatedSwiper = new Swiper('.related-products', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: false,
+        navigation: {
+            nextEl: '.swiper-button-next-related',
+            prevEl: '.swiper-button-prev-related',
+        },
+        breakpoints: {
+            640: { slidesPerView: 2, spaceBetween: 20 },
+            768: { slidesPerView: 3, spaceBetween: 25 },
+            1024: { slidesPerView: 4, spaceBetween: 30 }
+        }
+    });
+
     // Notification function
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform translate-y-full opacity-0 transition-all duration-300 ${
             type === 'success' ? 'bg-green-500' :
-            type === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+            type === 'warning' ? 'bg-yellow-500' :
+            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
         }`;
         notification.innerHTML = `
             <div class="flex items-center">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'} mr-2"></i>
                 <span>${message}</span>
             </div>
         `;

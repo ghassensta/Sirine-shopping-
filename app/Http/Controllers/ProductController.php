@@ -202,8 +202,13 @@ class ProductController extends Controller
         }
 
         if ($product->images) {
-            foreach ($product->images as $image) {
-                Storage::disk('public')->delete($image);
+            $images = is_string($product->images) ? json_decode($product->images, true) : $product->images;
+            if (is_array($images) || is_object($images)) {
+                foreach ((array)$images as $image) {
+                    if ($image) {
+                        Storage::disk('public')->delete($image);
+                    }
+                }
             }
         }
 

@@ -5,12 +5,11 @@
             <!-- About -->
             <div class="text-left">
                 <div class="flex items-center justify-start space-x-3 mb-4">
-                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                        <img src="{{asset('assets/img/Sirine Shopping.png')}}" alt="">
+                    <div class="flex-shrink-0">
+                        <img src="{{asset('assets/img/logo-srine-white.png')}}" alt="Sirine Shopping Logo" class="h-20 w-auto">
                     </div>
                     <div>
                         <div class="font-serif text-lg font-bold">Sirine Shopping</div>
-                        <div class="text-sm text-gray-300">Décoration & Accessoires</div>
                     </div>
                 </div>
                 <p class="text-gray-300 text-sm leading-relaxed max-w-xs">

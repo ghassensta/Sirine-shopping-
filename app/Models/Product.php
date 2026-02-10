@@ -46,10 +46,13 @@ class Product extends Model
         return $query->where('is_active', true);
     }
 
+    /**
+     * The categories that belong to the product.
+     */
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'category_product')
-                    ->withTimestamps();
+                   ->withTimestamps();
     }
 
     public function avis()

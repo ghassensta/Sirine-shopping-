@@ -59,6 +59,48 @@
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
+
+    /* Mobile filters animation */
+    #mobileFilters {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-in-out;
+    }
+
+    #mobileFilters:not(.hidden) {
+        max-height: 1000px; /* Large enough value */
+    }
+
+    /* Responsive grid improvements */
+    @media (max-width: 640px) {
+        .grid-cols-1.sm\\:grid-cols-2.md\\:grid-cols-2.lg\\:grid-cols-3.xl\\:grid-cols-4 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 640px) and (max-width: 767px) {
+        .grid-cols-1.sm\\:grid-cols-2.md\\:grid-cols-2.lg\\:grid-cols-3.xl\\:grid-cols-4 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .grid-cols-1.sm\\:grid-cols-2.md\\:grid-cols-2.lg\\:grid-cols-3.xl\\:grid-cols-4 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1024px) and (max-width: 1279px) {
+        .grid-cols-1.sm\\:grid-cols-2.md\\:grid-cols-2.lg\\:grid-cols-3.xl\\:grid-cols-4 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .grid-cols-1.sm\\:grid-cols-2.md\\:grid-cols-2.lg\\:grid-cols-3.xl\\:grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
 </style>
 @endsection
 
@@ -210,139 +252,67 @@
                     </div>
 
                     <!-- Mobile Filter Toggle -->
-                    <button onclick="toggleMobileFilters()" class="md:hidden flex items-center px-4 py-2 bg-white border rounded-lg">
-                        <i class="fas fa-filter mr-2"></i>
-                        Filtres
+                    <button onclick="toggleMobileFilters()"
+                            class="md:hidden flex items-center px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-primary/30 transition-all duration-200 shadow-sm">
+                        <i class="fas fa-filter text-primary mr-2"></i>
+                        <span class="font-medium text-dark">Filtres</span>
+                        <i class="fas fa-chevron-down text-gray-400 ml-2 transition-transform duration-200" id="filterChevron"></i>
                     </button>
                 </div>
 
                 <!-- Mobile Filters (Hidden) -->
-                <div id="mobileFilters" class="md:hidden mb-6 bg-white p-4 rounded-xl shadow-sm hidden">
+                <div id="mobileFilters" class="md:hidden mb-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100 hidden transition-all duration-300">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold">Filtres</h3>
-                        <button onclick="toggleMobileFilters()" class="text-gray-500">
-                            <i class="fas fa-times"></i>
+                        <h3 class="font-serif text-lg font-bold text-dark">Filtres</h3>
+                        <button onclick="toggleMobileFilters()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                            <i class="fas fa-times text-gray-500"></i>
                         </button>
                     </div>
-                    <ul class="space-y-2">
-                        <li>
-                            <a href="{{ route('allproduits') }}"
-                               class="block py-2 px-3 rounded-lg {{ !$selectedCategory ? 'active-category' : '' }}">
-                               Tous les produits
-                            </a>
-                        </li>
-                        @foreach($categories as $category)
-                        <li>
-                            <a href="{{ route('categorie.produits', $category->slug) }}"
-                               class="block py-2 px-3 rounded-lg {{ $selectedCategory && $selectedCategory->id === $category->id ? 'active-category' : '' }}">
-                               {{ $category->name }}
-                            </a>
-                        </li>
-                        @endforeach
-                    </ul>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium text-dark mb-2">Catégories</h4>
+                            <ul class="space-y-2 max-h-48 overflow-y-auto">
+                                <li>
+                                    <a href="{{ route('allproduits') }}"
+                                       class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-primary/5 transition-colors {{ !$selectedCategory ? 'bg-primary/10 text-primary font-medium' : '' }}">
+                                        <span>Tous les produits</span>
+                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                            {{ $totalProducts ?? 0 }}
+                                        </span>
+                                    </a>
+                                </li>
+                                @foreach($categories as $category)
+                                <li>
+                                    <a href="{{ route('categorie.produits', $category->slug) }}"
+                                       class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-primary/5 transition-colors {{ $selectedCategory && $selectedCategory->id === $category->id ? 'bg-primary/10 text-primary font-medium' : '' }}">
+                                        <span>{{ $category->name }}</span>
+                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                            {{ $category->products_count ?? 0 }}
+                                        </span>
+                                    </a>
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+
+                        <!-- Free Shipping Info -->
+                        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-truck text-primary mr-2"></i>
+                                <span class="font-semibold text-sm">Livraison gratuite</span>
+                            </div>
+                            <p class="text-sm text-gray-600">
+                                Pour les commandes supérieures à {{ $freeShippingLimit ?? 150 }} DT
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Products Grid -->
                 @if($products->count() > 0)
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     @foreach($products as $product)
-                    <article class="product-card bg-white rounded-xl overflow-hidden border border-gray-100">
-                        <!-- Image -->
-                        <div class="relative overflow-hidden aspect-square bg-gray-50">
-                            <a href="{{ route('preview-article', $product->slug) }}" class="block h-full">
-                                <img src="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
-                                     alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                                     loading="lazy">
-                            </a>
-
-                            <!-- Badges -->
-                            @if($product->created_at->diffInDays(now()) < 10)
-                            <span class="absolute top-3 right-3 bg-green-500 text-white text-xs px-3 py-1 rounded-full">
-                                Nouveau
-                            </span>
-                            @endif
-
-                            @if($product->stock <= 5 && $product->stock > 0)
-                            <span class="absolute top-3 left-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full animate-pulse">
-                                Stock limité
-                            </span>
-                            @endif
-
-                            @if($product->stock == 0)
-                            <span class="absolute top-3 left-3 bg-gray-600 text-white text-xs px-3 py-1 rounded-full">
-                                Épuisé
-                            </span>
-                            @endif
-
-                            <!-- Quick Actions -->
-                            <div class="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onclick="addToWishlist({{ $product->id }})"
-                                        class="w-8 h-8 bg-white rounded-full shadow flex items-center justify-center hover:bg-primary hover:text-white transition">
-                                    <i class="far fa-heart"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="p-5">
-                            <!-- Title -->
-                            <h3 class="font-semibold text-dark mb-2 line-clamp-2">
-                                <a href="{{ route('preview-article', $product->slug) }}"
-                                   class="hover:text-primary transition">
-                                   {{ $product->name }}
-                                </a>
-                            </h3>
-
-                            <!-- Rating -->
-                            @php
-                                $reviews = $product->avis()->where('approved', true);
-                                $avgRating = $reviews->avg('rating');
-                                $reviewCount = $reviews->count();
-                            @endphp
-
-                            @if($reviewCount > 0)
-                            <div class="flex items-center mb-3">
-                                <div class="flex text-yellow-400 mr-2">
-                                    @for($i = 1; $i <= 5; $i++)
-                                    <i class="fas fa-star {{ $i <= floor($avgRating) ? 'text-yellow-400' : ($i - $avgRating < 1 ? 'fas fa-star-half-alt' : 'far fa-star text-gray-300') }} text-sm"></i>
-                                    @endfor
-                                </div>
-                                <span class="text-sm text-gray-500">({{ $reviewCount }})</span>
-                            </div>
-                            @endif
-
-                            <!-- Description -->
-                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                                {{ Str::limit(strip_tags($product->description), 80) }}
-                            </p>
-
-                            <!-- Price & Action -->
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <span class="font-bold text-xl text-primary">
-                                        {{ number_format($product->price, 2) }} DT
-                                    </span>
-                                    @if($product->discount_price)
-                                    <span class="text-gray-400 line-through text-sm ml-2">
-                                        {{ number_format($product->discount_price, 2) }} DT
-                                    </span>
-                                    @endif
-                                </div>
-
-                                <button onclick="addToCart(this)"
-                                        data-id="{{ $product->id }}"
-                                        data-name="{{ $product->name }}"
-                                        data-price="{{ $product->discount_price ?? $product->price }}"
-                                        data-image="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
-                                        data-stock="{{ $product->stock }}"
-                                        class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-secondary transition hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        {{ $product->stock == 0 ? 'disabled' : '' }}>
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </article>
+                    @include('front-office.components.product-card', ['product' => $product])
                     @endforeach
                 </div>
 
@@ -355,19 +325,32 @@
 
                 @else
                 <!-- Empty State -->
-                <div class="text-center py-16">
-                    <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-box-open text-gray-400 text-3xl"></i>
+                <div class="text-center py-20">
+                    <div class="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-box-open text-6xl text-primary/60"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-700 mb-2">Aucun produit trouvé</h3>
-                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
-                        Aucun produit disponible dans {{ $selectedCategory ? 'cette catégorie' : 'notre catalogue' }}.
+                    <h3 class="text-2xl font-serif font-bold text-dark mb-4">
+                        {{ $selectedCategory ? 'Catégorie vide' : 'Aucun produit disponible' }}
+                    </h3>
+                    <p class="text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
+                        {{ $selectedCategory
+                            ? 'Cette catégorie ne contient actuellement aucun produit. Découvrez nos autres collections.'
+                            : 'Notre catalogue est temporairement vide. Revenez bientôt pour découvrir nos nouveaux produits.' }}
                     </p>
-                    <a href="{{ route('allproduits') }}"
-                       class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-secondary transition">
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        Retour à la boutique
-                    </a>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="{{ route('allproduits') }}"
+                           class="inline-flex items-center px-8 py-3 bg-primary text-white rounded-lg hover:bg-secondary transition-all duration-200 hover:shadow-lg hover:scale-105">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Voir tous les produits
+                        </a>
+                        @if($selectedCategory)
+                        <a href="{{ route('contact') }}"
+                           class="inline-flex items-center px-8 py-3 bg-white border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-all duration-200 hover:shadow-lg hover:scale-105">
+                            <i class="fas fa-envelope mr-2"></i>
+                            Nous contacter
+                        </a>
+                        @endif
+                    </div>
                 </div>
                 @endif
             </div>
@@ -408,7 +391,17 @@
 // Mobile filters toggle
 function toggleMobileFilters() {
     const filters = document.getElementById('mobileFilters');
-    filters.classList.toggle('hidden');
+    const chevron = document.getElementById('filterChevron');
+
+    if (filters.classList.contains('hidden')) {
+        filters.classList.remove('hidden');
+        setTimeout(() => filters.style.maxHeight = filters.scrollHeight + 'px', 10);
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+    } else {
+        filters.style.maxHeight = '0';
+        setTimeout(() => filters.classList.add('hidden'), 300);
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+    }
 }
 
 // Add to cart function - VOTRE LOGIQUE EXISTANTE

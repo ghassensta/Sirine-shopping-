@@ -133,13 +133,7 @@
                                             @endif
                                         </div>
 
-                                        <!-- Quick actions -->
-                                        <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <button class="w-8 h-8 bg-white rounded-full shadow flex items-center justify-center hover:bg-primary hover:text-white transition"
-                                                    onclick="addToWishlist({{ $product->id }})">
-                                                <i class="far fa-heart"></i>
-                                            </button>
-                                        </div>
+                                       
                                     </div>
 
                                     <!-- Product info -->
@@ -303,13 +297,7 @@
                                                     @endif
                                                 </div>
 
-                                                <!-- Quick actions -->
-                                                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                    <button class="w-8 h-8 bg-white rounded-full shadow flex items-center justify-center hover:bg-primary hover:text-white transition"
-                                                            onclick="addToWishlist({{ $product->id }})">
-                                                        <i class="far fa-heart"></i>
-                                                    </button>
-                                                </div>
+                                                
                                             </div>
 
                                             <!-- Product info -->

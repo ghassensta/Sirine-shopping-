@@ -5,11 +5,7 @@
 <div class="container d-flex justify-content-center align-items-center min-vh-100">
   <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px; border-radius: 1rem;">
     {{-- Logo --}}
-    <div class="text-center mb-4">
-      <a href="/">
-        <img src="{{ asset('boutiqueassets/img/logo-image.jpg') }}" loading="lazy" alt="Sirine Shopping" class="img-fluid" style="height: 4.5rem;">
-      </a>
-    </div>
+    
 
     <h2 class="text-center mb-2" style="font-weight: 700; font-size: 1.75rem;">Bienvenue ! 👋</h2>
     <p class="text-center text-muted mb-4">Connectez-vous à votre compte pour commencer</p>
@@ -67,11 +63,6 @@
         @enderror
       </div>
 
-      {{-- Remember --}}
-      <div class="mb-3 form-check">
-        <input id="remember" name="remember" type="checkbox" class="form-check-input" {{ old('remember') ? 'checked' : '' }}>
-        <label for="remember" class="form-check-label">Se souvenir de moi</label>
-      </div>
 
       {{-- Submit --}}
       <div class="d-grid gap-2">
@@ -91,19 +82,28 @@
 
 @push('scripts')
 <script>
-  $(document).ready(function() {
+  document.addEventListener('DOMContentLoaded', function() {
     // Toggle password visibility
-    $('#togglePassword').click(function() {
-      const $pwd = $('#password');
-      const $icon = $('#toggleIcon');
-      if ($pwd.attr('type') === 'password') {
-        $pwd.attr('type', 'text');
-        $icon.removeClass('fa-eye-slash').addClass('fa-eye');
-      } else {
-        $pwd.attr('type', 'password');
-        $icon.removeClass('fa-eye').addClass('fa-eye-slash');
-      }
-    });
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (togglePassword && password && toggleIcon) {
+      togglePassword.addEventListener('click', function() {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // Toggle the eye / eye-slash icon
+        if (type === 'password') {
+          toggleIcon.classList.remove('fa-eye');
+          toggleIcon.classList.add('fa-eye-slash');
+        } else {
+          toggleIcon.classList.remove('fa-eye-slash');
+          toggleIcon.classList.add('fa-eye');
+        }
+      });
+    }
+  });
 
     // Show spinner on submit
     $('#loginForm').submit(function() {

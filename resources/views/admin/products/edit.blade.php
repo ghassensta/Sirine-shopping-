@@ -99,7 +99,7 @@
                                     multiple="multiple" data-placeholder="Sélectionnez au moins deux catégories" required
                                     style="width: 100%;">
                                     @php
-                                        $selected = $product->category_ids ?? [];
+                                        $selected = $product->categories->pluck('id')->toArray();
                                     @endphp
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }}"
