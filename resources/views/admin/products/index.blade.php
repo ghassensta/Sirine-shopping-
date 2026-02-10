@@ -178,7 +178,7 @@
                         }
                     }
                 ],
-                order: [[2, 'asc']],
+                order: [[0, 'desc']], // Tri par ID (ou created_at) décroissant par défaut
                 buttons: [{
                     text: '<i class="ti ti-plus me-1"></i><span class="d-none d-sm-inline">Ajouter Produit</span>',
                     className: 'btn btn-primary mt-3',

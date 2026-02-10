@@ -120,6 +120,7 @@
 
                     {{-- ----------------   Prix & Stock   ---------------- --}}
                     <div class="row">
+
                         <div class="mb-3 col-md-6">
                             <label for="price" class="form-label fw-bold">
                                 Prix <span class="text-danger">*</span>
@@ -137,6 +138,24 @@
                         </div>
 
                         <div class="mb-3 col-md-6">
+                            <label for="price_baree" class="form-label fw-bold">
+                                Prix barré
+                            </label>
+
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="ti ti-percentage"></i></span>
+                                <input id="price_baree" name="price_baree" class="form-control" type="number" step="0.01"
+                                    value="{{ old('price_baree', $product->price_baree) }}">
+                                <div class="invalid-feedback" id="price_baree_feedback">
+                                    Le prix barré doit être supérieur au prix normal
+                                </div>
+                            </div>
+                            @error('price_baree')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3 col-md-12">
                             <label for="stock" class="form-label fw-bold">
                                 Stock <span class="text-danger">*</span>
                             </label>
@@ -281,8 +300,8 @@
 
                 const myDropzoneMulti = new Dropzone(dropzoneMulti, {
                     url: "#",
-                    paramName: 'mediaimage[]', // Match form field name
-                    maxFilesize: 5, // MB
+                    paramName: 'mediaimage[]',
+                    maxFilesize: 5,
                     parallelUploads: 1,
                     addRemoveLinks: true,
                     acceptedFiles: 'image/*',
@@ -292,7 +311,6 @@
                     init: function() {
                         const dz = this;
 
-                        // If we have valid items, emit them
                         mediaImagesArray.forEach(function(image) {
                             const mockFile = {
                                 name: image,
@@ -306,28 +324,23 @@
                             dz.files.push(mockFile);
                         });
 
-                        // On success
                         dz.on("success", function(file, response) {
                             console.log("File uploaded successfully:", response);
                         });
 
-                        // On remove
                         dz.on("removedfile", function(file) {
                             console.log("File removed:", file);
-                            // Update old_media_images
                             mediaImagesArray = mediaImagesArray.filter(img => img !== file.name);
                             document.getElementById('file-input-covert-old').value = JSON.stringify(mediaImagesArray);
                         });
 
-                        // Form submission
                         document.querySelector("#boutiqueForm").addEventListener("click", function(e) {
-                            e.preventDefault(); // Prevent default button behavior
+                            e.preventDefault();
                             handleFormSubmission(dz);
                         });
                     }
                 });
 
-                // Handle form + files
                 function handleFormSubmission(dz) {
                     dz.processQueue();
                     submitFormWithFiles(dz.getAcceptedFiles());
@@ -352,7 +365,7 @@
                     const fileListCovert = fileListFrom(files);
                     const fileInputCovert = document.getElementById('file-input-covert');
                     fileInputCovert.files = fileListCovert;
-                    document.getElementById('productForm').submit(); // Submit the form
+                    document.getElementById('productForm').submit();
                 }
             }
 
@@ -380,6 +393,42 @@
                     $(this).removeClass('is-invalid');
                 }
             });
+
+            // ── Validation Prix / Prix barré ───────────────────────────────────
+            const priceInput      = document.getElementById('price');
+            const bareeInput      = document.getElementById('price_baree');
+            const bareeFeedback   = document.getElementById('price_baree_feedback');
+
+            function validateBaree() {
+                if (!bareeInput || !priceInput) return true;
+
+                const normal = parseFloat(priceInput.value) || 0;
+                const promo  = parseFloat(bareeInput.value) || 0;
+
+                if (promo > 0 && promo <= normal) {
+                    bareeInput.classList.add('is-invalid');
+                    if (bareeFeedback) bareeFeedback.style.display = 'block';
+                    return false;
+                }
+
+                bareeInput.classList.remove('is-invalid');
+                if (bareeFeedback) bareeFeedback.style.display = 'none';
+                return true;
+            }
+
+            if (priceInput && bareeInput) {
+                priceInput.addEventListener('input', validateBaree);
+                bareeInput.addEventListener('input', validateBaree);
+
+                // Vérification à la soumission
+                document.querySelector('#productForm').addEventListener('submit', function(e) {
+                    if (!validateBaree()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+            }
+
         })();
     </script>
 @endsection

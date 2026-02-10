@@ -105,9 +105,9 @@
                     </div>
 
                     <div class="row">
-                        <!-- Prix -->
+                        <!-- Prix normal -->
                         <div class="mb-3 col-md-6">
-                            <label class="form-label fw-bold" for="price">Prix <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold" for="price">Prix de Base <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
                                 <span class="input-group-text"><i class="ti ti-moneybag"></i></span>
                                 <input type="number" name="price" class="form-control" id="price" step="0.01"
@@ -120,21 +120,38 @@
                             @enderror
                         </div>
 
-                        <!-- Stock -->
+                        <!-- Prix barré -->
                         <div class="mb-3 col-md-6">
-                            <label class="form-label fw-bold" for="stock">Stock <span
-                                    class="text-danger">*</span></label>
+                            <label class="form-label fw-bold" for="price_baree">Prix barré</label>
                             <div class="input-group input-group-merge">
-                                <span class="input-group-text"><i class="ti ti-box"></i></span>
-                                <input type="number" name="stock" class="form-control" id="stock"
-                                    value="{{ old('stock', isset($product) ? $product->stock : '') }}"
-                                    placeholder="Quantité en stock" required>
-                                <div class="invalid-feedback">Veuillez entrer une quantité valide.</div>
+                                <span class="input-group-text"><i class="ti ti-percentage"></i></span>
+                                <input type="number" name="price_baree" class="form-control" id="price_baree" step="0.01"
+                                    value="{{ old('price_baree', isset($product) ? $product->price_baree : '') }}" placeholder="0.00"
+                                    min="0">
+                                <div class="invalid-feedback" id="price_baree_feedback">
+                                    Le prix barré doit être supérieur au prix normal
+                                </div>
                             </div>
-                            @error('stock')
+                            @error('price_baree')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
+                    </div>
+
+                    <!-- Stock -->
+                    <div class="mb-3 col-md-12">
+                        <label class="form-label fw-bold" for="stock">Stock <span
+                                class="text-danger">*</span></label>
+                        <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="ti ti-box"></i></span>
+                            <input type="number" name="stock" class="form-control" id="stock"
+                                value="{{ old('stock', isset($product) ? $product->stock : '') }}"
+                                placeholder="Quantité en stock" required>
+                            <div class="invalid-feedback">Veuillez entrer une quantité valide.</div>
+                        </div>
+                        @error('stock')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Description -->
@@ -236,18 +253,16 @@
              *  Initialisation Dropzone
              * ----------------------------------------------------------------- */
             if (dropzoneElement) {
-                /** images existantes (édit) : array de noms */
                 let existing = @json(isset($product) ? $product->images ?? [] : []);
 
                 if (!Array.isArray(existing)) existing = [];
-                /* filtre sécurité */
                 existing = existing.filter(img => typeof img === 'string' && img.trim() !== '');
 
                 const dz = new Dropzone(dropzoneElement, {
-                    url: '#', // pas utilisé, on soumet le <form>
+                    url: '#',
                     uploadMultiple: false,
                     paramName: 'mediaimage[]',
-                    maxFilesize: 5, // MB
+                    maxFilesize: 5,
                     acceptedFiles: 'image/*',
                     addRemoveLinks: true,
                     parallelUploads: 10,
@@ -271,37 +286,25 @@
                         </div>`,
                     dictRemoveFile: 'Supprimer',
                     init() {
-                        /* ---- 1. Injecter les images existantes ---------------- */
                         existing.forEach(name => {
-                            const mock = {
-                                name,
-                                size: 123456,
-                                accepted: true
-                            }; // taille fictive
+                            const mock = { name, size: 123456, accepted: true };
                             this.emit('addedfile', mock);
                             this.emit('thumbnail', mock, "{{ asset('storage') }}/" + name);
                             this.emit('complete', mock);
                             this.files.push(mock);
                         });
 
-                        /* ---- 2. Retirer un fichier pré-existant --------------- */
                         this.on('removedfile', (file) => {
-                            /* si l’image retirée était déjà sur le serveur, on l’enlève de la liste old */
                             existing = existing.filter(n => n !== file.name);
                         });
 
-                        /* ---- 3. Soumission du formulaire ---------------------- */
                         form.addEventListener('submit', (e) => {
                             e.preventDefault();
-
-                            /* a) on prépare old_media_images (restants) */
                             hiddenOldInput.value = JSON.stringify(existing);
 
-                            /* b) on attribue les nouveaux fichiers à un input caché */
                             const newFiles = this.getAcceptedFiles().filter(f => f instanceof File);
                             hiddenFileInput.files = toFileList(newFiles);
 
-                            /* c) on soumet le formulaire natif */
                             form.submit();
                         });
                     }
@@ -309,34 +312,64 @@
             }
 
             /* -----------------------------------------------------------------
-             *  Validation du formulaire
+             *  Validation catégories (min 2)
              * ----------------------------------------------------------------- */
-            // Initialise tous les selects .select2
             $('.select2').select2({
-                placeholder: function() {
-                    return $(this).data('placeholder');
-                },
+                placeholder: function() { return $(this).data('placeholder'); },
                 allowClear: true,
                 width: 'resolve'
             });
 
-            // Validation à la soumission
             $('#productForm').on('submit', function(e) {
                 let $select = $('#category_ids');
                 let values = $select.val() || [];
                 if (values.length < 2) {
                     e.preventDefault();
-                    // Affiche l’erreur Bootstrap
                     $select.addClass('is-invalid');
                 }
             });
 
-            // Supprime l’erreur dès qu’on atteint 2 sélections
             $('#category_ids').on('change', function() {
                 if (($(this).val() || []).length >= 2) {
                     $(this).removeClass('is-invalid');
                 }
             });
+
+            /* -----------------------------------------------------------------
+             *  Validation prix / prix barré
+             * ----------------------------------------------------------------- */
+            const priceInput = document.getElementById('price');
+            const bareeInput = document.getElementById('price_baree');
+            const bareeFeedback = document.getElementById('price_baree_feedback');
+
+            function checkPrixBarre() {
+                const prix = parseFloat(priceInput.value) || 0;
+                const barre = parseFloat(bareeInput.value) || 0;
+
+                if (barre > 0 && barre <= prix) {
+                    bareeInput.classList.add('is-invalid');
+                    if (bareeFeedback) bareeFeedback.style.display = 'block';
+                    return false;
+                } else {
+                    bareeInput.classList.remove('is-invalid');
+                    if (bareeFeedback) bareeFeedback.style.display = 'none';
+                    return true;
+                }
+            }
+
+            if (priceInput && bareeInput) {
+                priceInput.addEventListener('input', checkPrixBarre);
+                bareeInput.addEventListener('input', checkPrixBarre);
+
+                // Vérification finale à la soumission
+                form.addEventListener('submit', (e) => {
+                    if (!checkPrixBarre()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+            }
+
         })();
     </script>
 @endsection

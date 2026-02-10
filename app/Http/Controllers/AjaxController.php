@@ -140,9 +140,9 @@ public function getCommandes(Request $request)
         $columnsArr = $request->input('columns', []);
         $searchValue = $request->input('search.value', '');
 
-        $columnIndex = $orderArr[0]['column'] ?? 0;
-        $columnSortOrder = $orderArr[0]['dir'] ?? 'asc';
-        $columnName = $columnsArr[$columnIndex]['data'] ?? 'name';
+        $columnIndex = $orderArr[0]['column'] ?? 7; // 7 est l'index de created_at
+        $columnSortOrder = $orderArr[0]['dir'] ?? 'desc'; // Tri décroissant par défaut
+        $columnName = $columnsArr[$columnIndex]['data'] ?? 'created_at'; // Tri par défaut sur created_at
 
         // Colonnes triables
         $sortable = [
@@ -157,6 +157,12 @@ public function getCommandes(Request $request)
             'created_at' => 'products.created_at',
         ];
         $orderBy = $sortable[$columnName] ?? 'products.created_at';
+        
+        // S'assurer que le tri par défaut est sur created_at descendant si aucun tri n'est spécifié
+        if (empty($orderArr)) {
+            $orderBy = 'products.created_at';
+            $columnSortOrder = 'desc';
+        }
 
         // 2) Requête filtrée avec chargement des catégories
         $query = Product::with(['categories' => function($q) {

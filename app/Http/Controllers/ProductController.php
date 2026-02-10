@@ -30,6 +30,7 @@ class ProductController extends Controller
         $rules = [
             'name' => 'required|string|max:255|unique:products,name',
             'price' => 'required|numeric|min:0',
+            'price_baree'=>'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'image_avant' => 'required|image',
             'description' => 'required|string',
@@ -86,21 +87,23 @@ class ProductController extends Controller
             }
         }
 
-        Product::create([
+        $product = Product::create([
             'name' => $validated['name'],
             'slug' => Str::slug($validated['name']),
             'image_avant' => $coverImagePath,
             'images' => $images,
             'price' => $validated['price'],
+            'price_baree' => $validated['price_baree'] ?? 0,
             'stock' => $validated['stock'],
             'description' => $validated['description'],
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_keywords' => $validated['meta_keywords'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
             'is_active' => $request->boolean('is_active', true),
-            'category_ids' => $validated['category_ids'],
-
         ]);
+
+        // Attacher les catégories
+        $product->categories()->sync($validated['category_ids']);
 
         return redirect()->route('produits.index')
             ->with('message', 'Produit créé avec succès');
@@ -121,6 +124,7 @@ class ProductController extends Controller
         $rules = [
             'name' => 'required|string|max:255|unique:products,name,' . $id,
             'price' => 'required|numeric|min:0',
+            'price_baree'=>'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'image_avant' => 'nullable|image',
             'description' => 'required|string',
@@ -178,6 +182,7 @@ class ProductController extends Controller
             'slug' => Str::slug($validated['name']),
             'images' => $images,
             'price' => $validated['price'],
+            'price_baree'=>$validated['price_baree'] ?? 0,
             'stock' => $validated['stock'],
             'description' => $validated['description'],
             'is_active' => $request->boolean('is_active', $product->is_active),
