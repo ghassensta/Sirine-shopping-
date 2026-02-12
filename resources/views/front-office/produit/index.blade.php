@@ -904,6 +904,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 id: parseInt(button.dataset.id),
                 name: button.dataset.name,
                 price: parseFloat(button.dataset.price),
+                originalPrice: parseFloat(button.dataset.originalPrice || button.dataset.price),
+                discountPrice: button.dataset.discountPrice ? parseFloat(button.dataset.discountPrice) : null,
                 image: button.dataset.image,
                 stock: parseInt(button.dataset.stock),
                 quantity: quantity,
@@ -922,6 +924,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             showNotification('Produit ajouté au panier !', 'success');
+
+            // Ouvrir le panier offcanvas
+            if (window.cart && typeof window.cart.openCart === 'function') {
+                window.cart.openCart();
+            }
 
             // Restaurer après 1.5 secondes
             setTimeout(() => {

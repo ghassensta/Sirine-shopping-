@@ -26,7 +26,7 @@
 
 
 @section('content')
-    <section class="py-16 bg-gray-100">
+    <section class="py-16 bg-light checkout-section">
         <div class="container mx-auto px-6 max-w-7xl">
             <h1 class="text-3xl font-bold text-center mb-12 text-gray-800">
                 Finaliser Votre Commande
@@ -36,7 +36,7 @@
 
                 <!-- ================= FORMULAIRE ================= -->
                 <!-- ================= FORMULAIRE ================= -->
-                <div class="bg-white rounded-2xl shadow-lg p-8">
+                <div class="bg-white rounded-2xl shadow-lg p-8 checkout-card">
                     <form id="checkoutForm" action="/order/submit" method="POST" class="space-y-6">
                         @csrf
 
@@ -49,7 +49,7 @@
                             <label for="first_name" class="block text-sm font-medium text-gray-700">Nom & Prénom *</label>
                             <input type="text" id="first_name" name="full_name" required
                                 class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm
-                              focus:ring-[#dfb54e] focus:border-[#dfb54e] sm:text-sm p-2"
+                              focus:ring-primary focus:border-primary sm:text-sm p-2"
                                 placeholder="Nom & Prénom">
                         </div>
 
@@ -58,7 +58,7 @@
                             <label for="email" class="block text-sm font-medium text-gray-700">Email (optionnel)</label>
                             <input type="email" id="email" name="email"
                                 class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm
-                  focus:ring-[#dfb54e] focus:border-[#dfb54e] sm:text-sm p-2"
+                  focus:ring-primary focus:border-primary sm:text-sm p-2"
                                 placeholder="votre@email.com">
                         </div>
 
@@ -68,7 +68,7 @@
                             <label for="phone" class="block text-sm font-medium text-gray-700">Téléphone *</label>
                             <input type="tel" id="phone" name="phone" required
                                 class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm
-                          focus:ring-[#dfb54e] focus:border-[#dfb54e] sm:text-sm p-2"
+                          focus:ring-primary focus:border-primary sm:text-sm p-2"
                                 placeholder="+216 12 345 678">
                         </div>
 
@@ -77,14 +77,14 @@
                             <label for="address" class="block text-sm font-medium text-gray-700">Adresse *</label>
                             <input type="text" id="address" name="address" required
                                 class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm
-                          focus:ring-[#dfb54e] focus:border-[#dfb54e] sm:text-sm p-2"
+                          focus:ring-primary focus:border-primary sm:text-sm p-2"
                                 placeholder="123 Rue de la Déco">
                         </div>
                         <button type="submit" id="submitOrder"
-                            class="w-full bg-[#dfb54e] hover:bg-[#cfa640] text-white py-3 rounded-lg
+                            class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg
                        font-semibold text-lg transition-colors duration-300 shadow-md
                        hover:shadow-lg flex items-center justify-center focus:outline-none
-                       focus:ring-2 focus:ring-[#dfb54e]">
+                       focus:ring-2 focus:ring-primary">
                             <span>Passer la Commande</span>
                             <svg id="submitSpinner" class="hidden animate-spin h-5 w-5 text-white ml-2"
                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
@@ -99,7 +99,7 @@
 
 
                 <!-- ================== RÉSUMÉ =================== -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 sticky top-20">
+                <div class="bg-white rounded-2xl shadow-lg p-8 sticky top-20 checkout-card">
                     <h2 class="text-xl font-semibold text-gray-800 mb-4">
                         Résumé de la Commande
                     </h2>
@@ -126,13 +126,61 @@
                     </div>
 
                     <a href="/panier"
-                        class="block mt-4 text-[#dfb54e] hover:text-[#ae8d3c] text-center font-medium hover:underline">
+                        class="block mt-4 text-primary hover:text-secondary text-center font-medium hover:underline">
                         Modifier le panier
                     </a>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Modal de confirmation de commande -->
+    <div id="orderConfirmationModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-lg w-full p-8 text-center border border-white/20">
+            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <i class="fas fa-check-circle text-3xl text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                Commande Confirmée !
+            </h2>
+            <p class="text-gray-600 mb-6">
+                Votre commande a été enregistrée avec succès.
+                Nous vous contacterons bientôt pour confirmer les détails.
+            </p>
+
+            <!-- Détails de la commande -->
+            <div id="modalOrderDetails" class="bg-gray-50 rounded-2xl p-6 mb-6 text-left">
+                <h3 class="font-semibold text-gray-800 mb-4 text-center">Détails de votre commande</h3>
+                <div id="modalOrderItems" class="space-y-3 mb-4"></div>
+                <div class="border-t border-gray-200 pt-4 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>Sous-total</span>
+                        <span id="modalSubtotal">0 DT</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Frais de livraison</span>
+                        <span id="modalShipping">0 DT</span>
+                    </div>
+                    <div class="flex justify-between font-semibold text-lg pt-2 border-t border-gray-300">
+                        <span>Total</span>
+                        <span id="modalTotal">0 DT</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <a href="/" class="block w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    Retour à l'accueil
+                </a>
+                <a href="/toutes/produits" class="block w-full bg-white border-2 border-gray-200 hover:border-primary text-gray-700 hover:text-primary py-3 px-6 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
+                    Continuer mes achats
+                </a>
+            </div>
+            <button id="closeConfirmationModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+    </div>
 @endsection
 
 {{-- ========================= STYLES ======================== --}}
@@ -143,12 +191,12 @@
         }
 
         #checkoutForm input:focus {
-            border-color: #dfb54e;
+            border-color: rgb(223, 181, 78);
             box-shadow: 0 0 0 3px rgba(223, 181, 78, .15);
         }
 
         #submitOrder.loading {
-            background: #e3c786;
+            background: rgb(227, 199, 134);
             cursor: wait;
         }
 
@@ -173,6 +221,16 @@
                 position: static;
             }
         }
+
+        /* Theme consistency */
+        .checkout-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .checkout-card {
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 @endsection
 
@@ -185,7 +243,7 @@
         console.log("SHIPPING_FEE",SHIPPING_const);
         console.log("FREE_SHIPPING_MIN",FREE_SHIPPING_Amount);
         /* Helpers LocalStorage */
-        const STORAGE_KEY = 'cart';
+        const STORAGE_KEY = 'sirine_cart';
         const sanitize = c => c.filter(i => i.id && i.name && i.image && !isNaN(i.price));
         const getCart = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         const showNotification = (msg, type = 'success') => {
@@ -196,6 +254,59 @@
             document.body.appendChild(n);
             setTimeout(() => n.remove(), 3000);
         };
+
+        /* Gestion de la modal de confirmation */
+        function openConfirmationModal() {
+            const modal = document.getElementById('orderConfirmationModal');
+
+            // Remplir les détails de la commande dans la modal
+            populateModalOrderDetails();
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function populateModalOrderDetails() {
+            const cart = sanitize(getCart());
+
+            // Remplir les articles
+            const modalItems = document.getElementById('modalOrderItems');
+            modalItems.innerHTML = cart.map(item => {
+                const line = item.price * item.quantity;
+                return `<div class="flex items-center py-2">
+                    <img src="${item.image}" alt="${item.name}"
+                         class="w-10 h-10 rounded-lg object-cover flex-shrink-0 mr-3">
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800 text-sm">${item.name}</h4>
+                        <p class="text-gray-500 text-xs">${item.quantity} × ${item.price.toFixed(2)} DT</p>
+                    </div>
+                    <p class="text-gray-600 font-semibold text-sm">${line.toFixed(2)} DT</p>
+                </div>`;
+            }).join('');
+
+            // Remplir les totaux
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = subtotal >= FREE_SHIPPING_Amount ? 0 : SHIPPING_const;
+            const total = subtotal + shipping;
+
+            document.getElementById('modalSubtotal').textContent = `${subtotal.toFixed(2)} DT`;
+            document.getElementById('modalShipping').textContent = shipping === 0 ? 'Offert' : `${shipping.toFixed(2)} DT`;
+            document.getElementById('modalTotal').textContent = `${total.toFixed(2)} DT`;
+        }
+
+        function closeConfirmationModal() {
+            const modal = document.getElementById('orderConfirmationModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+
+            // Vider le panier quand l'utilisateur ferme la modal
+            localStorage.removeItem(STORAGE_KEY);
+
+            // Mettre à jour l'affichage du panier dans l'interface
+            if (window.cart) {
+                window.cart.updateUI();
+            }
+        }
 
         /* Mise à jour résumé */
         function updateOrderSummary() {
@@ -222,6 +333,14 @@
                          class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
                     <div class="ml-4 flex-1">
                         <h4 class="font-medium text-gray-800 text-sm">${i.name}</h4>
+                        <div class="flex items-center space-x-2">
+                            ${i.discountPrice && i.discountPrice < i.originalPrice ?
+                                `<span class="text-gray-500 line-through text-xs">${i.originalPrice.toFixed(2)} DT</span>
+                                 <span class="text-primary font-semibold text-sm">${i.discountPrice.toFixed(2)} DT</span>
+                                 <span class="text-green-600 text-xs bg-green-100 px-1 rounded">-${Math.round((1 - i.discountPrice / i.originalPrice) * 100)}%</span>` :
+                                `<span class="text-gray-500 text-xs">${i.price.toFixed(2)} DT</span>`
+                            }
+                        </div>
                         <p class="text-gray-500 text-xs">${i.quantity} × ${i.price.toFixed(2)} DT</p>
                     </div>
                     <p class="text-gray-600 font-semibold text-sm">${line.toFixed(2)} DT</p>
@@ -244,6 +363,23 @@
             const btn = document.getElementById('submitOrder');
             const spinner = document.getElementById('submitSpinner');
 
+            // Gestionnaire pour fermer la modal
+            document.getElementById('closeConfirmationModal')?.addEventListener('click', closeConfirmationModal);
+
+            // Fermer la modal en cliquant sur le fond
+            document.getElementById('orderConfirmationModal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'orderConfirmationModal') {
+                    closeConfirmationModal();
+                }
+            });
+
+            // Fermer la modal avec Échap
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !document.getElementById('orderConfirmationModal').classList.contains('hidden')) {
+                    closeConfirmationModal();
+                }
+            });
+
             form.addEventListener('submit', async e => {
                 e.preventDefault();
                 let invalid = false;
@@ -265,6 +401,16 @@
 
                 btn.classList.add('loading');
                 spinner.classList.remove('hidden');
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <span class="flex items-center justify-center">
+                        <svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path>
+                        </svg>
+                        Traitement en cours...
+                    </span>
+                `;
                 try {
                     const res = await fetch('/order/submit', {
                         method: 'POST',
@@ -281,10 +427,20 @@
                     });
                     if (res.ok) {
                         const data = await res.json();
+
+                        // Ouvrir la modal de confirmation
+                        openConfirmationModal();
+
+                        // Vider immédiatement le panier après commande réussie
                         localStorage.removeItem(STORAGE_KEY);
-                        updateOrderSummary();
-                        showNotification(data.message || 'Commande confirmée !');
-                        data.redirect && (window.location.href = data.redirect);
+
+                        // Vider le formulaire
+                        form.reset();
+
+                        // Mettre à jour l'interface du panier
+                        if (window.cart) {
+                            window.cart.updateUI();
+                        }
                     } else if (res.status === 422) {
                         const errs = await res.json();
                         showNotification(Object.values(errs.errors).flat().join('\n'), 'error');
@@ -297,6 +453,8 @@
                 } finally {
                     btn.classList.remove('loading');
                     spinner.classList.add('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Passer la Commande</span><svg id="submitSpinner" class="hidden animate-spin h-5 w-5 text-white ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path></svg>';
                 }
             });
         });

@@ -419,6 +419,8 @@ window.addToCart = function(button) {
             id: Number(button.dataset.id),
             name: button.dataset.name,
             price: Number(button.dataset.price),
+            originalPrice: Number(button.dataset.originalPrice || button.dataset.price),
+            discountPrice: button.dataset.discountPrice ? Number(button.dataset.discountPrice) : null,
             image: button.dataset.image,
             stock: Number(button.dataset.stock),
             quantity: 1
@@ -433,7 +435,7 @@ window.addToCart = function(button) {
         }
 
         // Récupérer le panier
-        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let cart = JSON.parse(localStorage.getItem('sirine_cart') || '[]');
 
         // Nettoyer le panier
         cart = cart.filter(i => i.id && i.name && !isNaN(i.price) && i.image && !isNaN(i.stock));
@@ -453,13 +455,16 @@ window.addToCart = function(button) {
         }
 
         // Sauvegarder
-        localStorage.setItem('cart', JSON.stringify(cart));
+        localStorage.setItem('sirine_cart', JSON.stringify(cart));
 
         // Mettre à jour le compteur
         updateCartCount();
 
         // Notification
         showNotification(`${product.name} ajouté au panier !`, 'success');
+
+        // Ouvrir le panier offcanvas
+        window.cart.openCart();
 
     } catch (err) {
         showNotification(err.message, 'error');
@@ -475,7 +480,7 @@ window.addToCart = function(button) {
 
 // Mettre à jour le compteur du panier
 function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cart = JSON.parse(localStorage.getItem('sirine_cart') || '[]');
     const total = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
     // Mettre à jour tous les éléments avec l'ID cartCount

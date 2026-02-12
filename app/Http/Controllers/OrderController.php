@@ -29,8 +29,8 @@ class OrderController extends Controller
             'client_id' => $validated['client_id'],
             'statut_id' => $validated['statut_id'],
             'notes' => $validated['notes'],
-            'subtotal' => 0,
-            'total' => 0,
+            'subtotal_ht' => 0,
+            'total_ttc' => 0,
         ]);
 
         return response()->json(['success' => true, 'order' => $order]);
@@ -83,12 +83,5 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
         $order->delete();
         return response()->json(['success' => true]);
-    }
-
-    public function pdf($id)
-    {
-        $order = Order::with(['client', 'statut', 'items.product'])->findOrFail($id);
-        $pdf = PDF::loadView('admin.commandes.pdf', compact('order'));
-        return $pdf->download('commande-' . $order->numero_commande . '.pdf');
     }
 }

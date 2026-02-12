@@ -447,7 +447,7 @@ $(function() {
                             <button class="btn btn-info action-btn-mobile edit-status" data-id="${order.id}">
                                 <i class="ti ti-edit"></i>
                             </button>
-                            <a href="{{ route('commandes.pdf', ':id') }}".replace(':id',${order.id})
+                            <a href="/admin/sirine-shopping/commandes/${order.id}/pdf"
                                target="_blank"
                                class="btn btn-success action-btn-mobile">
                                 <i class="ti ti-file-download"></i>
@@ -629,7 +629,7 @@ $(function() {
                         title="Modifier">
                     <i class="ti ti-edit"></i>
                 </button>
-                <a href="{{ route('commandes.pdf', ':id') }}".replace(':id', full.id)
+                <a href="/admin/sirine-shopping/commandes/${full.id}/pdf"
                    target="_blank"
                    class="btn btn-sm btn-icon btn-success"
                    title="PDF">

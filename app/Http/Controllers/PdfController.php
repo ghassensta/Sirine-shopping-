@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
-use App\Models\Commande;
-use App\Models\Companie;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,12 +36,12 @@ class PdfController extends Controller
             'shipped_at' => $commande->shipped_at ? $commande->shipped_at->format('d/m/Y') : 'N/A',
             'paid_at' => $commande->paid_at ? $commande->paid_at->format('d/m/Y') : 'N/A',
             'currency' => 'DT', // Dynamic currency
-            'logo_path' => public_path('images/logo.png'), // Path to company logo
+            'logo_path' => public_path('assets/img/logo.png'), // Path to company logo
         ];
 
-        // Generate and stream the PDF
+        // Generate and download the PDF
         return Pdf::loadView('pdf.facture', ['data' => $data])
-            ->stream("facture_{$commande->numero_commande}.pdf");
+            ->download("facture_{$commande->numero_commande}.pdf");
     } catch (\Exception $e) {
         // Log the error and return a user-friendly response
         \Log::error('PDF generation failed: ' . $e->getMessage());

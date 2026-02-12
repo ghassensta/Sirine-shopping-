@@ -351,6 +351,8 @@
                                                             data-id="{{ $product->id }}"
                                                             data-name="{{ $product->name }}"
                                                             data-price="{{ $product->price }}"
+                                                            data-original-price="{{ $product->price }}"
+                                                            data-discount-price="{{ $product->discount_price ?? null }}"
                                                             data-image="{{ asset('storage/' . $product->image_avant) }}"
                                                             data-stock="{{ $product->stock }}"
                                                             class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-secondary transition-all duration-300 hover:scale-110 disabled:bg-gray-300 disabled:cursor-not-allowed"
@@ -643,6 +645,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 id: parseInt(button.dataset.id),
                 name: button.dataset.name,
                 price: parseFloat(button.dataset.price),
+                originalPrice: parseFloat(button.dataset.originalPrice || button.dataset.price),
+                discountPrice: button.dataset.discountPrice ? parseFloat(button.dataset.discountPrice) : null,
                 image: button.dataset.image,
                 stock: parseInt(button.dataset.stock),
                 quantity: 1
@@ -650,6 +654,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (window.cart && typeof window.cart.addProduct === 'function') {
                 window.cart.addProduct(product);
+            }
+
+            // Ouvrir le panier offcanvas
+            if (window.cart && typeof window.cart.openCart === 'function') {
+                window.cart.openCart();
             }
 
             button.innerHTML = '<i class="fas fa-check"></i>';

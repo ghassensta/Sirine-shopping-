@@ -423,6 +423,8 @@ window.addToCart = function(button) {
         id: parseInt(button.dataset.id),
         name: button.dataset.name,
         price: parseFloat(button.dataset.price),
+        originalPrice: parseFloat(button.dataset.originalPrice || button.dataset.price),
+        discountPrice: button.dataset.discountPrice ? parseFloat(button.dataset.discountPrice) : null,
         image: button.dataset.image,
         stock: parseInt(button.dataset.stock)
     };
@@ -436,6 +438,9 @@ window.addToCart = function(button) {
         cart.addProduct(product);
         button.innerHTML = originalHTML;
         button.disabled = false;
+
+        // Ouvrir le panier offcanvas
+        cart.openCart();
     }, 500);
 };
 

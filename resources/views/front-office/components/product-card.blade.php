@@ -54,7 +54,7 @@
                 @endif
             </div>
 
-            <button onclick="addToCart(this)" data-id="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->discount_price ?? $product->price }}" data-image="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}" data-stock="{{ $product->stock }}" class="w-12 h-12 bg-primary hover:bg-secondary text-white rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ring-2 ring-transparent hover:ring-primary/20" {{ $product->stock == 0 ? 'disabled' : '' }} aria-label="{{ $product->stock == 0 ? 'Produit épuisé' : 'Ajouter ' . $product->name . ' au panier' }}">
+            <button onclick="addToCart(this)" data-id="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->discount_price ?? $product->price }}" data-original-price="{{ $product->price }}" data-discount-price="{{ $product->discount_price ?? null }}" data-image="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}" data-stock="{{ $product->stock }}" class="w-12 h-12 bg-primary hover:bg-secondary text-white rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ring-2 ring-transparent hover:ring-primary/20" {{ $product->stock == 0 ? 'disabled' : '' }} aria-label="{{ $product->stock == 0 ? 'Produit épuisé' : 'Ajouter ' . $product->name . ' au panier' }}">
                 <i class="fas {{ $product->stock == 0 ? 'fa-times' : 'fa-plus' }} text-sm"></i>
             </button>
         </div>

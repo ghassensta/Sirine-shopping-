@@ -150,6 +150,8 @@
                                         data-id="{{ $product->id }}"
                                         data-name="{{ $product->name }}"
                                         data-price="{{ $product->price }}"
+                                        data-original-price="{{ $product->price }}"
+                                        data-discount-price="{{ $product->discount_price ?? null }}"
                                         data-image="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
                                         data-stock="{{ $product->stock }}"
                                         class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-secondary transition hover:scale-110"
@@ -226,11 +228,13 @@ window.addToCart = function(button) {
 
     try {
         const product = {
-            id: Number(button.dataset.id),
+            id: parseInt(button.dataset.id),
             name: button.dataset.name,
-            price: Number(button.dataset.price),
+            price: parseFloat(button.dataset.price),
+            originalPrice: parseFloat(button.dataset.originalPrice || button.dataset.price),
+            discountPrice: button.dataset.discountPrice ? parseFloat(button.dataset.discountPrice) : null,
             image: button.dataset.image,
-            stock: Number(button.dataset.stock),
+            stock: parseInt(button.dataset.stock),
             quantity: 1
         };
 
@@ -241,7 +245,7 @@ window.addToCart = function(button) {
             throw new Error('Produit épuisé');
         }
 
-        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let cart = JSON.parse(localStorage.getItem('sirine_cart') || '[]');
         cart = cart.filter(i => i.id && i.name && !isNaN(i.price) && i.image && !isNaN(i.stock));
         const existingItem = cart.find(item => item.id === product.id);
 
@@ -256,9 +260,12 @@ window.addToCart = function(button) {
             cart.push(product);
         }
 
-        localStorage.setItem('cart', JSON.stringify(cart));
+        localStorage.setItem('sirine_cart', JSON.stringify(cart));
         updateCartCount();
         showNotification(`${product.name} ajouté au panier !`, 'success');
+
+        // Ouvrir le panier offcanvas
+        window.cart.openCart();
 
     } catch (err) {
         showNotification(err.message, 'error');
@@ -274,7 +281,7 @@ window.addToCart = function(button) {
 
 // Update cart count
 function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cart = JSON.parse(localStorage.getItem('sirine_cart') || '[]');
     const total = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
     document.querySelectorAll('#cartCount').forEach(el => el.textContent = total);
 }

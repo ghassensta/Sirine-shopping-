@@ -67,7 +67,7 @@
                     <div class="p-6">
                         <h3 class="text-lg font-serif font-bold text-dark mb-2">{{ $category->name }}</h3>
                         <p class="text-gray-600 mb-4 text-sm leading-relaxed">{{ Str::limit($category->description ?? 'Découvrez notre collection ' . $category->name, 100) }}</p>
-                        <a href="{{ route('categorie.produits', $category->slug) }}" class="inline-block bg-primary hover:bg-secondary text-white py-2 px-4 rounded-lg font-semibold transition min-h-[44px] flex items-center">Voir la collection</a>
+                <a href="{{ route('categorie.produits', $category->slug) }}" class="inline-block bg-primary hover:bg-secondary text-white py-2 px-4 rounded-lg font-semibold transition min-h-[44px] flex items-center">Voir la collection</a>
                     </div>
                 </div>
                 @endforeach
@@ -188,8 +188,8 @@
             <h2 class="text-clamp(1.5rem, 4vw, 2rem) font-serif font-bold mb-6">Prêt à Embellir Votre Intérieur ?</h2>
             <p class="text-base mb-8 max-w-2xl mx-auto leading-relaxed">Découvrez notre catalogue complet de meubles et accessoires déco sur notre boutique en ligne</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="{{ route('allproduits') }}" class="bg-white text-primary font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition min-h-[44px] flex items-center justify-center">Visiter la Boutique</a>
-                <a href="{{ route('contact') }}" class="bg-transparent border-2 border-white text-white font-semibold py-3 px-6 rounded-lg hover:bg-white hover:text-primary transition min-h-[44px] flex items-center justify-center">Nous Contacter</a>
+                <a href="{{ route('allproduits') }}" class="bg-primary hover:bg-secondary text-white font-semibold py-3 px-6 rounded-lg transition min-h-[44px] flex items-center justify-center">Visiter la Boutique</a>
+                <a href="{{ route('contact') }}" class="bg-transparent hover:bg-white border-2 border-white text-white hover:text-primary font-semibold py-3 px-6 rounded-lg transition min-h-[44px] flex items-center justify-center">Nous Contacter</a>
             </div>
         </div>
     </section>
