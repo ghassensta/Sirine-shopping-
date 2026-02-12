@@ -130,9 +130,9 @@
     <div class="flex flex-col h-full">
         <!-- Header -->
         <div class="flex justify-between items-center p-4 border-b bg-gradient-to-r from-primary/5 to-white">
-            <h2 class="text-xl font-serif font-bold text-dark">
+            <span class="text-xl font-serif font-bold text-dark">
                 <i class="fas fa-shopping-bag mr-2"></i>Votre Panier
-            </h2>
+            </span>
             <button id="closeCartOffcanvas" class="p-2 hover:text-primary transition min-w-[44px] min-h-[44px]">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
