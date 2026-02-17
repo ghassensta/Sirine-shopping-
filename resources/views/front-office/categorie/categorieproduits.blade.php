@@ -141,7 +141,7 @@
             <div class="w-24 h-1 bg-primary mx-auto mt-6 rounded-full"></div>
         </div>
 
-       
+
     </div>
 </section>
 
@@ -150,96 +150,10 @@
     <div class="container mx-auto px-4">
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Filters Sidebar -->
-            <aside class="lg:w-1/4">
-                <div class="bg-white rounded-xl shadow-sm p-6 sticky top-4">
-                    <!-- Categories -->
-                    <div class="mb-8">
-                        <h3 class="font-serif text-xl font-bold text-dark mb-4 pb-2 border-b">Catégories</h3>
-                        <ul class="space-y-1">
-                            <li>
-                                <a href="{{ route('allproduits') }}"
-                                   class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition {{ !$selectedCategory ? 'active-category' : '' }}">
-                                    <span>Tous les produits</span>
-                                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                        {{ $totalProducts ?? 0 }}
-                                    </span>
-                                </a>
-                            </li>
-                            
-                            <!-- Affichage hiérarchique des catégories -->
-                            @php
-                                $parentCategories = $categories->where('parent_id', null);
-                            @endphp
-                            
-                            @foreach($parentCategories as $parent)
-                                <li class="category-parent">
-                                    <a href="{{ route('categorie.produits', $parent->slug) }}"
-                                       class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition font-medium {{ $selectedCategory && $selectedCategory->id === $parent->id ? 'active-category' : '' }}">
-                                        <span>{{ $parent->name }}</span>
-                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                            {{ $parent->total_products_count ?? $parent->products_count ?? 0 }}
-                                        </span>
-                                    </a>
-                                    
-                                    <!-- Sous-catégories -->
-                                    @if($parent->children->count() > 0)
-                                        <ul class="ml-4 mt-1 space-y-1">
-                                            @foreach($parent->children as $child)
-                                                <li class="category-child">
-                                                    <a href="{{ route('categorie.produits', $child->slug) }}"
-                                                       class="flex items-center justify-between py-1.5 px-3 rounded-lg hover:bg-gray-50 transition text-sm {{ $selectedCategory && $selectedCategory->id === $child->id ? 'active-category' : '' }}">
-                                                        <span class="flex items-center">
-                                                            <i class="fas fa-chevron-right text-xs text-gray-400 mr-2"></i>
-                                                            {{ $child->name }}
-                                                        </span>
-                                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                                            {{ $child->total_products_count ?? $child->products_count ?? 0 }}
-                                                        </span>
-                                                    </a>
-                                                    
-                                                    <!-- Sous-sous-catégories -->
-                                                    @if($child->children->count() > 0)
-                                                        <ul class="ml-4 mt-1 space-y-1">
-                                                            @foreach($child->children as $grandChild)
-                                                                <li class="category-grandchild">
-                                                                    <a href="{{ route('categorie.produits', $grandChild->slug) }}"
-                                                                       class="flex items-center justify-between py-1 px-3 rounded-lg hover:bg-gray-50 transition text-sm text-gray-600 {{ $selectedCategory && $selectedCategory->id === $grandChild->id ? 'active-category text-gray-900 font-medium' : '' }}">
-                                                                        <span class="flex items-center">
-                                                                            <i class="fas fa-angle-right text-xs text-gray-300 mr-2"></i>
-                                                                            {{ $grandChild->name }}
-                                                                        </span>
-                                                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                                                            {{ $grandChild->total_products_count ?? $grandChild->products_count ?? 0 }}
-                                                                        </span>
-                                                                    </a>
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @endif
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
 
-                    <!-- Free Shipping Info -->
-                    <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-                        <div class="flex items-center mb-2">
-                            <i class="fas fa-truck text-primary mr-2"></i>
-                            <span class="font-semibold">Livraison gratuite</span>
-                        </div>
-                        <p class="text-sm text-gray-600">
-                            Pour les commandes supérieures à {{ $freeShippingLimit ?? 150 }} DT
-                        </p>
-                    </div>
-                </div>
-            </aside>
 
             <!-- Products Grid -->
-            <div class="lg:w-3/4">
+            <div class="lg:w-4/4">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                     <div class="mb-4 md:mb-0">
@@ -251,62 +165,10 @@
                         </p>
                     </div>
 
-                    <!-- Mobile Filter Toggle -->
-                    <button onclick="toggleMobileFilters()"
-                            class="md:hidden flex items-center px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-primary/30 transition-all duration-200 shadow-sm">
-                        <i class="fas fa-filter text-primary mr-2"></i>
-                        <span class="font-medium text-dark">Filtres</span>
-                        <i class="fas fa-chevron-down text-gray-400 ml-2 transition-transform duration-200" id="filterChevron"></i>
-                    </button>
+
                 </div>
 
-                <!-- Mobile Filters (Hidden) -->
-                <div id="mobileFilters" class="md:hidden mb-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100 hidden transition-all duration-300">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-serif text-lg font-bold text-dark">Filtres</h3>
-                        <button onclick="toggleMobileFilters()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                            <i class="fas fa-times text-gray-500"></i>
-                        </button>
-                    </div>
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="font-medium text-dark mb-2">Catégories</h4>
-                            <ul class="space-y-2 max-h-48 overflow-y-auto">
-                                <li>
-                                    <a href="{{ route('allproduits') }}"
-                                       class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-primary/5 transition-colors {{ !$selectedCategory ? 'bg-primary/10 text-primary font-medium' : '' }}">
-                                        <span>Tous les produits</span>
-                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                            {{ $totalProducts ?? 0 }}
-                                        </span>
-                                    </a>
-                                </li>
-                                @foreach($categories as $category)
-                                <li>
-                                    <a href="{{ route('categorie.produits', $category->slug) }}"
-                                       class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-primary/5 transition-colors {{ $selectedCategory && $selectedCategory->id === $category->id ? 'bg-primary/10 text-primary font-medium' : '' }}">
-                                        <span>{{ $category->name }}</span>
-                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                            {{ $category->products_count ?? 0 }}
-                                        </span>
-                                    </a>
-                                </li>
-                                @endforeach
-                            </ul>
-                        </div>
 
-                        <!-- Free Shipping Info -->
-                        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-truck text-primary mr-2"></i>
-                                <span class="font-semibold text-sm">Livraison gratuite</span>
-                            </div>
-                            <p class="text-sm text-gray-600">
-                                Pour les commandes supérieures à {{ $freeShippingLimit ?? 150 }} DT
-                            </p>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Products Grid -->
                 @if($products->count() > 0)
@@ -358,32 +220,6 @@
     </div>
 </section>
 
-<!-- Newsletter -->
-<section class="py-16 bg-dark text-white">
-    <div class="container mx-auto px-4">
-        <div class="max-w-2xl mx-auto text-center">
-            <h2 class="font-serif text-3xl md:text-4xl font-bold mb-4">Restez inspiré</h2>
-            <p class="text-gray-300 mb-8">
-                Inscrivez-vous à notre newsletter pour recevoir les dernières tendances déco et nos nouveautés.
-            </p>
-
-            <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input type="email"
-                       placeholder="Votre adresse email"
-                       required
-                       class="flex-1 px-4 py-3 rounded-lg text-dark focus:outline-none focus:ring-2 focus:ring-primary">
-                <button type="submit"
-                        class="bg-primary hover:bg-secondary text-white px-6 py-3 rounded-lg font-semibold transition">
-                        S'abonner
-                </button>
-            </form>
-
-            <p class="text-sm text-gray-400 mt-4">
-                En vous inscrivant, vous acceptez notre politique de confidentialité.
-            </p>
-        </div>
-    </div>
-</section>
 @endsection
 
 @section('js')

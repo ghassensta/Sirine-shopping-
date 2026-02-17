@@ -10,10 +10,8 @@
     <meta name="theme-color" content="#D4AF37">
     <meta name="description" content="{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}">
     <link rel="canonical" href="{{ url()->current() }}">
-    <link rel="alternate" href="{{ url()->current() }}" hreflang="fr-tn">
-    <link rel="alternate" href="{{ url()->current() }}" hreflang="x-default">
 
-    <!-- Open Graph -->
+    <!-- Open Graph / Twitter -->
     <meta property="og:locale" content="fr_TN">
     <meta property="og:type" content="product">
     <meta property="og:site_name" content="Sirine Shopping">
@@ -24,79 +22,60 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="product:availability" content="{{ $product->stock > 0 ? 'in stock' : 'out of stock' }}">
-    <meta property="product:price:amount" content="{{ number_format($product->price, 2) }}">
+    <meta property="product:price:amount" content="{{ number_format($product->price, 2, '.', '') }}">
     <meta property="product:price:currency" content="TND">
+
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $product->meta_title ?? $product->name }}">
-    <meta name="twitter:description" content="{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}">
-    <meta name="twitter:image" content="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}">
 
     <!-- Schema.org Product -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "Product",
-        "name": "{{ $product->name }}",
-        "description": "{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}",
+        "name": "{{ addslashes($product->name) }}",
+        "description": "{{ addslashes($product->meta_description ?? Str::limit(strip_tags($product->description), 155)) }}",
         "image": "{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}",
         "sku": "{{ $product->sku ?? 'PROD-' . $product->id }}",
-        "brand": {
-            "@type": "Brand",
-            "name": "Sirine Shopping"
-        },
+        "brand": { "@type": "Brand", "name": "Sirine Shopping" },
         "offers": {
             "@type": "Offer",
             "url": "{{ url()->current() }}",
             "priceCurrency": "TND",
-            "price": "{{ number_format($product->price, 2) }}",
-            "availability": "{{ $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
-            "shippingDetails": {
-                "@type": "OfferShippingDetails",
-                "shippingRate": {
-                    "@type": "MonetaryAmount",
-                    "value": "{{ $config->shipping_cost ?? 7.5 }}",
-                    "currency": "TND"
-                },
-                "shippingDestination": {
-                    "@type": "DefinedRegion",
-                    "addressCountry": "TN"
-                }
-            }
+            "price": "{{ number_format($product->price, 2, '.', '') }}",
+            "availability": "{{ $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}"
         },
         "aggregateRating": {
             "@type": "AggregateRating",
-            "ratingValue": "{{ $averageRating ?? 4.5 }}",
-            "reviewCount": "{{ $totalReviews ?? 0 }}"
+            "ratingValue": "{{ $product->average_rating }}",
+            "reviewCount": "{{ $product->total_reviews }}"
         }
     }
     </script>
 @endsection
 
 @section('content')
+
     <!-- Breadcrumb -->
     <div class="bg-light py-3">
         <div class="container mx-auto px-4">
             <nav class="flex text-sm" aria-label="Breadcrumb">
                 <ol class="flex items-center space-x-2">
-                    <li>
-                        <a href="/" class="text-gray-500 hover:text-primary transition">Accueil</a>
-                    </li>
+                    <li><a href="/" class="text-gray-500 hover:text-primary transition">Accueil</a></li>
                     <li class="text-gray-400">/</li>
-                    <li>
-                        <a href="{{ route('allproduits') }}" class="text-gray-500 hover:text-primary transition">Collection</a>
-                    </li>
-                    @if($product->category)
-                    <li class="text-gray-400">/</li>
-                    <li>
-                        <a href="{{ route('categorie.produits', $product->category->slug) }}" class="text-gray-500 hover:text-primary transition">
-                            {{ $product->category->name }}
-                        </a>
-                    </li>
+                    <li><a href="{{ route('allproduits') }}" class="text-gray-500 hover:text-primary transition">Collection</a></li>
+
+                    @if($product->categories->isNotEmpty())
+                        <li class="text-gray-400">/</li>
+                        <li>
+                            <a href="{{ route('categorie.produits', $product->categories->first()->slug) }}"
+                               class="text-gray-500 hover:text-primary transition">
+                                {{ $product->categories->first()->name }}
+                            </a>
+                        </li>
                     @endif
+
                     <li class="text-gray-400">/</li>
-                    <li>
-                        <span class="text-dark font-medium">{{ Str::limit($product->name, 30) }}</span>
-                    </li>
+                    <li><span class="text-dark font-medium">{{ Str::limit($product->name, 30) }}</span></li>
                 </ol>
             </nav>
         </div>
@@ -105,9 +84,9 @@
     <!-- Main Product Section -->
     <main class="container mx-auto px-4 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+
             <!-- Product Gallery -->
             <div class="lg:sticky lg:top-4">
-                <!-- Main Image with Zoom -->
                 <div class="relative mb-4 bg-white rounded-xl shadow-sm overflow-hidden group">
                     <div id="zoom-container" class="relative overflow-hidden">
                         <img id="mainImage"
@@ -116,7 +95,6 @@
                              class="w-full h-96 object-contain cursor-zoom-in transition-transform duration-300"
                              loading="lazy" />
 
-                        <!-- Zoom Lens -->
                         <div id="zoom-lens" class="absolute w-20 h-20 bg-white/50 border border-primary rounded-full pointer-events-none opacity-0 transition-opacity"></div>
                     </div>
 
@@ -130,34 +108,23 @@
                         </div>
                     </div>
 
-                    <!-- Navigation Arrows -->
-                    <button id="prevImage"
-                            class="gallery-nav absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                            aria-label="Image précédente">
+                    <button id="prevImage" class="gallery-nav absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-label="Image précédente">
                         <i class="fas fa-chevron-left text-dark"></i>
                     </button>
-                    <button id="nextImage"
-                            class="gallery-nav absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                            aria-label="Image suivante">
+                    <button id="nextImage" class="gallery-nav absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-label="Image suivante">
                         <i class="fas fa-chevron-right text-dark"></i>
                     </button>
 
                     <!-- Badges -->
                     <div class="absolute top-4 left-4 flex flex-col space-y-2">
                         @if($product->stock <= 5 && $product->stock > 0)
-                            <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full animate-pulse">
-                                Stock limité
-                            </span>
+                            <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full animate-pulse">Stock limité</span>
                         @endif
                         @if($product->stock == 0)
-                            <span class="bg-gray-600 text-white text-xs px-3 py-1 rounded-full">
-                                Épuisé
-                            </span>
+                            <span class="bg-gray-600 text-white text-xs px-3 py-1 rounded-full">Épuisé</span>
                         @endif
-                        @if($product->created_at && $product->created_at->diffInDays(now()) < 10)
-                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">
-                                Nouveau
-                            </span>
+                        @if($product->created_at?->diffInDays(now()) < 10)
+                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">Nouveau</span>
                         @endif
                         @if($product->price_baree && $product->price_baree > $product->price)
                             <span class="bg-primary text-white text-xs px-3 py-1 rounded-full font-semibold">
@@ -165,24 +132,11 @@
                             </span>
                         @endif
                     </div>
-
-                  
                 </div>
 
                 <!-- Thumbnails -->
                 @php
-                    $images = [];
-                    if (!empty($product->images)) {
-                        if (is_array($product->images)) {
-                            $images = $product->images;
-                        } else {
-                            $decoded = json_decode($product->images, true);
-                            if (json_last_error() === JSON_ERROR_NONE) {
-                                $images = $decoded;
-                            }
-                        }
-                    }
-                    // Toujours inclure l'image principale
+                    $images = $product->images ?? [];
                     if ($product->image_avant && !in_array($product->image_avant, $images)) {
                         array_unshift($images, $product->image_avant);
                     }
@@ -190,7 +144,7 @@
 
                 @if(count($images) > 0)
                 <div class="flex space-x-3 overflow-x-auto py-2 scrollbar-hide">
-                    @foreach ($images as $index => $image)
+                    @foreach($images as $index => $image)
                         <img src="{{ asset('storage/' . $image) }}"
                              alt="{{ $product->name }} - image {{ $index + 1 }}"
                              loading="lazy"
@@ -204,43 +158,38 @@
             <!-- Product Info -->
             <div>
                 <div class="bg-white rounded-xl shadow-sm p-6">
-                    <!-- Product Header -->
-                    <div class="mb-6">
-                        <h1 class="text-2xl md:text-3xl font-serif font-bold text-dark mb-3">
-                            {{ $product->name }}
-                        </h1>
+                    <h1 class="text-2xl md:text-3xl font-serif font-bold text-dark mb-3">
+                        {{ $product->name }}
+                    </h1>
 
-                        <!-- Rating & Info -->
-                        <div class="flex flex-wrap items-center gap-4 mb-4">
-                            <!-- Rating -->
-                            @if(isset($averageRating) && $totalReviews > 0)
-                            <div class="flex items-center">
-                                <div class="flex text-yellow-400 mr-2">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star {{ $i <= floor($averageRating) ? 'text-yellow-400' : ($i - $averageRating < 1 ? 'fas fa-star-half-alt' : 'far fa-star text-gray-300') }}"></i>
-                                    @endfor
-                                </div>
-                                <a href="#reviews" class="text-sm text-gray-500 hover:text-primary transition">
-                                    ({{ $totalReviews }} avis)
-                                </a>
+                    <!-- Rating & Stock -->
+                    <div class="flex flex-wrap items-center gap-4 mb-6">
+                        @if($product->total_reviews > 0)
+                        <div class="flex items-center">
+                            <div class="flex text-yellow-400 mr-2">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= floor($product->average_rating) ? '' : ($i - $product->average_rating < 1 ? 'fa-star-half-alt' : 'far fa-star text-gray-300') }}"></i>
+                                @endfor
                             </div>
-                            @endif
+                            <a href="#reviews" class="text-sm text-gray-500 hover:text-primary transition">
+                                ({{ $product->total_reviews }} avis)
+                            </a>
+                        </div>
+                        @endif
 
-                            <!-- Stock Status -->
-                            <div class="flex items-center">
-                                @if($product->stock > 0)
+                        <div class="flex items-center">
+                            @if($product->stock > 0)
                                 <span class="flex items-center text-sm text-green-600">
                                     <i class="fas fa-check-circle mr-1"></i> En stock
                                     @if($product->stock <= 10)
                                         <span class="ml-1 text-orange-500">({{ $product->stock }} restants)</span>
                                     @endif
                                 </span>
-                                @else
+                            @else
                                 <span class="flex items-center text-sm text-red-600">
                                     <i class="fas fa-times-circle mr-1"></i> Rupture de stock
                                 </span>
-                                @endif
-                            </div>
+                            @endif
                         </div>
                     </div>
 
@@ -266,17 +215,17 @@
                         <p class="text-sm text-gray-500 mt-1">TVA incluse • Livraison calculée à l'étape suivante</p>
                     </div>
 
-                    <!-- Variants (Sizes/Colors) -->
-                    @if($product->available_sizes || $product->available_colors)
+                    <!-- Variants -->
+                    @if($product->has_variants)
                     <div class="mb-6">
                         @if($product->available_sizes)
                         <div class="mb-4">
-                            <h3 class="text-sm font-semibold text-dark mb-2">Taille</h3>
+                            <h3 class="text-sm font-semibold text-dark mb-2">Tailles disponibles</h3>
                             <div class="flex flex-wrap gap-2">
-                                @foreach(json_decode($product->available_sizes, true) ?? [] as $size)
-                                <button class="size-btn border border-gray-300 hover:border-primary px-3 py-2 rounded-lg text-sm transition-colors" data-size="{{ $size }}">
-                                    {{ $size }}
-                                </button>
+                                @foreach($product->available_sizes as $size)
+                                    <button class="size-btn border border-gray-300 hover:border-primary px-3 py-2 rounded-lg text-sm transition-colors" data-size="{{ $size }}">
+                                        {{ $size }}
+                                    </button>
                                 @endforeach
                             </div>
                         </div>
@@ -284,11 +233,17 @@
 
                         @if($product->available_colors)
                         <div class="mb-4">
-                            <h3 class="text-sm font-semibold text-dark mb-2">Couleur</h3>
+                            <h3 class="text-sm font-semibold text-dark mb-2">Couleurs disponibles</h3>
                             <div class="flex flex-wrap gap-2">
-                                @foreach(json_decode($product->available_colors, true) ?? [] as $color)
-                                <button class="color-btn border-2 border-gray-300 hover:border-primary w-8 h-8 rounded-full transition-all" data-color="{{ $color }}" style="background-color: {{ $color }}" title="{{ $color }}">
-                                </button>
+                                @foreach($product->available_colors as $colorItem)
+                                    @php
+                                        $cName = is_array($colorItem) ? ($colorItem['name'] ?? $colorItem) : $colorItem;
+                                        $cHex  = is_array($colorItem) && isset($colorItem['hex']) ? $colorItem['hex'] : null;
+                                    @endphp
+                                    <button class="color-btn border-2 border-gray-300 hover:border-primary w-8 h-8 rounded-full transition-all"
+                                            style="{{ $cHex ? 'background-color: '.$cHex : '' }}"
+                                            data-color="{{ $cName }}"
+                                            title="{{ $cName }}"></button>
                                 @endforeach
                             </div>
                         </div>
@@ -296,52 +251,44 @@
                     </div>
                     @endif
 
-                    <!-- Add to Cart -->
+                    <!-- Quantity & Add to Cart -->
                     <div class="mb-6">
                         <div class="flex items-center space-x-4 mb-4">
-                            <!-- Quantity Selector -->
                             <div class="flex items-center border border-gray-300 rounded-lg">
                                 <button class="px-3 py-2 text-gray-600 hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                                        onclick="updateQuantity(-1)"
-                                        {{ $product->stock == 0 ? 'disabled' : '' }}
-                                        aria-label="Diminuer la quantité">
+                                        onclick="updateQuantity(-1)" {{ $product->stock == 0 ? 'disabled' : '' }}>
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <span id="quantity" class="px-4 py-1 text-lg font-medium">1</span>
                                 <button class="px-3 py-2 text-gray-600 hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                                        onclick="updateQuantity(1)"
-                                        {{ $product->stock == 0 ? 'disabled' : '' }}
-                                        aria-label="Augmenter la quantité">
+                                        onclick="updateQuantity(1)" {{ $product->stock == 0 ? 'disabled' : '' }}>
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
 
-                            <!-- Stock Info -->
                             @if($product->stock > 0)
-                            <span class="text-sm text-gray-500">{{ $product->stock }} en stock</span>
+                                <span class="text-sm text-gray-500">{{ $product->stock }} en stock</span>
                             @endif
                         </div>
 
-                        <!-- Add to Cart Button -->
                         <button onclick="addToCart(this)"
                                 data-id="{{ $product->id }}"
-                                data-name="{{ $product->name }}"
+                                data-name="{{ addslashes($product->name) }}"
                                 data-price="{{ $product->price }}"
                                 data-image="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
                                 data-stock="{{ $product->stock }}"
-                                class="w-full bg-primary hover:bg-secondary text-white py-4 px-6 rounded-lg font-medium transition flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                class="w-full bg-primary hover:bg-secondary text-white py-4 px-6 rounded-lg font-medium transition flex items-center justify-center disabled:bg-gray-300 disabled:cursor-not-allowed"
                                 {{ $product->stock == 0 ? 'disabled' : '' }}>
                             <i class="fas fa-shopping-cart mr-2"></i>
                             <span id="buttonText">{{ $product->stock > 0 ? 'Ajouter au panier' : 'Indisponible' }}</span>
-                            <svg class="animate-spin h-5 w-5 text-white hidden ml-2" id="addToCartSpinner"
-                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg class="animate-spin h-5 w-5 text-white hidden ml-2" id="addToCartSpinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path>
                             </svg>
                         </button>
                     </div>
 
-                    <!-- Additional Info -->
+                    <!-- Avantages -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div class="bg-gray-50 p-4 rounded-lg text-center">
                             <i class="fas fa-truck text-primary text-xl mb-2"></i>
@@ -364,16 +311,16 @@
                     <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                         <span class="text-sm text-gray-600">Partager :</span>
                         <div class="flex space-x-3">
-                            <button onclick="shareProduct('facebook')" class="w-8 h-8 bg-gray-100 hover:bg-blue-600 hover:text-white rounded-full flex items-center justify-center transition" aria-label="Partager sur Facebook">
+                            <button onclick="shareProduct('facebook')" class="w-8 h-8 bg-gray-100 hover:bg-blue-600 hover:text-white rounded-full transition" aria-label="Facebook">
                                 <i class="fab fa-facebook-f"></i>
                             </button>
-                            <button onclick="shareProduct('twitter')" class="w-8 h-8 bg-gray-100 hover:bg-blue-400 hover:text-white rounded-full flex items-center justify-center transition" aria-label="Partager sur Twitter">
+                            <button onclick="shareProduct('twitter')" class="w-8 h-8 bg-gray-100 hover:bg-blue-400 hover:text-white rounded-full transition" aria-label="Twitter">
                                 <i class="fab fa-twitter"></i>
                             </button>
-                            <button onclick="shareProduct('whatsapp')" class="w-8 h-8 bg-gray-100 hover:bg-green-500 hover:text-white rounded-full flex items-center justify-center transition" aria-label="Partager sur WhatsApp">
+                            <button onclick="shareProduct('whatsapp')" class="w-8 h-8 bg-gray-100 hover:bg-green-500 hover:text-white rounded-full transition" aria-label="WhatsApp">
                                 <i class="fab fa-whatsapp"></i>
                             </button>
-                            <button onclick="shareProduct('copy')" class="w-8 h-8 bg-gray-100 hover:bg-gray-600 hover:text-white rounded-full flex items-center justify-center transition" aria-label="Copier le lien">
+                            <button onclick="shareProduct('copy')" class="w-8 h-8 bg-gray-100 hover:bg-gray-600 hover:text-white rounded-full transition" aria-label="Copier lien">
                                 <i class="fas fa-link"></i>
                             </button>
                         </div>
@@ -382,276 +329,141 @@
             </div>
         </div>
 
-        <!-- Reviews Section -->
-        @if(isset($reviews) || isset($averageRating))
+        <!-- Description complète du produit -->
+        @if($product->description)
+        <div class="mt-12 bg-white rounded-xl shadow-sm p-6 lg:p-8">
+            <h2 class="text-2xl font-serif font-bold text-dark mb-6">Description</h2>
+            <div class="prose max-w-none text-gray-700 leading-relaxed">
+                {!! nl2br(e($product->description)) !!}
+            </div>
+        </div>
+        @endif
+
+        <!-- Section Avis -->
         <div id="reviews" class="mt-12 bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="p-6">
                 <h3 class="text-2xl font-serif font-bold text-dark mb-6">Avis clients</h3>
 
-                <!-- Rating Summary -->
                 <div class="grid md:grid-cols-2 gap-8 mb-8">
                     <div>
                         <div class="flex items-center mb-4">
                             <div class="mr-6">
-                                <span class="text-5xl font-bold text-dark">{{ number_format($averageRating ?? 0, 1) }}</span>
+                                <span class="text-5xl font-bold text-dark">{{ number_format($product->average_rating, 1) }}</span>
                                 <span class="text-gray-500">/5</span>
                             </div>
                             <div>
                                 <div class="flex text-yellow-400 text-xl mb-2">
                                     @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star {{ $i <= floor($averageRating ?? 0) ? 'text-yellow-400' : ($i - ($averageRating ?? 0) < 1 ? 'fas fa-star-half-alt' : 'far fa-star text-gray-300') }}"></i>
+                                        <i class="fas fa-star {{ $i <= floor($product->average_rating) ? '' : ($i - $product->average_rating < 1 ? 'fa-star-half-alt' : 'far fa-star text-gray-300') }}"></i>
                                     @endfor
                                 </div>
-                                <p class="text-gray-600">{{ $totalReviews ?? 0 }} avis</p>
+                                <p class="text-gray-600">{{ $product->total_reviews }} avis</p>
                             </div>
                         </div>
 
-                        <!-- Rating Distribution -->
-                        <div class="space-y-2">
-                            @foreach([5,4,3,2,1] as $rating)
-                            <div class="flex items-center">
-                                <span class="w-8 text-sm text-gray-600">{{ $rating }}★</span>
-                                <div class="flex-1 mx-2 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-yellow-400 h-2 rounded-full"
-                                         style="width: {{ isset($ratingDistribution[$rating]) ? $ratingDistribution[$rating] : 0 }}%"></div>
+                        <!-- Distribution (simplifiée si tu n'as pas $ratingDistribution) -->
+                        <div class="space-y-2 text-sm">
+                            @foreach([5,4,3,2,1] as $r)
+                                <div class="flex items-center">
+                                    <span class="w-8">{{ $r }}★</span>
+                                    <div class="flex-1 mx-2 bg-gray-200 rounded-full h-2"></div>
+                                    <span class="w-12 text-gray-600">–</span>
                                 </div>
-                                <span class="w-12 text-sm text-gray-600">{{ $ratingDistribution[$rating] ?? 0 }}%</span>
-                            </div>
                             @endforeach
                         </div>
                     </div>
 
-                    <!-- Write Review -->
+                    <!-- Formulaire avis -->
                     <div>
-                        <h4 class="font-semibold mb-4">Partagez votre avis</h4>
-                        <p class="text-gray-600 mb-4">Votre retour nous aide à nous améliorer</p>
-                        <button id="writeReviewBtn"
-                                class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium w-full transition">
+                        <h4 class="font-semibold mb-4">Donnez votre avis</h4>
+                        <p class="text-gray-600 mb-4">Votre expérience aide les autres acheteurs.</p>
+                        <button id="writeReviewBtn" class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium w-full transition">
                             <i class="fas fa-pen mr-2"></i> Écrire un avis
                         </button>
                     </div>
                 </div>
 
-                <!-- Review Form (Hidden by default) -->
+                <!-- Formulaire (déployé) -->
                 <div id="reviewForm" class="hidden bg-gray-50 p-6 rounded-lg mb-8">
                     <h4 class="text-lg font-semibold mb-4">Votre avis</h4>
                     <form id="reviewFormSubmit" class="space-y-4">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
 
-                        <!-- Rating -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Votre note *</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Note *</label>
                             <div class="flex space-x-1" id="starRating">
                                 @for($i = 1; $i <= 5; $i++)
-                                <button type="button"
-                                        class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-colors"
-                                        data-rating="{{ $i }}"
-                                        aria-label="{{ $i }} étoile{{ $i > 1 ? 's' : '' }}">
-                                    <i class="far fa-star"></i>
-                                </button>
+                                    <button type="button" class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="{{ $i }}">
+                                        <i class="far fa-star"></i>
+                                    </button>
                                 @endfor
                             </div>
                             <input type="hidden" id="rating" name="rating" required>
-                            <p id="ratingError" class="hidden text-red-500 text-sm mt-1">Veuillez sélectionner une note.</p>
                         </div>
 
-                        <!-- Comment -->
                         <div>
-                            <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Votre commentaire *</label>
-                            <textarea id="comment" name="comment" rows="4"
-                                      class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary resize-none"
-                                      placeholder="Partagez votre expérience avec ce produit..."
-                                      required></textarea>
-                            <p id="commentError" class="hidden text-red-500 text-sm mt-1">Veuillez entrer un commentaire.</p>
+                            <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Commentaire *</label>
+                            <textarea id="comment" name="comment" rows="4" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-primary focus:border-primary" required></textarea>
                         </div>
 
-                        <!-- Name -->
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Votre nom</label>
-                            <input type="text" id="name" name="name"
-                                   class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary"
-                                   placeholder="Votre nom ou pseudo">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nom / Pseudo</label>
+                                <input type="text" id="name" name="name" class="w-full border border-gray-300 rounded-lg p-3">
+                            </div>
+                            <div>
+                                <label for="location" class="block text-sm font-medium text-gray-700 mb-2">Ville (optionnel)</label>
+                                <input type="text" id="location" name="location" class="w-full border border-gray-300 rounded-lg p-3">
+                            </div>
                         </div>
 
-                        <!-- Location -->
-                        <div>
-                            <label for="location" class="block text-sm font-medium text-gray-700 mb-2">Ville</label>
-                            <input type="text" id="location" name="location"
-                                   class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary"
-                                   placeholder="Votre ville (optionnel)">
-                        </div>
-
-                        <!-- Buttons -->
                         <div class="flex space-x-4">
-                            <button type="submit"
-                                    class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
-                                <i class="fas fa-paper-plane mr-2"></i> Publier l'avis
+                            <button type="submit" class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium transition">
+                                Publier l'avis
                             </button>
-                            <button type="button" id="cancelReview"
-                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-6 rounded-lg font-medium transition">
+                            <button type="button" id="cancelReview" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-6 rounded-lg font-medium transition">
                                 Annuler
                             </button>
                         </div>
                     </form>
-                    <div id="successMessage" class="hidden text-green-600 text-sm mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                        <i class="fas fa-check-circle mr-2"></i>
-                        Merci pour votre avis ! Il sera affiché après modération.
-                    </div>
-                    <div id="errorMessage" class="hidden text-red-600 text-sm mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                        <span id="errorText">Une erreur est survenue.</span>
-                    </div>
                 </div>
 
-                <!-- Reviews List -->
+                <!-- Liste des avis -->
                 <div id="reviewsList" class="space-y-6">
-                    @forelse ($reviews->take(5) as $review)
-                    <div class="border-b border-gray-200 pb-6 last:border-0 review-item">
-                        <div class="flex justify-between items-start mb-3">
-                            <div class="flex-1">
-                                <div class="flex items-center mb-2">
-                                    <div class="flex text-yellow-400 mr-3">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <i class="fas fa-star {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
-                                        @endfor
-                                    </div>
-                                    <span class="text-sm text-gray-500">{{ $review->created_at->format('d/m/Y') }}</span>
-                                    @if($review->approved)
-                                    <span class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
-                                        <i class="fas fa-check mr-1"></i> Approuvé
-                                    </span>
-                                    @endif
+                    @forelse ($product->avis()->where('approved', true)->latest()->take(6)->get() as $review)
+                        <div class="border-b border-gray-200 pb-6 last:border-0">
+                            <div class="flex items-center mb-2">
+                                <div class="flex text-yellow-400 mr-3">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <i class="fas fa-star {{ $i <= $review->rating ? '' : 'text-gray-300' }}"></i>
+                                    @endfor
                                 </div>
-                                <p class="text-gray-700 mb-3 leading-relaxed">{{ $review->comment }}</p>
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
-                                        <span class="font-bold text-primary">{{ strtoupper(substr($review->name, 0, 1)) }}</span>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-dark">{{ $review->name }}</p>
-                                        @if($review->location)
+                                <span class="text-sm text-gray-500">{{ $review->created_at->format('d/m/Y') }}</span>
+                            </div>
+                            <p class="text-gray-700 mb-3">{{ $review->comment }}</p>
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                                    <span class="font-bold text-primary">{{ strtoupper(substr($review->name ?? 'A', 0, 1)) }}</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium">{{ $review->name ?? 'Anonyme' }}</p>
+                                    @if($review->location)
                                         <p class="text-sm text-gray-500">{{ $review->location }}</p>
-                                        @endif
-                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
-                    </div>
                     @empty
-                    <div class="text-center py-8">
-                        <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-comment text-gray-400 text-2xl"></i>
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-comment-slash text-4xl mb-4 block"></i>
+                            <p>Aucun avis pour le moment.<br>Soyez le premier à partager votre expérience !</p>
                         </div>
-                        <h3 class="text-xl font-medium text-gray-700 mb-2">Aucun avis</h3>
-                        <p class="text-gray-500 mb-4">Soyez le premier à donner votre avis !</p>
-                    </div>
                     @endforelse
                 </div>
-
-                <!-- Load More Reviews -->
-                @if($reviews->count() > 5)
-                <div class="text-center mt-8">
-                    <button id="loadMoreReviews" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-medium transition">
-                        <i class="fas fa-plus mr-2"></i> Charger plus d'avis ({{ $reviews->count() - 5 }})
-                    </button>
-                </div>
-                @endif
             </div>
         </div>
-        @endif
 
-        <!-- Related Products Slider -->
-        @if(isset($similarProducts) && $similarProducts->count() > 0)
-        <div class="mt-16">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl md:text-3xl font-serif font-bold text-dark">Vous aimerez aussi</h2>
-                <a href="{{ route('allproduits') }}" class="text-primary hover:text-secondary font-medium">
-                    Voir tout <i class="fas fa-arrow-right ml-1"></i>
-                </a>
-            </div>
-
-            <!-- Swiper Container -->
-            <div class="relative">
-                <div class="swiper related-products overflow-hidden">
-                    <div class="swiper-wrapper">
-                        @foreach($similarProducts as $item)
-                        <div class="swiper-slide">
-                            <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-primary group">
-                                <div class="relative overflow-hidden">
-                                    <a href="{{ route('preview-article', $item->slug) }}" class="block">
-                                        <img src="{{ asset('storage/' . ($item->image_avant ?? 'default.jpg')) }}"
-                                             alt="{{ $item->name }}"
-                                             class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                                             loading="lazy">
-                                    </a>
-                                    @if($item->created_at->diffInDays(now()) < 10)
-                                    <span class="absolute top-3 right-3 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                                        Nouveau
-                                    </span>
-                                    @endif
-                                    @if($item->price_baree && $item->price_baree > $item->price)
-                                    <span class="absolute top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded font-semibold">
-                                        -{{ round((($item->price_baree - $item->price) / $item->price_baree) * 100) }}%
-                                    </span>
-                                    @endif
-                                </div>
-
-                                <div class="p-4">
-                                    <h3 class="font-semibold text-dark mb-2 hover:text-primary transition">
-                                        <a href="{{ route('preview-article', $item->slug) }}">
-                                            {{ Str::limit($item->name, 40) }}
-                                        </a>
-                                    </h3>
-
-                                    <div class="flex justify-between items-center mt-4">
-                                        @if($item->price_baree && $item->price_baree > $item->price)
-                                            <div class="flex items-center">
-                                                <span class="font-bold text-lg text-primary">
-                                                    {{ number_format($item->price, 2) }} DT
-                                                </span>
-                                                <span class="ml-2 text-sm text-gray-400 line-through">
-                                                    {{ number_format($item->price_baree, 2) }} DT
-                                                </span>
-                                            </div>
-                                        @else
-                                            <span class="font-bold text-lg text-primary">
-                                                {{ number_format($item->price, 2) }} DT
-                                            </span>
-                                        @endif
-
-                                        <button onclick="addToCart(this)"
-                                                data-id="{{ $item->id }}"
-                                                data-name="{{ $item->name }}"
-                                                data-price="{{ $item->price }}"
-                                                data-image="{{ asset('storage/' . ($item->image_avant ?? 'default.jpg')) }}"
-                                                data-stock="{{ $item->stock }}"
-                                                class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-secondary transition hover:scale-110"
-                                                {{ $item->stock == 0 ? 'disabled' : '' }}>
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <!-- Navigation -->
-                <div class="flex justify-center mt-6">
-                    <div class="flex space-x-4">
-                        <button class="swiper-button-prev-related w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="swiper-button-next-related w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @endif
     </main>
 @endsection
 
@@ -944,7 +756,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     };
 
-   
+
 
     // Share functionality
     window.shareProduct = function(platform) {

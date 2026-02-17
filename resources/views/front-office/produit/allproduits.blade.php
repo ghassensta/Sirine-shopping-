@@ -186,27 +186,7 @@
     </div>
 </section>
 
-<!-- Newsletter -->
-<section class="py-16 bg-dark text-white">
-    <div class="container mx-auto px-4">
-        <div class="max-w-2xl mx-auto text-center">
-            <h2 class="font-serif text-3xl font-bold mb-4">Newsletter</h2>
-            <p class="text-gray-300 mb-8">
-                Inscrivez-vous pour recevoir nos nouveautés
-            </p>
 
-            <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input type="email"
-                       placeholder="Votre email"
-                       class="flex-1 px-4 py-3 rounded-lg text-dark">
-                <button type="submit"
-                        class="bg-primary hover:bg-secondary text-white px-6 py-3 rounded-lg font-semibold">
-                        S'abonner
-                </button>
-            </form>
-        </div>
-    </div>
-</section>
 @endsection
 
 @section('js')
