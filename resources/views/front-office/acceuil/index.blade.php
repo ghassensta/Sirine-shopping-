@@ -1,7 +1,97 @@
 @extends('front-office.layouts.app')
 
-@section('title', 'Sirine Shopping - Décoration & Accessoires Élégants')
+@section('title', 'Sirine Shopping - Décoration & Accessoires Élégants en Tunisie')
 
+@section('meta')
+    {{-- Canonical --}}
+    <link rel="canonical" href="{{ url('/') }}">
+
+    {{-- Meta description --}}
+    <meta name="description" content="Découvrez Sirine Shopping, votre boutique en ligne de décoration intérieure et accessoires élégants en Tunisie. Livraison rapide 24-48h dans toute la Tunisie.">
+
+    {{-- Keywords (optionnel, faible impact SEO mais utile pour certains moteurs) --}}
+    <meta name="keywords" content="décoration intérieure tunisie, accessoires maison, boutique déco en ligne, sirine shopping, décoration élégante">
+
+    {{-- Open Graph --}}
+    <meta property="og:locale" content="fr_TN">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Sirine Shopping">
+    <meta property="og:title" content="Sirine Shopping - Décoration & Accessoires Élégants en Tunisie">
+    <meta property="og:description" content="Découvrez notre collection exclusive d'accessoires de décoration et d'articles d'intérieur. Livraison rapide dans toute la Tunisie.">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ asset('storage/' . ($config->homepage_banner ?? 'default-hero.jpg')) }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Sirine Shopping - Décoration élégante">
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sirine Shopping - Décoration & Accessoires Élégants en Tunisie">
+    <meta name="twitter:description" content="Découvrez notre collection exclusive d'accessoires de décoration et d'articles d'intérieur. Livraison rapide dans toute la Tunisie.">
+    <meta name="twitter:image" content="{{ asset('storage/' . ($config->homepage_banner ?? 'default-hero.jpg')) }}">
+
+    {{-- Schema.org WebSite + SearchAction --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Sirine Shopping",
+        "url": "{{ url('/') }}",
+        "description": "Boutique en ligne de décoration intérieure et accessoires élégants en Tunisie.",
+        "inLanguage": "fr-TN",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "{{ url('/produits') }}?search={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+
+    {{-- Schema.org Organization --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Sirine Shopping",
+        "url": "{{ url('/') }}",
+        "logo": "{{ asset('assets/img/logo-sirine.png') }}",
+        "image": "{{ asset('storage/' . ($config->homepage_banner ?? 'default-hero.jpg')) }}",
+        "description": "Boutique en ligne spécialisée en décoration intérieure et accessoires élégants en Tunisie.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "TN"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "availableLanguage": "French"
+        },
+        "sameAs": []
+    }
+    </script>
+
+    {{-- Schema.org Store (pour Google Merchant / Shopping) --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "Sirine Shopping",
+        "url": "{{ url('/') }}",
+        "image": "{{ asset('assets/img/logo-sirine.png') }}",
+        "description": "Boutique en ligne de décoration intérieure et accessoires élégants en Tunisie.",
+        "priceRange": "$$",
+        "currenciesAccepted": "TND",
+        "paymentAccepted": "Cash, Credit Card",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "TN"
+        }
+    }
+    </script>
+@endsection
 @section('content')
 
 <!-- Hero Section -->
@@ -133,7 +223,7 @@
                                             @endif
                                         </div>
 
-                                       
+
                                     </div>
 
                                     <!-- Product info -->
@@ -297,7 +387,7 @@
                                                     @endif
                                                 </div>
 
-                                                
+
                                             </div>
 
                                             <!-- Product info -->

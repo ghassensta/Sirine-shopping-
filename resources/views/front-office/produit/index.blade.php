@@ -3,52 +3,162 @@
 @section('title', $product->meta_title ?? $product->name . ' - Sirine Shopping')
 
 @section('meta')
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
-    <meta name="theme-color" content="#D4AF37">
+    {{-- ══ SEO Essentiels ══ --}}
     <meta name="description" content="{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}">
+    <meta name="keywords" content="{{ $product->meta_keywords ?? $product->name . ', décoration intérieure Tunisie, accessoires maison, Sirine Shopping' }}">
+    <meta name="author" content="Sirine Shopping">
     <link rel="canonical" href="{{ url()->current() }}">
 
-    <!-- Open Graph / Twitter -->
-    <meta property="og:locale" content="fr_TN">
-    <meta property="og:type" content="product">
-    <meta property="og:site_name" content="Sirine Shopping">
-    <meta property="og:title" content="{{ $product->meta_title ?? $product->name }}">
-    <meta property="og:description" content="{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}">
-    <meta property="og:image:width" content="1200">
+    {{-- ══ Hreflang ══ --}}
+    <link rel="alternate" href="{{ url()->current() }}" hreflang="fr-tn">
+    <link rel="alternate" href="{{ url()->current() }}" hreflang="x-default">
+
+    {{-- ══ Open Graph Product ══ --}}
+    <meta property="og:locale"       content="fr_TN">
+    <meta property="og:type"         content="product">
+    <meta property="og:site_name"    content="Sirine Shopping">
+    <meta property="og:title"        content="{{ $product->meta_title ?? $product->name }} - Sirine Shopping">
+    <meta property="og:description"  content="{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}">
+    <meta property="og:url"          content="{{ url()->current() }}">
+    <meta property="og:image"        content="{{ $product->image_avant ? asset('storage/' . $product->image_avant) : asset('assets/img/og-image-sirine.jpg') }}">
+    <meta property="og:image:width"  content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="product:availability" content="{{ $product->stock > 0 ? 'in stock' : 'out of stock' }}">
-    <meta property="product:price:amount" content="{{ number_format($product->price, 2, '.', '') }}">
+    <meta property="og:image:alt"    content="{{ $product->name }} - Sirine Shopping">
+
+    {{-- ══ Open Graph Product (Facebook / Meta Shops) ══ --}}
+    <meta property="product:availability"   content="{{ $product->stock > 0 ? 'in stock' : 'out of stock' }}">
+    <meta property="product:condition"      content="new">
+    <meta property="product:price:amount"   content="{{ number_format($product->price, 2, '.', '') }}">
     <meta property="product:price:currency" content="TND">
+    @if($product->price_baree && $product->price_baree > $product->price)
+    <meta property="product:sale_price:amount"   content="{{ number_format($product->price, 2, '.', '') }}">
+    <meta property="product:sale_price:currency" content="TND">
+    @endif
+    <meta property="product:brand"            content="Sirine Shopping">
+    <meta property="product:retailer_item_id" content="PROD-{{ $product->id }}">
 
-    <meta name="twitter:card" content="summary_large_image">
+    {{-- ══ Twitter Card ══ --}}
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="{{ $product->meta_title ?? $product->name }} - Sirine Shopping">
+    <meta name="twitter:description" content="{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}">
+    <meta name="twitter:image"       content="{{ $product->image_avant ? asset('storage/' . $product->image_avant) : asset('assets/img/og-image-sirine.jpg') }}">
+    <meta name="twitter:label1"      content="Prix">
+    <meta name="twitter:data1"       content="{{ number_format($product->price, 2) }} TND">
+    <meta name="twitter:label2"      content="Disponibilité">
+    <meta name="twitter:data2"       content="{{ $product->stock > 0 ? 'En stock' : 'Épuisé' }}">
 
-    <!-- Schema.org Product -->
+    {{-- ══ Schema.org Product ══ --}}
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "Product",
         "name": "{{ addslashes($product->name) }}",
-        "description": "{{ addslashes($product->meta_description ?? Str::limit(strip_tags($product->description), 155)) }}",
-        "image": "{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}",
-        "sku": "{{ $product->sku ?? 'PROD-' . $product->id }}",
-        "brand": { "@type": "Brand", "name": "Sirine Shopping" },
+        "description": "{{ addslashes($product->meta_description ?? Str::limit(strip_tags($product->description ?? ''), 155)) }}",
+        "image": [
+            "{{ $product->image_avant ? asset('storage/' . $product->image_avant) : asset('assets/img/og-image-sirine.jpg') }}"
+            @if($product->images)
+                @foreach(is_array($product->images) ? $product->images : (json_decode($product->images, true) ?? []) as $img)
+                ,"{{ asset('storage/' . $img) }}"
+                @endforeach
+            @endif
+        ],
+        "sku": "PROD-{{ $product->id }}",
+        "url": "{{ url()->current() }}",
+        "brand": {
+            "@type": "Brand",
+            "name": "Sirine Shopping"
+        },
         "offers": {
             "@type": "Offer",
             "url": "{{ url()->current() }}",
             "priceCurrency": "TND",
             "price": "{{ number_format($product->price, 2, '.', '') }}",
-            "availability": "{{ $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}"
-        },
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "{{ $product->average_rating }}",
-            "reviewCount": "{{ $product->total_reviews }}"
+            @if($product->price_baree && $product->price_baree > $product->price)
+            "priceValidUntil": "{{ now()->addMonths(3)->toDateString() }}",
+            @endif
+            "availability": "{{ $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
+            "itemCondition": "https://schema.org/NewCondition",
+            "seller": {
+                "@type": "Organization",
+                "name": "Sirine Shopping",
+                "url": "{{ url('/') }}"
+            },
+            "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingRate": {
+                    "@type": "MonetaryAmount",
+                    "value": "7.50",
+                    "currency": "TND"
+                },
+                "deliveryTime": {
+                    "@type": "ShippingDeliveryTime",
+                    "handlingTime": {
+                        "@type": "QuantitativeValue",
+                        "minValue": 1,
+                        "maxValue": 2,
+                        "unitCode": "DAY"
+                    },
+                    "transitTime": {
+                        "@type": "QuantitativeValue",
+                        "minValue": 1,
+                        "maxValue": 3,
+                        "unitCode": "DAY"
+                    }
+                }
+            }
         }
+        @if($product->total_reviews > 0)
+        ,"aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "{{ number_format($product->average_rating, 1) }}",
+            "reviewCount": "{{ $product->total_reviews }}",
+            "bestRating": "5",
+            "worstRating": "1"
+        }
+        @endif
+    }
+    </script>
+
+    {{-- ══ Schema.org BreadcrumbList ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Accueil",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Collection",
+                "item": "{{ route('allproduits') }}"
+            }
+            @if($product->categories->isNotEmpty())
+            ,{
+                "@type": "ListItem",
+                "position": 3,
+                "name": "{{ addslashes($product->categories->first()->name) }}",
+                "item": "{{ route('categorie.produits', $product->categories->first()->slug) }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "{{ addslashes(Str::limit($product->name, 60)) }}",
+                "item": "{{ url()->current() }}"
+            }
+            @else
+            ,{
+                "@type": "ListItem",
+                "position": 3,
+                "name": "{{ addslashes(Str::limit($product->name, 60)) }}",
+                "item": "{{ url()->current() }}"
+            }
+            @endif
+        ]
     }
     </script>
 @endsection
@@ -361,7 +471,6 @@
                             </div>
                         </div>
 
-                        <!-- Distribution (simplifiée si tu n'as pas $ratingDistribution) -->
                         <div class="space-y-2 text-sm">
                             @foreach([5,4,3,2,1] as $r)
                                 <div class="flex items-center">
@@ -555,13 +664,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Image Gallery with Zoom
     if (thumbnails.length > 0) {
-        // Preload images
         images.forEach(src => {
             const img = new Image();
             img.src = src;
         });
 
-        // Change image with animation
         const changeImage = (index) => {
             if (index < 0) index = images.length - 1;
             if (index >= images.length) index = 0;
@@ -575,7 +682,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainImage.style.opacity = '1';
                 mainImage.style.transform = 'scale(1)';
 
-                // Update active thumbnail
                 thumbnails.forEach(thumb => {
                     thumb.classList.remove('border-primary', 'scale-105');
                 });
@@ -585,19 +691,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         };
 
-        // Thumbnail click
         thumbnails.forEach((thumb, index) => {
             thumb.addEventListener('click', () => changeImage(index));
         });
 
-        // Navigation buttons
-        if (prevButton) {
-            prevButton.addEventListener('click', () => changeImage(currentIndex - 1));
-        }
-
-        if (nextButton) {
-            nextButton.addEventListener('click', () => changeImage(currentIndex + 1));
-        }
+        if (prevButton) prevButton.addEventListener('click', () => changeImage(currentIndex - 1));
+        if (nextButton) nextButton.addEventListener('click', () => changeImage(currentIndex + 1));
     }
 
     // Zoom functionality
@@ -605,42 +704,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const updateZoomLens = (e) => {
         if (!isZooming) return;
-
         const rect = zoomContainer.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-
         const lensSize = 80;
         const lensX = Math.max(0, Math.min(x - lensSize/2, rect.width - lensSize));
         const lensY = Math.max(0, Math.min(y - lensSize/2, rect.height - lensSize));
-
         zoomLens.style.left = lensX + 'px';
         zoomLens.style.top = lensY + 'px';
         zoomLens.style.opacity = '1';
-
-        // Update zoomed image position
         const scaleX = (x / rect.width) * 100;
         const scaleY = (y / rect.height) * 100;
         zoomedImage.style.transformOrigin = `${scaleX}% ${scaleY}%`;
         zoomedImage.style.transform = 'scale(2)';
     };
 
-    zoomContainer.addEventListener('mouseenter', () => {
-        isZooming = true;
-        zoomLens.style.opacity = '1';
-        mainImage.style.cursor = 'zoom-in';
-    });
-
-    zoomContainer.addEventListener('mouseleave', () => {
-        isZooming = false;
-        zoomLens.style.opacity = '0';
-        mainImage.style.cursor = 'zoom-in';
-        zoomedImage.style.transform = 'scale(1)';
-    });
-
+    zoomContainer.addEventListener('mouseenter', () => { isZooming = true; zoomLens.style.opacity = '1'; });
+    zoomContainer.addEventListener('mouseleave', () => { isZooming = false; zoomLens.style.opacity = '0'; zoomedImage.style.transform = 'scale(1)'; });
     zoomContainer.addEventListener('mousemove', updateZoomLens);
 
-    // Click to open zoom modal
     zoomContainer.addEventListener('click', () => {
         zoomModal.classList.remove('hidden');
         zoomedImage.src = mainImage.src;
@@ -680,16 +762,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.updateQuantity = (change) => {
         let currentQuantity = parseInt(quantityElement.textContent);
         const maxStock = parseInt(addToCartButton.dataset.stock);
-
         currentQuantity += change;
-
-        if (currentQuantity < 1) {
-            currentQuantity = 1;
-        } else if (currentQuantity > maxStock) {
-            currentQuantity = maxStock;
-            showNotification('Stock maximum atteint.', 'warning');
-        }
-
+        if (currentQuantity < 1) currentQuantity = 1;
+        else if (currentQuantity > maxStock) { currentQuantity = maxStock; showNotification('Stock maximum atteint.', 'warning'); }
         quantityElement.textContent = currentQuantity;
     };
 
@@ -699,18 +774,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const originalContent = button.innerHTML;
         const quantity = parseInt(quantityElement?.textContent || 1);
 
-        // Validation
         if (quantity > parseInt(button.dataset.stock)) {
             showNotification('Quantité non disponible en stock.', 'error');
             return;
         }
 
-        // Animation du bouton
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         button.disabled = true;
         button.classList.remove('hover:scale-110');
 
-        // Simuler l'ajout au panier
         setTimeout(() => {
             const product = {
                 id: parseInt(button.dataset.id),
@@ -725,66 +797,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 color: selectedColor
             };
 
-            // Appeler votre fonction cart.addProduct
             if (window.cart && typeof window.cart.addProduct === 'function') {
                 window.cart.addProduct(product);
             }
 
-            // Ajouter effet sur la carte
-            if (productCard) {
-                productCard.classList.add('ring-2', 'ring-green-500');
-            }
+            if (productCard) productCard.classList.add('ring-2', 'ring-green-500');
 
             showNotification('Produit ajouté au panier !', 'success');
 
-            // Ouvrir le panier offcanvas
             if (window.cart && typeof window.cart.openCart === 'function') {
                 window.cart.openCart();
             }
 
-            // Restaurer après 1.5 secondes
             setTimeout(() => {
                 button.innerHTML = originalContent;
                 button.disabled = false;
                 button.classList.remove('bg-green-500');
                 button.classList.add('bg-primary', 'hover:bg-secondary', 'hover:scale-110');
-                if (productCard) {
-                    productCard.classList.remove('ring-2', 'ring-green-500');
-                }
+                if (productCard) productCard.classList.remove('ring-2', 'ring-green-500');
             }, 1500);
-
         }, 500);
     };
-
-
 
     // Share functionality
     window.shareProduct = function(platform) {
         const url = encodeURIComponent(window.location.href);
         const title = encodeURIComponent(document.title);
-
         let shareUrl = '';
-
         switch(platform) {
-            case 'facebook':
-                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-                break;
-            case 'twitter':
-                shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
-                break;
-            case 'whatsapp':
-                shareUrl = `https://wa.me/?text=${title} ${url}`;
-                break;
+            case 'facebook':  shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`; break;
+            case 'twitter':   shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`; break;
+            case 'whatsapp':  shareUrl = `https://wa.me/?text=${title} ${url}`; break;
             case 'copy':
-                navigator.clipboard.writeText(window.location.href).then(() => {
-                    showNotification('Lien copié !', 'success');
-                });
+                navigator.clipboard.writeText(window.location.href).then(() => showNotification('Lien copié !', 'success'));
                 return;
         }
-
-        if (shareUrl) {
-            window.open(shareUrl, '_blank', 'width=600,height=400');
-        }
+        if (shareUrl) window.open(shareUrl, '_blank', 'width=600,height=400');
     };
 
     // Review System
@@ -794,14 +842,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const reviewFormSubmit = document.getElementById('reviewFormSubmit');
     const starButtons = document.querySelectorAll('.star-btn');
     const ratingInput = document.getElementById('rating');
-    const loadMoreBtn = document.getElementById('loadMoreReviews');
 
     if (writeReviewBtn && reviewForm) {
         writeReviewBtn.addEventListener('click', () => {
             reviewForm.classList.toggle('hidden');
-            if (!reviewForm.classList.contains('hidden')) {
-                reviewForm.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (!reviewForm.classList.contains('hidden')) reviewForm.scrollIntoView({ behavior: 'smooth' });
         });
     }
 
@@ -823,7 +868,6 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const rating = parseInt(this.dataset.rating);
             ratingInput.value = rating;
-
             starButtons.forEach((btn, index) => {
                 const icon = btn.querySelector('i');
                 if (index < rating) {
@@ -842,12 +886,11 @@ document.addEventListener('DOMContentLoaded', function() {
         reviewFormSubmit.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Validation
             if (!ratingInput.value) {
-                document.getElementById('ratingError').classList.remove('hidden');
+                document.getElementById('ratingError')?.classList.remove('hidden');
                 return;
             } else {
-                document.getElementById('ratingError').classList.add('hidden');
+                document.getElementById('ratingError')?.classList.add('hidden');
             }
 
             const formData = new FormData(this);
@@ -863,8 +906,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById('successMessage').classList.remove('hidden');
-                    document.getElementById('errorMessage').classList.add('hidden');
+                    document.getElementById('successMessage')?.classList.remove('hidden');
+                    document.getElementById('errorMessage')?.classList.add('hidden');
                     reviewFormSubmit.reset();
                     starButtons.forEach(btn => {
                         const icon = btn.querySelector('i');
@@ -872,79 +915,26 @@ document.addEventListener('DOMContentLoaded', function() {
                         icon.classList.add('far', 'text-gray-300');
                     });
                     ratingInput.value = '';
-
                     setTimeout(() => {
                         reviewForm.classList.add('hidden');
-                        document.getElementById('successMessage').classList.add('hidden');
+                        document.getElementById('successMessage')?.classList.add('hidden');
                     }, 3000);
                 } else {
-                    document.getElementById('errorMessage').classList.remove('hidden');
-                    document.getElementById('errorText').textContent = data.message || 'Une erreur est survenue.';
-                    document.getElementById('successMessage').classList.add('hidden');
+                    document.getElementById('errorMessage')?.classList.remove('hidden');
+                    if (document.getElementById('errorText')) {
+                        document.getElementById('errorText').textContent = data.message || 'Une erreur est survenue.';
+                    }
+                    document.getElementById('successMessage')?.classList.add('hidden');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('errorMessage').classList.remove('hidden');
-                document.getElementById('errorText').textContent = 'Une erreur est survenue lors de l\'envoi.';
-                document.getElementById('successMessage').classList.add('hidden');
+                document.getElementById('errorMessage')?.classList.remove('hidden');
+                if (document.getElementById('errorText')) {
+                    document.getElementById('errorText').textContent = 'Une erreur est survenue lors de l\'envoi.';
+                }
+                document.getElementById('successMessage')?.classList.add('hidden');
             });
-        });
-    }
-
-    // Load more reviews
-    if (loadMoreBtn) {
-        let reviewsLoaded = 5;
-        const totalReviews = {{ $reviews->count() }};
-
-        loadMoreBtn.addEventListener('click', function() {
-            const nextReviews = {{ $reviews->slice(5)->toJson() }};
-            const reviewsToLoad = Math.min(5, totalReviews - reviewsLoaded);
-
-            if (reviewsToLoad > 0) {
-                const reviewsList = document.getElementById('reviewsList');
-
-                for (let i = 0; i < reviewsToLoad; i++) {
-                    const review = nextReviews[reviewsLoaded - 5 + i];
-                    if (review) {
-                        const reviewElement = document.createElement('div');
-                        reviewElement.className = 'border-b border-gray-200 pb-6 last:border-0 review-item';
-                        reviewElement.innerHTML = `
-                            <div class="flex justify-between items-start mb-3">
-                                <div class="flex-1">
-                                    <div class="flex items-center mb-2">
-                                        <div class="flex text-yellow-400 mr-3">
-                                            ${Array.from({length: 5}, (_, j) =>
-                                                `<i class="fas fa-star ${j < review.rating ? 'text-yellow-400' : 'text-gray-300'}"></i>`
-                                            ).join('')}
-                                        </div>
-                                        <span class="text-sm text-gray-500">${new Date(review.created_at).toLocaleDateString('fr-FR')}</span>
-                                        ${review.approved ? '<span class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800"><i class="fas fa-check mr-1"></i> Approuvé</span>' : ''}
-                                    </div>
-                                    <p class="text-gray-700 mb-3 leading-relaxed">${review.comment}</p>
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
-                                            <span class="font-bold text-primary">${review.name.charAt(0).toUpperCase()}</span>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-dark">${review.name}</p>
-                                            ${review.location ? `<p class="text-sm text-gray-500">${review.location}</p>` : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        reviewsList.appendChild(reviewElement);
-                        reviewsLoaded++;
-                    }
-                }
-
-                if (reviewsLoaded >= totalReviews) {
-                    loadMoreBtn.style.display = 'none';
-                } else {
-                    loadMoreBtn.innerHTML = `<i class="fas fa-plus mr-2"></i> Charger plus d'avis (${totalReviews - reviewsLoaded})`;
-                }
-            }
         });
     }
 
@@ -970,7 +960,7 @@ document.addEventListener('DOMContentLoaded', function() {
         notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform translate-y-full opacity-0 transition-all duration-300 ${
             type === 'success' ? 'bg-green-500' :
             type === 'warning' ? 'bg-yellow-500' :
-            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            type === 'error'   ? 'bg-red-500'   : 'bg-blue-500'
         }`;
         notification.innerHTML = `
             <div class="flex items-center">
@@ -978,21 +968,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <span>${message}</span>
             </div>
         `;
-
         document.body.appendChild(notification);
-
-        // Show
-        setTimeout(() => {
-            notification.classList.remove('translate-y-full', 'opacity-0');
-            notification.classList.add('translate-y-0', 'opacity-100');
-        }, 10);
-
-        // Hide after 3 seconds
-        setTimeout(() => {
-            notification.classList.remove('translate-y-0', 'opacity-100');
-            notification.classList.add('translate-y-full', 'opacity-0');
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
+        setTimeout(() => { notification.classList.remove('translate-y-full', 'opacity-0'); notification.classList.add('translate-y-0', 'opacity-100'); }, 10);
+        setTimeout(() => { notification.classList.remove('translate-y-0', 'opacity-100'); notification.classList.add('translate-y-full', 'opacity-0'); setTimeout(() => notification.remove(), 300); }, 3000);
     }
 });
 </script>

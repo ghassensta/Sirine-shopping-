@@ -52,7 +52,7 @@ public function getCommandes(Request $request)
         'client:id,name,adresse,phone',
         'items' => function ($query) {
             $query->select('order_items.id', 'order_items.order_id', 'order_items.product_id', 'order_items.quantity', 'order_items.unit_price', 'order_items.subtotal')
-                ->with(['product:id,name,images']);
+                ->with(['product:id,name,image_avant,images']);
         }
     ]);
 
@@ -112,8 +112,7 @@ public function getCommandes(Request $request)
 
                 return [
                     'name' => optional($item->product)->name ?? 'Produit supprimé',
-                    'image' => !empty($images) ? $images[0] : null,
-                    'quantity' => $item->quantity,
+                    'image' => $item->product?->image_avant ?? ($item->product?->images[0] ?? null),                    'quantity' => $item->quantity,
                     'unit_price' => number_format($item->unit_price ?? 0, 3, '.', ''),
                     'subtotal' => number_format($item->subtotal ?? 0, 3, '.', ''),
                 ];
@@ -157,7 +156,7 @@ public function getCommandes(Request $request)
             'created_at' => 'products.created_at',
         ];
         $orderBy = $sortable[$columnName] ?? 'products.created_at';
-        
+
         // S'assurer que le tri par défaut est sur created_at descendant si aucun tri n'est spécifié
         if (empty($orderArr)) {
             $orderBy = 'products.created_at';

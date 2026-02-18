@@ -2,61 +2,100 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Sirine Shopping | Décoration & Accessoires Tunisie')</title>
-
-    <!-- Fonts / icône -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/logo-sirine.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#D4AF37">
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
 
     @php
         use App\Models\Category;
         $categories = Category::tree()->active()->with('children')->get();
-        
-        $siteName       = $config->site_name ?? 'Sirine Shopping';
-        $siteUrl        = config('app.url', url('/'));
-        $siteDesc       = $config->meta_description ?? 'Boutique de décoration et accessoires en Tunisie : articles de décoration intérieure, accessoires design et objets décoratifs artisanaux.';
-        $defaultOgImage = asset('assets/img/og-image-sirine.jpg');
-        $supportEmail   = $config->support_email ?? 'contact@sirine-shopping.tn';
-        $supportPhone   = $config->support_phone ?? '+216 28 000 000';
-        $addressText    = $config->address ?? "Centre Commercial, Tunis, Tunisie";
-        $shippingCost   = (float) ($config->shipping_cost ?? 7.5);
-        $freeShipping   = (float) ($config->free_shipping_limit ?? 120);
+
+        $siteName      = $config->site_name       ?? 'Sirine Shopping';
+        $siteUrl       = config('app.url', url('/'));
+        $siteDesc      = $config->meta_description ?? 'Boutique de décoration et accessoires en Tunisie : articles de décoration intérieure, accessoires design et objets décoratifs artisanaux.';
+        $defaultOgImg  = asset('assets/img/og-image-sirine.jpg');
+        $supportEmail  = $config->support_email    ?? 'contact@sirine-shopping.tn';
+        $supportPhone  = $config->support_phone    ?? '+216 28 000 000';
+        $addressText   = $config->address          ?? 'Centre Commercial, Tunis, Tunisie';
+        $shippingCost  = (float) ($config->shipping_cost       ?? 7.5);
+        $freeShipping  = (float) ($config->free_shipping_limit ?? 120);
+
+        /*
+         * Pour le <title> et les balises OG/Twitter, on construit la valeur
+         * une seule fois ici afin d'éviter les doublons.
+         * Les vues enfants peuvent surcharger via @section('title').
+         */
+        $pageTitle = trim($__env->yieldContent('title'))
+                     ?: ($siteName . ' | Décoration & Accessoires Tunisie');
     @endphp
 
+    <!-- ═══════════════════════════════════════════════
+         TITLE  —  défini ici, ne pas le remettre dans @section('meta')
+    ═══════════════════════════════════════════════ -->
+    <title>{{ $pageTitle }}</title>
+
+    <!-- ═══════════════════════════════════════════════
+         SEO PAR DÉFAUT  (peuvent être surchargés par @section('meta'))
+    ═══════════════════════════════════════════════ -->
     <meta name="description" content="{{ $siteDesc }}">
+    <link rel="canonical" href="{{ url()->current() }}">
 
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="fr_TN">
-    <meta property="og:site_name" content="{{ $siteName }}">
-    <meta property="og:title" content="{{ trim($__env->yieldContent('title')) ?: ($siteName . ' | Décoration & Accessoires') }}">
+    <!-- Open Graph (défaut) -->
+    <meta property="og:locale"      content="fr_TN">
+    <meta property="og:type"        content="website">
+    <meta property="og:site_name"   content="{{ $siteName }}">
+    <meta property="og:title"       content="{{ $pageTitle }}">
     <meta property="og:description" content="{{ $siteDesc }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="{{ $defaultOgImage }}">
+    <meta property="og:url"         content="{{ url()->current() }}">
+    <meta property="og:image"       content="{{ $defaultOgImg }}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"   content="{{ $siteName }}">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ trim($__env->yieldContent('title')) ?: ($siteName . ' | Décoration & Accessoires') }}">
+    <!-- Twitter Card (défaut) -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="{{ $pageTitle }}">
     <meta name="twitter:description" content="{{ $siteDesc }}">
-    <meta name="twitter:image" content="{{ $defaultOgImage }}">
+    <meta name="twitter:image"       content="{{ $defaultOgImg }}">
 
+    <!-- ═══════════════════════════════════════════════
+         SECTION META  —  les vues enfants injectent ici leurs balises
+         spécifiques (description produit, OG produit, JSON-LD produit…).
+         Ces balises ÉCRASENT / COMPLÈTENT les valeurs par défaut ci-dessus.
+    ═══════════════════════════════════════════════ -->
     @yield('meta')
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/logo-sirine.png') }}">
+
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+          rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#D4AF37', // Or doré élégant
-                        secondary: '#8B7355', // Brun chic
-                        accent: '#C19A6B',   // Beige doré
-                        dark: '#2C1810',     // Brun foncé
-                        light: '#FAF3E0'     // Crème
+                        primary:   '#D4AF37',
+                        secondary: '#8B7355',
+                        accent:    '#C19A6B',
+                        dark:      '#2C1810',
+                        light:     '#FAF3E0'
                     },
                     fontFamily: {
-                        'sans': ['Poppins', 'sans-serif'],
+                        'sans':  ['Poppins', 'sans-serif'],
                         'serif': ['Playfair Display', 'serif']
                     },
                     animation: {
@@ -65,50 +104,55 @@
                         'float': 'float 3s ease-in-out infinite'
                     },
                     keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' }
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' }
-                        }
+                        fadeIn:  { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        float:   { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
                     }
                 }
             }
         }
     </script>
+
+    <!-- CSS spécifique à la page -->
     @yield('css')
 
-    <meta name="google-site-verification" content="votre-code-verification" />
-
-    <!-- Structured Data -->
+    <!-- ═══════════════════════════════════════════════
+         STRUCTURED DATA GLOBALE  —  HomeGoodsStore
+         (JSON-LD spécifiques aux pages sont dans @section('meta'))
+    ═══════════════════════════════════════════════ -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "HomeGoodsStore",
-      "name": "{{ $siteName }}",
-      "description": "{{ $siteDesc }}",
-      "url": "{{ $siteUrl }}",
-      "logo": "{{ $defaultOgImage }}",
-      "email": "{{ $supportEmail }}",
-      "telephone": "{{ $supportPhone }}",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "{{ $addressText }}",
-        "addressLocality": "Tunis",
-        "addressCountry": "TN"
-      },
-      "priceRange": "$$",
-      "openingHours": "Mo-Sa 09:00-19:00"
+        "@context": "https://schema.org",
+        "@type": "HomeGoodsStore",
+        "name": "{{ $siteName }}",
+        "description": "{{ $siteDesc }}",
+        "url": "{{ $siteUrl }}",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ asset('assets/img/logo-sirine.png') }}"
+        },
+        "image": "{{ $defaultOgImg }}",
+        "email": "{{ $supportEmail }}",
+        "telephone": "{{ $supportPhone }}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ $addressText }}",
+            "addressLocality": "Tunis",
+            "addressCountry": "TN"
+        },
+        "priceRange": "$$",
+        "currenciesAccepted": "TND",
+        "paymentAccepted": "Cash, Credit Card",
+        "openingHours": "Mo-Sa 09:00-19:00",
+        "hasMap": "{{ $siteUrl }}",
+        "sameAs": []
     }
     </script>
 
-    <!-- Google Analytics -->
+    <!-- ═══════════════════════════════════════════════
+         GOOGLE ANALYTICS / GTM
+         Remplace G-YOUR-ID par ton vrai identifiant
+    ═══════════════════════════════════════════════ -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -116,36 +160,50 @@
         gtag('js', new Date());
         gtag('config', 'G-YOUR-ID');
     </script>
+
+    <!-- Google Search Console verification -->
+    <meta name="google-site-verification" content="VOTRE-CODE-VERIFICATION">
 </head>
 
 <body class="bg-light font-sans text-dark min-h-screen flex flex-col">
-<!-- Loading Animation -->
+
+<!-- ═══════════════════════════════════════════════
+     BARRE DE CHARGEMENT
+═══════════════════════════════════════════════ -->
 <div id="loadingBar"
-     class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 origin-left transition-transform duration-500 ease-in-out z-50 hidden">
+     class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary
+            transform scale-x-0 origin-left transition-transform duration-500 ease-in-out z-50 hidden">
 </div>
 
-<!-- Cart Offcanvas -->
+<!-- ═══════════════════════════════════════════════
+     PANIER OFFCANVAS
+═══════════════════════════════════════════════ -->
 <div id="cartOffcanvas"
-     class="fixed inset-y-0 right-0 w-full sm:w-80 md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+     class="fixed inset-y-0 right-0 w-full sm:w-80 md:w-96 bg-white shadow-2xl
+            transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto"
+     aria-label="Votre panier" role="dialog" aria-modal="true">
     <div class="flex flex-col h-full">
-        <!-- Header -->
+
+        <!-- Header panier -->
         <div class="flex justify-between items-center p-4 border-b bg-gradient-to-r from-primary/5 to-white">
             <span class="text-xl font-serif font-bold text-dark">
-                <i class="fas fa-shopping-bag mr-2"></i>Votre Panier
+                <i class="fas fa-shopping-bag mr-2" aria-hidden="true"></i>Votre Panier
             </span>
-            <button id="closeCartOffcanvas" class="p-2 hover:text-primary transition min-w-[44px] min-h-[44px]">
-                <i class="fa-solid fa-xmark text-xl"></i>
+            <button id="closeCartOffcanvas"
+                    class="p-2 hover:text-primary transition min-w-[44px] min-h-[44px]"
+                    aria-label="Fermer le panier">
+                <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
             </button>
         </div>
 
-        <!-- Cart Content -->
+        <!-- Contenu panier -->
         <div class="flex-1 p-4 overflow-y-auto">
             <div id="cartItems" class="space-y-4">
-                <!-- Dynamic content -->
+                <!-- Injecté dynamiquement par CartManager -->
             </div>
         </div>
 
-        <!-- Cart Summary -->
+        <!-- Récapitulatif -->
         <div class="p-4 border-t bg-gray-50">
             <div class="space-y-3 mb-6">
                 <div class="flex justify-between">
@@ -154,7 +212,9 @@
                 </div>
                 <div class="flex justify-between">
                     <span>Livraison</span>
-                    <span id="shippingCost" class="font-semibold">{{ number_format($shippingCost, 2) }} DT</span>
+                    <span id="shippingCost" class="font-semibold">
+                        {{ number_format($shippingCost, 2) }} DT
+                    </span>
                 </div>
                 <div class="border-t pt-3">
                     <div class="flex justify-between text-lg font-bold">
@@ -165,10 +225,10 @@
             </div>
 
             <a href="/checkout"
-               class="block w-full bg-primary hover:bg-secondary text-white text-center py-3 rounded-lg font-semibold transition mb-3">
-               Commander
+               class="block w-full bg-primary hover:bg-secondary text-white text-center
+                      py-3 rounded-lg font-semibold transition mb-3">
+                Commander
             </a>
-
             <button id="continueShoppingBtn"
                     class="w-full text-primary hover:text-secondary py-2 rounded-lg transition">
                 Continuer mes achats
@@ -177,30 +237,44 @@
     </div>
 </div>
 
-<!-- Overlay -->
-<div id="cartOverlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+<!-- Overlay panier -->
+<div id="cartOverlay" class="fixed inset-0 bg-black/50 z-40 hidden" aria-hidden="true"></div>
 
-<!-- Header -->
-    @include('front-office.layouts.header')
+<!-- ═══════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════ -->
+@include('front-office.layouts.header')
 
+<!-- ═══════════════════════════════════════════════
+     CONTENU PRINCIPAL
+═══════════════════════════════════════════════ -->
+<main id="main-content">
+    @yield('content')
+</main>
 
-@yield('content')
-
-<!-- Footer -->
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════ -->
 @include('front-office.layouts.footer')
-@yield('js')
 
-<!-- Main JavaScript -->
+<!-- ═══════════════════════════════════════════════
+     BOUTON WHATSAPP FLOTTANT
+═══════════════════════════════════════════════ -->
+@include('layouts.components.whatsapp-button')
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT PRINCIPAL
+═══════════════════════════════════════════════ -->
 <script type="module">
-// Configuration
+// ─── Configuration ────────────────────────────────────────────────────────────
 const CONFIG = {
-    shippingCost: {{ $shippingCost }},
+    shippingCost:   {{ $shippingCost }},
     freeShippingMin: {{ $freeShipping }},
-    currency: 'DT',
-    storageKey: 'sirine_cart'
+    currency:       'DT',
+    storageKey:     'sirine_cart'
 };
 
-// Cart Manager
+// ─── Gestionnaire de panier ───────────────────────────────────────────────────
 class CartManager {
     constructor() {
         this.cart = this.loadCart();
@@ -208,20 +282,20 @@ class CartManager {
     }
 
     loadCart() {
-        const raw = localStorage.getItem(CONFIG.storageKey) || '[]';
-        const cart = JSON.parse(raw);
-        return this.validateCart(cart);
+        try {
+            const raw = localStorage.getItem(CONFIG.storageKey) || '[]';
+            return this.validateCart(JSON.parse(raw));
+        } catch {
+            return [];
+        }
     }
 
     validateCart(cart) {
-        return cart.filter(item =>
-            item.id &&
-            item.name &&
-            !isNaN(item.price) &&
-            item.image &&
-            !isNaN(item.stock) &&
-            !isNaN(item.quantity)
-        );
+        return Array.isArray(cart) ? cart.filter(item =>
+            item.id && item.name &&
+            !isNaN(item.price) && item.image &&
+            !isNaN(item.stock) && !isNaN(item.quantity)
+        ) : [];
     }
 
     saveCart() {
@@ -229,8 +303,7 @@ class CartManager {
     }
 
     addProduct(product) {
-        const existing = this.cart.find(item => item.id === product.id);
-
+        const existing = this.cart.find(i => i.id === product.id);
         if (existing) {
             if (existing.quantity < existing.stock) {
                 existing.quantity++;
@@ -241,7 +314,6 @@ class CartManager {
         } else {
             this.cart.push({ ...product, quantity: 1 });
         }
-
         this.saveCart();
         this.updateUI();
         this.showNotification('Produit ajouté au panier', 'success');
@@ -249,306 +321,245 @@ class CartManager {
     }
 
     updateQuantity(id, delta) {
-        const item = this.cart.find(item => item.id === id);
+        const item = this.cart.find(i => i.id === id);
         if (!item) return;
-
         item.quantity += delta;
-
         if (item.quantity <= 0) {
-            this.cart = this.cart.filter(item => item.id !== id);
+            this.cart = this.cart.filter(i => i.id !== id);
         } else if (item.quantity > item.stock) {
             item.quantity = item.stock;
-            this.showNotification('Stock maximum', 'error');
+            this.showNotification('Stock maximum atteint', 'error');
         }
-
         this.saveCart();
         this.updateUI();
     }
 
     removeItem(id) {
-        this.cart = this.cart.filter(item => item.id !== id);
+        this.cart = this.cart.filter(i => i.id !== id);
         this.saveCart();
         this.updateUI();
         this.showNotification('Produit retiré', 'info');
     }
 
-    getSubtotal() {
-        return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    }
-
-    getShipping() {
-        const subtotal = this.getSubtotal();
-        return subtotal >= CONFIG.freeShippingMin ? 0 : CONFIG.shippingCost;
-    }
-
-    getTotal() {
-        return this.getSubtotal() + this.getShipping();
-    }
-
-    getItemCount() {
-        return this.cart.reduce((sum, item) => sum + item.quantity, 0);
-    }
+    getSubtotal()  { return this.cart.reduce((s, i) => s + i.price * i.quantity, 0); }
+    getShipping()  { return this.getSubtotal() >= CONFIG.freeShippingMin ? 0 : CONFIG.shippingCost; }
+    getTotal()     { return this.getSubtotal() + this.getShipping(); }
+    getItemCount() { return this.cart.reduce((s, i) => s + i.quantity, 0); }
 
     updateUI() {
-        // Update cart count
         const countEl = document.getElementById('cartCount');
         if (countEl) countEl.textContent = this.getItemCount();
-
-        // Update cart items
         this.renderCartItems();
-
-        // Update totals
         this.updateTotals();
-
-        // Update mini cart
-        this.renderMiniCart();
     }
 
     renderCartItems() {
         const container = document.getElementById('cartItems');
         if (!container) return;
 
-        if (this.cart.length === 0) {
+        if (!this.cart.length) {
             container.innerHTML = `
                 <div class="text-center py-10">
-                    <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
+                    <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4" aria-hidden="true"></i>
                     <p class="text-gray-500">Votre panier est vide</p>
-                </div>
-            `;
+                </div>`;
             return;
         }
 
         container.innerHTML = this.cart.map(item => `
             <div class="flex items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                <img src="${item.image}" alt="${item.name}"
-                     class="w-20 h-20 object-cover rounded-lg">
+                <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg" loading="lazy">
                 <div class="flex-1 ml-4">
                     <h4 class="font-semibold text-dark">${item.name}</h4>
                     <p class="text-primary font-bold mt-1">${item.price.toFixed(2)} ${CONFIG.currency}</p>
-                    <div class="flex items-center mt-2">
+                    <div class="flex items-center mt-2" role="group" aria-label="Quantité">
                         <button onclick="cart.updateQuantity(${item.id}, -1)"
-                                class="w-10 h-10 flex items-center justify-center border rounded-l hover:bg-gray-100 min-w-[44px] min-h-[44px]">
-                            <i class="fas fa-minus text-xs"></i>
+                                class="w-10 h-10 flex items-center justify-center border rounded-l hover:bg-gray-100"
+                                aria-label="Diminuer la quantité">
+                            <i class="fas fa-minus text-xs" aria-hidden="true"></i>
                         </button>
-                        <span class="w-10 text-center border-y">${item.quantity}</span>
+                        <span class="w-10 text-center border-y" aria-live="polite">${item.quantity}</span>
                         <button onclick="cart.updateQuantity(${item.id}, 1)"
-                                class="w-8 h-8 flex items-center justify-center border rounded-r hover:bg-gray-100 min-w-[44px] min-h-[44px]">
-                            <i class="fas fa-plus text-xs"></i>
+                                class="w-10 h-10 flex items-center justify-center border rounded-r hover:bg-gray-100"
+                                aria-label="Augmenter la quantité">
+                            <i class="fas fa-plus text-xs" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <button onclick="cart.removeItem(${item.id})"
-                        class="ml-4 text-gray-400 hover:text-red-500 transition">
-                    <i class="fas fa-trash"></i>
+                        class="ml-4 text-gray-400 hover:text-red-500 transition"
+                        aria-label="Supprimer ${item.name}">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
                 </button>
             </div>
         `).join('');
     }
 
     updateTotals() {
-        const subtotal = document.getElementById('cartSubtotal');
-        const shipping = document.getElementById('shippingCost');
-        const total = document.getElementById('cartTotal');
+        const subtotalEl = document.getElementById('cartSubtotal');
+        const shippingEl = document.getElementById('shippingCost');
+        const totalEl    = document.getElementById('cartTotal');
+        const ship       = this.getShipping();
 
-        if (subtotal) subtotal.textContent = `${this.getSubtotal().toFixed(2)} ${CONFIG.currency}`;
-        if (shipping) {
-            const shipCost = this.getShipping();
-            shipping.textContent = shipCost === 0 ? 'Gratuit' : `${shipCost.toFixed(2)} ${CONFIG.currency}`;
-            shipping.className = shipCost === 0 ? 'font-semibold text-green-600' : 'font-semibold';
+        if (subtotalEl) subtotalEl.textContent = `${this.getSubtotal().toFixed(2)} ${CONFIG.currency}`;
+        if (shippingEl) {
+            shippingEl.textContent  = ship === 0 ? 'Gratuit' : `${ship.toFixed(2)} ${CONFIG.currency}`;
+            shippingEl.className    = ship === 0 ? 'font-semibold text-green-600' : 'font-semibold';
         }
-        if (total) total.textContent = `${this.getTotal().toFixed(2)} ${CONFIG.currency}`;
-    }
-
-    renderMiniCart() {
-        const container = document.getElementById('miniCartItems');
-        if (!container) return;
-
-        // Similar rendering logic for mini cart
+        if (totalEl) totalEl.textContent = `${this.getTotal().toFixed(2)} ${CONFIG.currency}`;
     }
 
     showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg animate-slide-up ${
-            type === 'success' ? 'bg-green-500' :
-            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-        } text-white`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
-
-    init() {
-        this.updateUI();
-
-        // Cart toggle handlers
-        document.querySelectorAll('.cart-button').forEach(btn => {
-            btn.addEventListener('click', () => this.openCart());
-        });
-
-        document.getElementById('closeCartOffcanvas')?.addEventListener('click', () => this.closeCart());
-        document.getElementById('continueShoppingBtn')?.addEventListener('click', () => this.closeCart());
-        document.getElementById('cartOverlay')?.addEventListener('click', () => this.closeCart());
+        const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
+        const el = document.createElement('div');
+        el.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg animate-slide-up
+                        ${colors[type] ?? colors.success} text-white`;
+        el.setAttribute('role', 'alert');
+        el.textContent = message;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 3000);
     }
 
     openCart() {
-        const offcanvas = document.getElementById('cartOffcanvas');
-        const overlay = document.getElementById('cartOverlay');
-
-        offcanvas.classList.remove('translate-x-full');
-        overlay.classList.remove('hidden');
+        document.getElementById('cartOffcanvas')?.classList.remove('translate-x-full');
+        document.getElementById('cartOverlay')?.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-
         this.updateUI();
     }
 
     closeCart() {
-        const offcanvas = document.getElementById('cartOffcanvas');
-        const overlay = document.getElementById('cartOverlay');
-
-        offcanvas.classList.add('translate-x-full');
-        overlay.classList.add('hidden');
+        document.getElementById('cartOffcanvas')?.classList.add('translate-x-full');
+        document.getElementById('cartOverlay')?.classList.add('hidden');
         document.body.style.overflow = '';
+    }
+
+    init() {
+        this.updateUI();
+        document.querySelectorAll('.cart-button').forEach(btn =>
+            btn.addEventListener('click', () => this.openCart())
+        );
+        document.getElementById('closeCartOffcanvas')?.addEventListener('click',  () => this.closeCart());
+        document.getElementById('continueShoppingBtn')?.addEventListener('click', () => this.closeCart());
+        document.getElementById('cartOverlay')?.addEventListener('click',          () => this.closeCart());
+
+        // Fermeture au clavier (Echap)
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') this.closeCart();
+        });
     }
 }
 
-// Global cart instance
+// Instance globale
 window.cart = new CartManager();
 
-// Add to cart function (for product buttons)
+// Fonction globale addToCart utilisée dans les templates enfants
 window.addToCart = function(button) {
     const product = {
-        id: parseInt(button.dataset.id),
-        name: button.dataset.name,
-        price: parseFloat(button.dataset.price),
+        id:            parseInt(button.dataset.id),
+        name:          button.dataset.name,
+        price:         parseFloat(button.dataset.price),
         originalPrice: parseFloat(button.dataset.originalPrice || button.dataset.price),
         discountPrice: button.dataset.discountPrice ? parseFloat(button.dataset.discountPrice) : null,
-        image: button.dataset.image,
-        stock: parseInt(button.dataset.stock)
+        image:         button.dataset.image,
+        stock:         parseInt(button.dataset.stock)
     };
 
-    // Loading state
-    const originalHTML = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    button.disabled = true;
+    const original = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i>';
+    button.disabled  = true;
 
     setTimeout(() => {
         cart.addProduct(product);
-        button.innerHTML = originalHTML;
-        button.disabled = false;
-
-        // Ouvrir le panier offcanvas
+        button.innerHTML = original;
+        button.disabled  = false;
         cart.openCart();
     }, 500);
 };
 
-// Mobile menu
-document.addEventListener('DOMContentLoaded', function() {
+// ─── Menu mobile ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
     const mobileMenuBtn = document.getElementById('mobileMenuButton');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const closeBtn = document.getElementById('closeMobileMenu');
-    const menuPanel = mobileMenu?.querySelector('div');
+    const mobileMenu    = document.getElementById('mobileMenu');
+    const closeBtn      = document.getElementById('closeMobileMenu');
+    const menuPanel     = mobileMenu?.querySelector('div');
 
-    if (mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.remove('hidden');
-            setTimeout(() => menuPanel.classList.remove('translate-x-full'), 10);
-        });
-
-        closeBtn?.addEventListener('click', closeMobileMenu);
-        mobileMenu.addEventListener('click', (e) => {
-            if (e.target === mobileMenu) closeMobileMenu();
-        });
-
-        function closeMobileMenu() {
-            menuPanel.classList.add('translate-x-full');
-            setTimeout(() => mobileMenu.classList.add('hidden'), 300);
-        }
-
-        // ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
-                closeMobileMenu();
-            }
-        });
+    function closeMobileMenu() {
+        menuPanel?.classList.add('translate-x-full');
+        setTimeout(() => mobileMenu?.classList.add('hidden'), 300);
     }
+
+    mobileMenuBtn?.addEventListener('click', () => {
+        mobileMenu?.classList.remove('hidden');
+        setTimeout(() => menuPanel?.classList.remove('translate-x-full'), 10);
+    });
+
+    closeBtn?.addEventListener('click', closeMobileMenu);
+
+    mobileMenu?.addEventListener('click', e => {
+        if (e.target === mobileMenu) closeMobileMenu();
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !mobileMenu?.classList.contains('hidden')) {
+            closeMobileMenu();
+        }
+    });
 });
 
-// Loading bar control
+// ─── Barre de chargement ──────────────────────────────────────────────────────
 window.showLoading = function() {
     const bar = document.getElementById('loadingBar');
-    bar.classList.remove('hidden', 'scale-x-0');
-    bar.classList.add('scale-x-100');
+    bar?.classList.remove('hidden', 'scale-x-0');
+    bar?.classList.add('scale-x-100');
 };
 
 window.hideLoading = function() {
     const bar = document.getElementById('loadingBar');
-    bar.classList.remove('scale-x-100');
-    bar.classList.add('scale-x-0');
-    setTimeout(() => bar.classList.add('hidden'), 500);
+    bar?.classList.remove('scale-x-100');
+    bar?.classList.add('scale-x-0');
+    setTimeout(() => bar?.classList.add('hidden'), 500);
 };
 </script>
 
-<!-- Custom Styles -->
+<!-- JS spécifique à la page -->
+@yield('js')
+
+<!-- ═══════════════════════════════════════════════
+     STYLES GLOBAUX
+═══════════════════════════════════════════════ -->
 <style>
     .nav-link {
         @apply text-dark hover:text-primary transition-colors duration-200 font-medium relative;
     }
-
     .nav-link::after {
         content: '';
         @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300;
     }
-
-    .nav-link:hover::after {
-        @apply w-full;
-    }
+    .nav-link:hover::after { @apply w-full; }
 
     .product-card {
         @apply bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden;
     }
-
-    .product-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .animate-slide-up {
-        animation: slideUp 0.3s ease-out;
-    }
+    .product-card:hover { transform: translateY(-5px); }
 
     @keyframes slideUp {
-        from {
-            transform: translateY(20px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        from { transform: translateY(20px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
     }
+    .animate-slide-up { animation: slideUp 0.3s ease-out; }
 
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 6px;
-    }
+    /* Scrollbar personnalisée */
+    ::-webkit-scrollbar       { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: rgba(212,175,55,.3); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,.5); }
 
-    ::-webkit-scrollbar-track {
-        @apply bg-gray-100;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        @apply bg-primary/30 rounded-full;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        @apply bg-primary/50;
+    /* Accessibilité : focus visible */
+    :focus-visible {
+        outline: 2px solid #D4AF37;
+        outline-offset: 2px;
     }
 </style>
-
-{{-- Inclusion du bouton WhatsApp flottant --}}
-@include('layouts.components.whatsapp-button')
 
 </body>
 </html>

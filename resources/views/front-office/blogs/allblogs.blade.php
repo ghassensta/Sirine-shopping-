@@ -3,20 +3,80 @@
 @section('title', 'Tous nos articles de blog | Sirine Shopping')
 
 @section('meta')
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="description" content="Sirine Shopping : découvrez tous nos articles de blog pour des conseils déco, astuces et tendances en Tunisie.">
-    <meta name="keywords" content="blog déco Tunisie, articles décoration, conseils déco, astuces maison, design intérieur, tendances déco">
-    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-    <meta name="theme-color" content="#FDD835">
+    {{-- ══ SEO Essentiels ══ --}}
+    <meta name="description" content="Découvrez tous nos articles de blog : conseils déco, astuces d'aménagement et tendances décoration intérieure en Tunisie par Sirine Shopping.">
+    <meta name="keywords" content="blog déco Tunisie, articles décoration intérieure, conseils déco Sousse, astuces maison Tunisie, tendances décoration 2025, design intérieur Tunisie, Sirine Shopping blog">
     <meta name="author" content="Sirine Shopping">
-    <meta name="publisher" content="Sirine Shopping">
-
     <link rel="canonical" href="{{ url()->current() }}">
+
+    {{-- ══ Hreflang ══ --}}
     <link rel="alternate" href="{{ url()->current() }}" hreflang="fr-tn">
     <link rel="alternate" href="{{ url()->current() }}" hreflang="x-default">
+
+    {{-- ══ Open Graph ══ --}}
+    <meta property="og:locale"       content="fr_TN">
+    <meta property="og:type"         content="website">
+    <meta property="og:site_name"    content="Sirine Shopping">
+    <meta property="og:title"        content="Blog Déco Tunisie - Conseils & Inspirations | Sirine Shopping">
+    <meta property="og:description"  content="Découvrez nos articles de blog : conseils déco, astuces d'aménagement et tendances décoration intérieure en Tunisie.">
+    <meta property="og:url"          content="{{ url()->current() }}">
+    <meta property="og:image"        content="{{ asset('assets/img/og-image-sirine.jpg') }}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"    content="Blog Déco Sirine Shopping - Conseils et inspirations Tunisie">
+
+    {{-- ══ Twitter Card ══ --}}
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="Blog Déco Tunisie - Conseils & Inspirations | Sirine Shopping">
+    <meta name="twitter:description" content="Conseils déco, astuces d'aménagement et tendances décoration intérieure en Tunisie par Sirine Shopping.">
+    <meta name="twitter:image"       content="{{ asset('assets/img/og-image-sirine.jpg') }}">
+
+    {{-- ══ Schema.org Blog (CollectionPage) ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Blog Déco - Conseils & Inspirations",
+        "description": "Tous les articles de blog Sirine Shopping : conseils déco, astuces maison et tendances décoration intérieure en Tunisie.",
+        "url": "{{ url()->current() }}",
+        "inLanguage": "fr-TN",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "Sirine Shopping",
+            "url": "{{ url('/') }}"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Sirine Shopping",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ asset('assets/img/logo-sirine.png') }}"
+            }
+        }
+    }
+    </script>
+
+    {{-- ══ Schema.org BreadcrumbList ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Accueil",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "{{ url()->current() }}"
+            }
+        ]
+    }
+    </script>
 @endsection
 
 @section('content')

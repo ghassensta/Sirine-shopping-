@@ -3,33 +3,143 @@
 {{-- ===== TITRE ===== --}}
 @section('title', 'Contact | Sirine Shopping - Boutique Déco Tunisie | Décoration Intérieure Tunisie')
 
-{{-- ===== MÉTA ===== --}}
 @section('meta')
-    {{-- SEO de base --}}
-    <meta name="description"
-          content="Besoin d’aide ou d’informations ? Contactez Sirine Shopping – votre boutique de décoration intérieure en Tunisie. Notre équipe répond à vos questions sur les meubles tunisiens, tapis Kairouan, luminaires et accessoires maison." >
-    <meta name="keywords"
-          content="contact Sirine Shopping, service client décoration Tunisie, questions boutique déco, meubles tunisiens, tapis Kairouan, luminaires Tunisie, accessoires maison Tunisie, boutique déco en ligne">
+    {{-- ══ SEO Essentiels ══ --}}
+    <meta name="description" content="Contactez Sirine Shopping, votre boutique de décoration intérieure à M'saken, Sousse. Notre équipe répond à vos questions sur nos meubles, luminaires et accessoires maison en Tunisie.">
+    <meta name="keywords" content="contact Sirine Shopping, service client décoration Tunisie, boutique déco M'saken Sousse, meubles Tunisie, luminaires Tunisie, accessoires maison Tunisie">
     <meta name="author" content="Sirine Shopping">
-
-    {{-- Canonical & hreflang --}}
     <link rel="canonical" href="{{ url()->current() }}">
+
+    {{-- ══ Hreflang ══ --}}
     <link rel="alternate" href="{{ url()->current() }}" hreflang="fr-tn">
     <link rel="alternate" href="{{ url()->current() }}" hreflang="x-default">
 
-    {{-- Open Graph / Social --}}
-    <meta property="og:locale" content="fr_TN">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Contact | Sirine Shopping">
-    <meta property="og:description"
-          content="Contactez l’équipe Sirine Shopping pour toute question sur nos meubles, tapis et accessoires made in Tunisia. Nous sommes là pour vous aider !">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:site_name" content="{{ config('app.name') }}">
+    {{-- ══ Open Graph ══ --}}
+    <meta property="og:locale"      content="fr_TN">
+    <meta property="og:type"        content="website">
+    <meta property="og:site_name"   content="Sirine Shopping">
+    <meta property="og:title"       content="Contactez Sirine Shopping - Boutique Déco Tunisie">
+    <meta property="og:description" content="Contactez l'équipe Sirine Shopping pour toute question sur nos meubles, luminaires et accessoires déco. Showroom à M'saken, Sousse — livraison dans toute la Tunisie.">
+    <meta property="og:url"         content="{{ url()->current() }}">
+    <meta property="og:image"       content="{{ asset('assets/img/og-image-sirine.jpg') }}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"   content="Contact Sirine Shopping - Décoration Tunisie">
 
-    {{-- Indexation --}}
-    <meta name="robots" content="index, follow">
+    {{-- ══ Twitter Card ══ --}}
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="Contactez Sirine Shopping - Boutique Déco Tunisie">
+    <meta name="twitter:description" content="Contactez l'équipe Sirine Shopping pour toute question sur nos meubles, luminaires et accessoires déco. Showroom à M'saken, Sousse.">
+    <meta name="twitter:image"       content="{{ asset('assets/img/og-image-sirine.jpg') }}">
+
+    {{-- ══ Schema.org ContactPage ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        "name": "Contactez Sirine Shopping",
+        "description": "Page de contact de Sirine Shopping, boutique de décoration intérieure à M'saken, Sousse, Tunisie.",
+        "url": "{{ url()->current() }}",
+        "inLanguage": "fr-TN",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "Sirine Shopping",
+            "url": "{{ url('/') }}"
+        }
+    }
+    </script>
+
+    {{-- ══ Schema.org LocalBusiness (données de contact structurées) ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "HomeGoodsStore",
+        "name": "Sirine Shopping",
+        "url": "{{ url('/') }}",
+        "logo": "{{ asset('assets/img/logo-sirine.png') }}",
+        "image": "{{ asset('assets/img/og-image-sirine.jpg') }}",
+        "telephone": "{{ $config->phone ?? '+216 99 592 125' }}",
+        "email": "{{ $config->support_email ?? 'contact@votresite.com' }}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ $config->address ?? 'M\'saken' }}",
+            "addressLocality": "Sousse",
+            "addressCountry": "TN"
+        },
+        "openingHoursSpecification": [
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+                "opens": "09:00",
+                "closes": "18:00"
+            }
+        ],
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "{{ $config->phone ?? '+216 99 592 125' }}",
+            "contactType": "customer service",
+            "availableLanguage": "French",
+            "areaServed": "TN"
+        }
+    }
+    </script>
+
+    {{-- ══ Schema.org FAQPage ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Comment puis-je passer une commande ?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Vous pouvez passer commande directement sur notre site en sélectionnant les articles de votre choix et en suivant le processus de paiement sécurisé."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Quels sont les délais de livraison ?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Les délais de livraison varient entre 2 et 5 jours ouvrés selon votre localisation et la disponibilité des produits."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Quelles sont les méthodes de paiement acceptées ?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Nous acceptons les cartes bancaires (Visa, MasterCard), les virements bancaires et le paiement à la livraison pour certaines zones."
+                }
+            }
+        ]
+    }
+    </script>
+
+    {{-- ══ Schema.org BreadcrumbList ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Accueil",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Contact",
+                "item": "{{ url()->current() }}"
+            }
+        ]
+    }
+    </script>
 @endsection
-
 @section('content')
 <!-- CONTACT -->
 <section class="py-16 bg-light animate-slide-up">

@@ -37,32 +37,32 @@ class Category extends Model
     /* =======================
      | Relations
      ======================= */
-    
+
     // Relation avec les produits de cette catégorie (many-to-many)
     public function products()
     {
         return $this->belongsToMany(Product::class, 'category_product')
                     ->withTimestamps();
     }
-    
+
     // Relation parent (catégorie parente)
     public function parent()
     {
         return $this->belongsTo(self::class, 'parent_id');
     }
-    
+
     // Relation children (sous-catégories)
     public function children()
     {
         return $this->hasMany(self::class, 'parent_id');
     }
-    
+
     // Relation récursive pour obtenir tous les descendants
     public function descendants()
     {
         return $this->children()->with('descendants');
     }
-    
+
     // Relation récursive pour obtenir tous les ancêtres
     public function ancestors()
     {
@@ -139,7 +139,7 @@ class Category extends Model
     {
         // Récupérer tous les IDs de cette catégorie et de ses descendants
         $categoryIds = $this->getAllCategoryIds();
-        
+
         // Calculer la moyenne des avis approuvés pour tous les produits concernés
         $avgRating = Product::whereHas('categories', function($query) use ($categoryIds) {
             $query->whereIn('categories.id', $categoryIds);
@@ -152,26 +152,26 @@ class Category extends Model
             }], 'rating')
             ->get()
             ->avg('avis_avg_rating');
-            
+
         return $avgRating ? round($avgRating, 1) : 5.0; // Note par défaut
     }
 
     /**
      * Obtenir le nombre total d'avis approuvés pour cette catégorie ET ses sous-catégories
      */
-    public function getTotalReviewsAttribute()
-    {
-        // Récupérer tous les IDs de cette catégorie et de ses descendants
-        $categoryIds = $this->getAllCategoryIds();
-        
-        return Product::whereIn('category_id', $categoryIds)
-            ->withCount(['avis' => function($query) {
-                $query->where('approved', true);
-            }])
-            ->get()
-            ->sum('avis_count');
-    }
+   public function getTotalReviewsAttribute()
+{
+    $categoryIds = $this->getAllCategoryIds();
 
+    return Product::whereHas('categories', function ($query) use ($categoryIds) {
+        $query->whereIn('categories.id', $categoryIds);
+    })
+        ->withCount(['avis' => function ($query) {
+            $query->where('approved', true);
+        }])
+        ->get()
+        ->sum('avis_count');
+}
     /**
      * Vérifier si la catégorie a des avis.
      */
@@ -179,14 +179,14 @@ class Category extends Model
     {
         return $this->total_reviews > 0;
     }
-    
+
     /**
      * Obtenir le chemin complet de la catégorie (Parent > Sous-catégorie > Sous-sous)
      */
     public function getFullNameAttribute()
     {
         $names = collect();
-        
+
         // Ajouter les ancêtres d'abord
         if ($this->parent) {
             $ancestors = $this->parent->ancestors;
@@ -195,27 +195,27 @@ class Category extends Model
             }
             $names->push($this->parent->name);
         }
-        
+
         // Ajouter cette catégorie
         $names->push($this->name);
-        
+
         return $names->join(' > ');
     }
-    
+
     /**
      * Obtenir tous les IDs de cette catégorie et de ses descendants (récursif)
      */
     private function getAllCategoryIds()
     {
         $ids = collect([$this->id]);
-        
+
         foreach ($this->children as $child) {
             $ids = $ids->merge($child->getAllCategoryIds());
         }
-        
+
         return $ids->unique();
     }
-    
+
     /**
      * Obtenir le nombre total de produits (incluant les sous-catégories)
      */
@@ -226,7 +226,7 @@ class Category extends Model
             $query->whereIn('categories.id', $categoryIds);
         })->count();
     }
-    
+
     /**
      * Vérifier si la catégorie est une catégorie parente (n'a pas de parent)
      */
@@ -234,7 +234,7 @@ class Category extends Model
     {
         return is_null($this->parent_id);
     }
-    
+
     /**
      * Vérifier si la catégorie est une sous-catégorie (a un parent)
      */
@@ -242,7 +242,7 @@ class Category extends Model
     {
         return !is_null($this->parent_id);
     }
-    
+
     /**
      * Obtenir le niveau de profondeur (0 = racine)
      */
@@ -251,14 +251,14 @@ class Category extends Model
         if (!$this->parent) {
             return 0;
         }
-        
+
         return $this->parent->depth + 1;
     }
-    
+
     /* =======================
      | Scopes
      ======================= */
-    
+
     /**
      * Scope pour n'obtenir que les catégories parentes (racines)
      */
@@ -266,7 +266,7 @@ class Category extends Model
     {
         return $query->whereNull('parent_id');
     }
-    
+
     /**
      * Scope pour n'obtenir que les catégories actives
      */
@@ -274,7 +274,7 @@ class Category extends Model
     {
         return $query->where('is_active', true);
     }
-    
+
     /**
      * Scope pour obtenir les catégories avec leurs produits et sous-catégories
      */
@@ -282,7 +282,7 @@ class Category extends Model
     {
         return $query->with(['products', 'children.products']);
     }
-    
+
     /**
      * Scope pour obtenir les catégories ordonnées hiérarchiquement
      */
@@ -290,7 +290,7 @@ class Category extends Model
     {
         return $query->orderBy('parent_id')->orderBy('name');
     }
-    
+
     /**
      * Scope pour les catégories populaires (avec le plus de produits)
      */
@@ -300,7 +300,7 @@ class Category extends Model
                     ->orderBy('products_count', 'desc')
                     ->limit($limit);
     }
-    
+
     /**
      * Scope pour obtenir une arborescence complète
      */
@@ -313,7 +313,7 @@ class Category extends Model
                         }]);
                     }]);
     }
-    
+
     /**
      * Obtenir la liste hiérarchique des catégories pour les selects
      */
@@ -334,9 +334,9 @@ class Category extends Model
         }
 
         $categories = $query->get();
-        
+
         $list = collect();
-        
+
         foreach ($categories as $category) {
             $indent = str_repeat('—', $level) . ($level > 0 ? ' ' : '');
             $list->push([
@@ -344,15 +344,15 @@ class Category extends Model
                 'name' => $indent . $category->name,
                 'level' => $level
             ]);
-            
+
             // Récursif pour les enfants
             $children = self::getHierarchicalList($excludeId, $category->id, $level + 1);
             $list = $list->merge($children);
         }
-        
+
         return $list;
     }
-    
+
     /**
      * Vérifier si une catégorie est un descendant d'une autre
      */
@@ -361,29 +361,29 @@ class Category extends Model
         if ($this->parent_id == $categoryId) {
             return true;
         }
-        
+
         if ($this->parent) {
             return $this->parent->isDescendantOf($categoryId);
         }
-        
+
         return false;
     }
-    
+
     /**
      * Obtenir tous les descendants (IDs)
      */
     public function getDescendantIds()
     {
         $ids = collect();
-        
+
         foreach ($this->children as $child) {
             $ids->push($child->id);
             $ids = $ids->merge($child->getDescendantIds());
         }
-        
+
         return $ids;
     }
-    
+
     /**
      * Obtenir le nom du parent avec fallback
      */
@@ -391,7 +391,7 @@ class Category extends Model
     {
         return $this->parent ? $this->parent->name : '—';
     }
-    
+
     /**
      * Obtenir le chemin hiérarchique formaté
      */

@@ -3,33 +3,105 @@
 @section('title', $blog->meta_title ?? $blog->title . ' - Sirine Shopping')
 
 @section('meta')
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
-    <meta name="theme-color" content="#D4AF37">
-    <meta name="description" content="{{ $blog->meta_description ?? Str::limit(strip_tags($blog->content), 155) }}">
+    {{-- ══ SEO Essentiels ══ --}}
+    <meta name="description" content="{{ $blog->meta_description ?? Str::limit(strip_tags($blog->resume ?? $blog->description), 155) }}">
+    <meta name="keywords" content="blog déco Tunisie, {{ $blog->title }}, décoration intérieure, conseils déco, Sirine Shopping">
+    <meta name="author" content="Sirine Shopping">
     <link rel="canonical" href="{{ url()->current() }}">
+
+    {{-- ══ Hreflang ══ --}}
     <link rel="alternate" href="{{ url()->current() }}" hreflang="fr-tn">
     <link rel="alternate" href="{{ url()->current() }}" hreflang="x-default">
 
-    <!-- Open Graph -->
-    <meta property="og:locale" content="fr_TN">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="Sirine Shopping">
-    <meta property="og:title" content="{{ $blog->meta_title ?? $blog->title }}">
-    <meta property="og:description" content="{{ $blog->meta_description ?? Str::limit(strip_tags($blog->content), 155) }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="{{ asset('storage/' . ($blog->image ?? 'default-blog.jpg')) }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="article:published_time" content="{{ $blog->created_at->toISOString() }}">
-    <meta property="article:modified_time" content="{{ $blog->updated_at->toISOString() }}">
-    <meta property="article:author" content="Sirine Shopping">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $blog->meta_title ?? $blog->title }}">
-    <meta name="twitter:description" content="{{ $blog->meta_description ?? Str::limit(strip_tags($blog->content), 155) }}">
-    <meta name="twitter:image" content="{{ asset('storage/' . ($blog->image ?? 'default-blog.jpg')) }}">
+    {{-- ══ Open Graph (article) ══ --}}
+    <meta property="og:locale"              content="fr_TN">
+    <meta property="og:type"                content="article">
+    <meta property="og:site_name"           content="Sirine Shopping">
+    <meta property="og:title"              content="{{ $blog->meta_title ?? $blog->title }}">
+    <meta property="og:description"        content="{{ $blog->meta_description ?? Str::limit(strip_tags($blog->resume ?? $blog->description), 155) }}">
+    <meta property="og:url"                content="{{ url()->current() }}">
+    <meta property="og:image"              content="{{ $blog->image ? asset('storage/' . $blog->image) : asset('assets/img/og-image-sirine.jpg') }}">
+    <meta property="og:image:width"        content="1200">
+    <meta property="og:image:height"       content="630">
+    <meta property="og:image:alt"          content="{{ $blog->title }} - Sirine Shopping">
+
+    {{-- ══ Open Graph Article (dates) ══ --}}
+    <meta property="article:published_time" content="{{ $blog->created_at->toIso8601String() }}">
+    <meta property="article:modified_time"  content="{{ $blog->updated_at->toIso8601String() }}">
+    <meta property="article:author"         content="Sirine Shopping">
+    <meta property="article:section"        content="Décoration Intérieure">
+
+    {{-- ══ Twitter Card ══ --}}
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="{{ $blog->meta_title ?? $blog->title }}">
+    <meta name="twitter:description" content="{{ $blog->meta_description ?? Str::limit(strip_tags($blog->resume ?? $blog->description), 155) }}">
+    <meta name="twitter:image"       content="{{ $blog->image ? asset('storage/' . $blog->image) : asset('assets/img/og-image-sirine.jpg') }}">
+
+    {{-- ══ Schema.org BlogPosting ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "{{ addslashes($blog->meta_title ?? $blog->title) }}",
+        "description": "{{ addslashes($blog->meta_description ?? Str::limit(strip_tags($blog->resume ?? $blog->description ?? ''), 155)) }}",
+        "image": "{{ $blog->image ? asset('storage/' . $blog->image) : asset('assets/img/og-image-sirine.jpg') }}",
+        "url": "{{ url()->current() }}",
+        "datePublished": "{{ $blog->created_at->toIso8601String() }}",
+        "dateModified": "{{ $blog->updated_at->toIso8601String() }}",
+        "inLanguage": "fr-TN",
+        "author": {
+            "@type": "Organization",
+            "name": "Sirine Shopping",
+            "url": "{{ url('/') }}"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Sirine Shopping",
+            "url": "{{ url('/') }}",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ asset('assets/img/logo-sirine.png') }}"
+            }
+        },
+        "isPartOf": {
+            "@type": "Blog",
+            "name": "Blog Déco Sirine Shopping",
+            "url": "{{ route('allblogs') }}"
+        },
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{ url()->current() }}"
+        }
+    }
+    </script>
+
+    {{-- ══ Schema.org BreadcrumbList ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Accueil",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "{{ route('allblogs') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "{{ addslashes(Str::limit($blog->title, 60)) }}",
+                "item": "{{ url()->current() }}"
+            }
+        ]
+    }
+    </script>
 @endsection
 
 @section('content')
@@ -93,7 +165,7 @@
 
                 <!-- Article Content -->
                 <div class="prose prose-lg max-w-none mb-12">
-                    {!! $blog->content !!}
+                    {!! $blog->description !!}
                 </div>
 
                 <!-- Share Buttons -->

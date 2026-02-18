@@ -68,7 +68,7 @@
     </div>
 </div>
 
-<!-- Modal Détails (Optimisé Mobile) -->
+<!-- Modal Détails -->
 <div class="modal fade" id="orderDetailsModal" tabindex="-1">
     <div class="modal-dialog modal-fullscreen-sm-down modal-xl modal-dialog-scrollable">
         <div class="modal-content">
@@ -116,18 +116,16 @@
         margin-bottom: 1rem;
         border: 1px solid #e9ecef;
         overflow: hidden;
+        animation: fadeInUp 0.3s ease;
     }
-    .order-card:active {
-        transform: scale(0.98);
-    }
+    .order-card:active { transform: scale(0.98); }
+
     .order-card-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         padding: 1rem;
     }
-    .order-card-body {
-        padding: 1rem;
-    }
+    .order-card-body { padding: 1rem; }
 
     /* Info rows */
     .info-row {
@@ -137,9 +135,7 @@
         padding: 0.75rem 0;
         border-bottom: 1px solid #f0f0f0;
     }
-    .info-row:last-child {
-        border-bottom: none;
-    }
+    .info-row:last-child { border-bottom: none; }
     .info-label {
         color: #6c757d;
         font-size: 0.875rem;
@@ -147,33 +143,41 @@
         align-items: center;
         gap: 0.5rem;
     }
-    .info-value {
-        font-weight: 600;
-        text-align: right;
-    }
+    .info-value { font-weight: 600; text-align: right; }
 
-    /* Product items dans modal */
-    .product-item-mobile {
+    /* ══ Product items dans modal ══ */
+    .product-item-modal {
         border: 1px solid #e9ecef;
         border-radius: 10px;
         padding: 0.75rem;
         margin-bottom: 0.75rem;
         background: #fafafa;
+        transition: box-shadow 0.2s ease;
     }
-    .product-img-mobile {
-        width: 60px;
-        height: 60px;
+    .product-item-modal:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+    /* ══ Image produit dans modal ══ */
+    .product-img-modal {
+        width: 72px;
+        height: 72px;
         object-fit: cover;
-        border-radius: 8px;
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        flex-shrink: 0;
+        background: #f8f9fa;
+        display: block;
     }
-    .product-placeholder-mobile {
-        width: 60px;
-        height: 60px;
+    .product-no-img {
+        width: 72px;
+        height: 72px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 8px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
+        color: white;
+        font-size: 1.5rem;
     }
 
     /* Action buttons mobile */
@@ -196,7 +200,7 @@
         font-weight: 500;
     }
 
-    /* Summary section */
+    /* Summary */
     .summary-section {
         background: #f8f9fa;
         border-radius: 10px;
@@ -215,35 +219,14 @@
         margin-top: 0.5rem;
     }
 
-    /* Desktop specific */
     @media (min-width: 992px) {
-        .product-img {
-            width: 70px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        .badge-status {
-            padding: 0.5em 1em;
-            font-size: 0.875rem;
-            border-radius: 20px;
-            font-weight: 500;
-        }
+        .product-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; }
+        .badge-status { padding: 0.5em 1em; font-size: 0.875rem; border-radius: 20px; font-weight: 500; }
     }
 
-    /* Animations */
     @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    .order-card {
-        animation: fadeInUp 0.3s ease;
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 </style>
 @endsection
@@ -254,28 +237,29 @@
 <script>
 'use strict';
 
+{{-- ══ URL storage rendue côté Laravel pour éviter tout problème de chemin ══ --}}
+const STORAGE_URL = "{{ rtrim(asset('storage'), '/') }}";
+
 $(function() {
     let dtCommande;
-    let mobileOrders = [];
-    let currentPage = 1;
-    let itemsPerPage = 10;
+    let mobileOrders  = [];
+    let currentPage   = 1;
+    const itemsPerPage = 10;
+    const isMobile    = window.innerWidth < 992;
 
-    // Détection mobile
-    const isMobile = window.innerWidth < 992;
-
-    // ============================================
-    // DESKTOP: DataTable
-    // ============================================
+    // ============================================================
+    // DESKTOP : DataTable
+    // ============================================================
     if (!isMobile && $('.datatables-commandes').length) {
         dtCommande = $('.datatables-commandes').DataTable({
-            processing: true,
-            serverSide: true,
-            responsive: false,
+            processing:  true,
+            serverSide:  true,
+            responsive:  false,
             ajax: {
-                url: "{{ route('commandes.get') }}",
+                url:  "{{ route('commandes.get') }}",
                 type: "GET",
                 data: function(d) {
-                    d._token = '{{ csrf_token() }}';
+                    d._token    = '{{ csrf_token() }}';
                     d.statut_id = $('#statut-filter').val();
                 }
             },
@@ -291,7 +275,7 @@ $(function() {
             columnDefs: [
                 {
                     targets: 0,
-                    render: function(data, type, full) {
+                    render: function(data) {
                         return `<span class="fw-bold text-primary">${data}</span>`;
                     }
                 },
@@ -300,41 +284,36 @@ $(function() {
                     render: function(data, type, full) {
                         return `
                             <div class="d-flex flex-column">
-                                <span class="fw-semibold">${data}</span>
+                                <span class="fw-semibold">${escapeHtml(data)}</span>
                                 <small class="text-muted">
-                                    <i class="ti ti-phone ti-xs me-1"></i>${full.client_phone}
+                                    <i class="ti ti-phone ti-xs me-1"></i>${escapeHtml(full.client_phone)}
                                 </small>
-                            </div>
-                        `;
+                            </div>`;
                     }
                 },
                 {
                     targets: 3,
                     className: 'text-center',
-                    render: function(data, type, full) {
+                    render: function(data) {
                         return `<span class="badge bg-label-info rounded-pill">${data}</span>`;
                     }
                 },
                 {
                     targets: 4,
-                    render: function(data, type, full) {
-                        return `<span class="fw-bold text-success">${parseFloat(data).toLocaleString('fr-TN', {minimumFractionDigits: 3})} DT</span>`;
+                    render: function(data) {
+                        return `<span class="fw-bold text-success">${fmtPrice(data)} DT</span>`;
                     }
                 },
                 {
                     targets: 5,
-                    render: function(data, type, full) {
-                        return getStatusBadge(data);
-                    }
+                    render: function(data) { return getStatusBadge(data); }
                 },
                 {
                     targets: -1,
-                    orderable: false,
+                    orderable:  false,
                     searchable: false,
-                    className: 'text-center',
-                    render: function(data, type, full) {
-                        return getActionButtons(full);
-                    }
+                    className:  'text-center',
+                    render: function(data, type, full) { return getActionButtons(full); }
                 }
             ],
             order: [[1, 'desc']],
@@ -344,32 +323,34 @@ $(function() {
                 search: ""
             }
         });
-    }
-
-    // ============================================
-    // MOBILE: Cards View
-    // ============================================
-    if (isMobile) {
-        loadMobileOrders();
 
         $('#search-input').on('keyup', debounce(function() {
-            loadMobileOrders();
-        }, 500));
+            dtCommande.search($(this).val()).draw();
+        }, 400));
+    }
+
+    // ============================================================
+    // MOBILE : Cards
+    // ============================================================
+    if (isMobile) {
+        loadMobileOrders();
+        $('#search-input').on('keyup', debounce(loadMobileOrders, 500));
     }
 
     function loadMobileOrders() {
         $.ajax({
-            url: "{{ route('commandes.get') }}",
+            url:  "{{ route('commandes.get') }}",
             type: "GET",
             data: {
-                _token: '{{ csrf_token() }}',
+                _token:    '{{ csrf_token() }}',
                 statut_id: $('#statut-filter').val(),
-                start: 0,
-                length: 100, // Charger plus pour le client-side filtering
+                start:  0,
+                length: 100,
                 search: { value: $('#search-input').val() }
             },
             success: function(response) {
                 mobileOrders = response.data;
+                currentPage  = 1;
                 renderMobileOrders();
             }
         });
@@ -378,241 +359,283 @@ $(function() {
     function renderMobileOrders() {
         const container = $('#mobile-orders-container');
 
-        if (mobileOrders.length === 0) {
+        if (!mobileOrders.length) {
             container.html(`
                 <div class="text-center py-5">
-                    <i class="ti ti-inbox ti-lg text-muted mb-3"></i>
+                    <i class="ti ti-inbox ti-lg text-muted mb-3 d-block"></i>
                     <p class="text-muted">Aucune commande trouvée</p>
-                </div>
-            `);
+                </div>`);
             return;
         }
 
         const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const paginatedOrders = mobileOrders.slice(start, end);
+        const paged = mobileOrders.slice(start, start + itemsPerPage);
 
-        let html = '';
-        paginatedOrders.forEach(order => {
-            const statusBadge = getStatusBadgeClass(order.statut_name);
-
-            html += `
-                <div class="order-card" data-order-id="${order.id}">
-                    <div class="order-card-header">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">${order.numero_commande}</h6>
-                                <small class="opacity-75">
-                                    <i class="ti ti-calendar ti-xs me-1"></i>${order.date}
-                                </small>
-                            </div>
-                            <span class="badge ${statusBadge} badge-mobile">${order.statut_name}</span>
+        const html = paged.map(order => `
+            <div class="order-card">
+                <div class="order-card-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${escapeHtml(order.numero_commande)}</h6>
+                            <small class="opacity-75">
+                                <i class="ti ti-calendar ti-xs me-1"></i>${escapeHtml(order.date)}
+                            </small>
                         </div>
-                    </div>
-                    <div class="order-card-body">
-                        <div class="info-row">
-                            <span class="info-label">
-                                <i class="ti ti-user"></i> Client
-                            </span>
-                            <span class="info-value">${order.client_name}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">
-                                <i class="ti ti-phone"></i> Téléphone
-                            </span>
-                            <span class="info-value">${order.client_phone}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">
-                                <i class="ti ti-package"></i> Articles
-                            </span>
-                            <span class="info-value">
-                                <span class="badge bg-label-info rounded-pill">${order.items_count}</span>
-                            </span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">
-                                <i class="ti ti-currency-dollar"></i> Total
-                            </span>
-                            <span class="info-value text-success fw-bold">
-                                ${parseFloat(order.total_ttc).toLocaleString('fr-TN', {minimumFractionDigits: 3})} DT
-                            </span>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="d-flex gap-2 mt-3">
-                            <button class="btn btn-primary action-btn-mobile view-order-mobile" data-order='${JSON.stringify(order).replace(/'/g, "&#39;")}'>
-                                <i class="ti ti-eye"></i> Voir
-                            </button>
-                            <button class="btn btn-info action-btn-mobile edit-status" data-id="${order.id}">
-                                <i class="ti ti-edit"></i>
-                            </button>
-                            <a href="/admin/sirine-shopping/commandes/${order.id}/pdf"
-                               target="_blank"
-                               class="btn btn-success action-btn-mobile">
-                                <i class="ti ti-file-download"></i>
-                            </a>
-                            <button class="btn btn-danger action-btn-mobile delete-order" data-id="${order.id}">
-                                <i class="ti ti-trash"></i>
-                            </button>
-                        </div>
+                        <span class="badge ${getStatusBadgeClass(order.statut_name)} badge-mobile">
+                            ${escapeHtml(order.statut_name)}
+                        </span>
                     </div>
                 </div>
-            `;
-        });
+                <div class="order-card-body">
+                    <div class="info-row">
+                        <span class="info-label"><i class="ti ti-user"></i> Client</span>
+                        <span class="info-value">${escapeHtml(order.client_name)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="ti ti-phone"></i> Téléphone</span>
+                        <span class="info-value">${escapeHtml(order.client_phone)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="ti ti-package"></i> Articles</span>
+                        <span class="info-value">
+                            <span class="badge bg-label-info rounded-pill">${order.items_count}</span>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="ti ti-currency-dollar"></i> Total</span>
+                        <span class="info-value text-success fw-bold">${fmtPrice(order.total_ttc)} DT</span>
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-primary action-btn-mobile view-order-mobile"
+                                data-order='${safeJson(order)}'>
+                            <i class="ti ti-eye"></i> Voir
+                        </button>
+                        <button class="btn btn-info action-btn-mobile edit-status" data-id="${order.id}">
+                            <i class="ti ti-edit"></i>
+                        </button>
+                        <a href="/admin/sirine-shopping/commandes/${order.id}/pdf"
+                           target="_blank"
+                           class="btn btn-success action-btn-mobile">
+                            <i class="ti ti-file-download"></i>
+                        </a>
+                        <button class="btn btn-danger action-btn-mobile delete-order" data-id="${order.id}">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>`).join('');
 
         container.html(html);
         renderMobilePagination();
     }
 
     function renderMobilePagination() {
-        const totalPages = Math.ceil(mobileOrders.length / itemsPerPage);
-        const pagination = $('#mobile-pagination ul');
+        const total = Math.ceil(mobileOrders.length / itemsPerPage);
+        const ul    = $('#mobile-pagination ul');
 
-        if (totalPages <= 1) {
-            pagination.html('');
-            return;
-        }
+        if (total <= 1) { ul.html(''); return; }
 
-        let html = '';
+        let html = `<li class="page-item ${currentPage===1?'disabled':''}">
+            <a class="page-link" href="#" data-page="${currentPage-1}">‹</a></li>`;
 
-        // Previous
-        html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${currentPage - 1}">‹</a>
-        </li>`;
-
-        // Pages
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#" data-page="${i}">${i}</a>
-                </li>`;
-            } else if (i === currentPage - 2 || i === currentPage + 2) {
-                html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        for (let i = 1; i <= total; i++) {
+            if (i===1 || i===total || (i>=currentPage-1 && i<=currentPage+1)) {
+                html += `<li class="page-item ${i===currentPage?'active':''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+            } else if (i===currentPage-2 || i===currentPage+2) {
+                html += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
             }
         }
 
-        // Next
-        html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${currentPage + 1}">›</a>
-        </li>`;
+        html += `<li class="page-item ${currentPage===total?'disabled':''}">
+            <a class="page-link" href="#" data-page="${currentPage+1}">›</a></li>`;
 
-        pagination.html(html);
+        ul.html(html);
     }
 
-    // Pagination click
     $(document).on('click', '#mobile-pagination .page-link', function(e) {
         e.preventDefault();
-        const page = $(this).data('page');
-        if (page && page > 0 && page <= Math.ceil(mobileOrders.length / itemsPerPage)) {
-            currentPage = page;
+        const p   = parseInt($(this).data('page'));
+        const max = Math.ceil(mobileOrders.length / itemsPerPage);
+        if (p && p > 0 && p <= max) {
+            currentPage = p;
             renderMobileOrders();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
 
-    // ============================================
-    // MODAL DÉTAILS (Mobile & Desktop)
-    // ============================================
+    // ============================================================
+    // MODAL DÉTAILS — CORRECTION IMAGE PRODUIT
+    // ============================================================
     $(document).on('click', '.view-order, .view-order-mobile', function() {
-        const order = $(this).data('order');
-        showOrderDetails(order);
+        showOrderDetails($(this).data('order'));
     });
+
+    /**
+     * Construit l'URL complète de l'image depuis un chemin relatif ou absolu.
+     *
+     * Cas gérés :
+     *   null / ''                    → null  (affiche placeholder)
+     *   'https://...'                → utilisée telle quelle
+     *   'products/cover/abc.webp'   → STORAGE_URL + '/products/cover/abc.webp'
+     *   'storage/products/...'      → STORAGE_URL + '/products/...'  (retire le storage/ de tête)
+     *   '/storage/products/...'     → idem
+     */
+    function buildImgUrl(path) {
+        if (!path || !String(path).trim()) return null;
+        if (/^https?:\/\//i.test(path)) return path;
+        // Retire l'éventuel préfixe /storage/ ou storage/ pour éviter le doublon
+        const clean = String(path).replace(/^\/?(storage\/)?/, '');
+        return STORAGE_URL + '/' + clean;
+    }
+
+    /**
+     * Retourne le HTML de l'image produit avec fallback sur placeholder.
+     * Le onerror masque l'img cassée et affiche l'icône à la place.
+     */
+    function productImgHtml(item) {
+        console.log('Building image URL for:', item.image_avant);
+        const url = buildImgUrl(item.image);
+
+        if (!url) {
+            return `<div class="product-no-img" title="Pas d'image">
+                        <i class="ti ti-photo-off"></i>
+                    </div>`;
+        }
+
+        return `<img
+                    src="${url}"
+                    alt="${escapeHtml(item.name)}"
+                    class="product-img-modal"
+                    loading="lazy"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="product-no-img" style="display:none;" title="Image introuvable">
+                    <i class="ti ti-photo-off"></i>
+                </div>`;
+    }
 
     function showOrderDetails(order) {
         $('#modal-order-number').text(order.numero_commande);
         $('#modal-order-date').text(order.date_full || order.date);
 
+        // ── Articles ──────────────────────────────────────────
         let itemsHtml = '';
+        console.log('Order items:', order.items);
         if (order.items && order.items.length > 0) {
-            itemsHtml = order.items.map(item => {
-                const imgHtml = item.image
-                    ? `<img src="/storage/${item.image}" class="product-img-mobile" alt="${item.name}">`
-                    : `<div class="product-placeholder-mobile">
-                           <i class="ti ti-package text-white"></i>
-                       </div>`;
-
-                return `
-                    <div class="product-item-mobile">
-                        <div class="d-flex gap-3">
-                            ${imgHtml}
-                            <div class="flex-grow-1">
-                                <h6 class="mb-2">${item.name}</h6>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">Qté: ${item.quantity} × ${parseFloat(item.unit_price).toLocaleString('fr-TN', {minimumFractionDigits: 3})} DT</small>
-                                    <strong class="text-success">${parseFloat(item.subtotal).toLocaleString('fr-TN', {minimumFractionDigits: 3})} DT</strong>
-                                </div>
+            itemsHtml = order.items.map(item => `
+                <div class="product-item-modal">
+                    <div class="d-flex gap-3 align-items-center">
+                        ${productImgHtml(item)}
+                        <div class="flex-grow-1 min-w-0">
+                            <h6 class="mb-1 text-truncate" title="${escapeHtml(item.name)}">
+                                ${escapeHtml(item.name)}
+                            </h6>
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                <small class="text-muted">
+                                    Qté : <strong>${item.quantity}</strong>
+                                    × ${fmtPrice(item.unit_price || 0)} DT
+                                </small>
+                                <strong class="text-success">${fmtPrice(item.subtotal || 0)} DT</strong>
                             </div>
                         </div>
                     </div>
-                `;
-            }).join('');
+                </div>`).join('');
         } else {
-            itemsHtml = '<div class="alert alert-info m-3">Aucun article</div>';
+            itemsHtml = `<div class="alert alert-info m-3">
+                <i class="ti ti-info-circle me-2"></i>Aucun article trouvé
+            </div>`;
         }
 
+        // ── Récapitulatif ──────────────────────────────────────
         const content = `
             <div class="p-3">
+
                 <!-- Client -->
-                <div class="mb-3">
-                    <h6 class="fw-bold mb-3"><i class="ti ti-user me-2"></i>Client</h6>
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3 text-primary">
+                        <i class="ti ti-user me-2"></i>Client
+                    </h6>
                     <div class="info-row">
                         <span class="info-label">Nom</span>
-                        <span class="info-value">${order.client_name}</span>
+                        <span class="info-value">${escapeHtml(order.client_name)}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Téléphone</span>
-                        <span class="info-value">${order.client_phone}</span>
+                        <span class="info-value">${escapeHtml(order.client_phone)}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Adresse</span>
-                        <span class="info-value">${order.client_adresse}</span>
+                        <span class="info-value">${escapeHtml(order.client_adresse || '—')}</span>
                     </div>
                 </div>
 
                 <!-- Produits -->
-                <div class="mb-3">
-                    <h6 class="fw-bold mb-3"><i class="ti ti-package me-2"></i>Produits (${order.items_count})</h6>
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3 text-primary">
+                        <i class="ti ti-package me-2"></i>Produits
+                        <span class="badge bg-label-info ms-2">${order.items_count}</span>
+                    </h6>
                     ${itemsHtml}
                 </div>
 
                 <!-- Récapitulatif -->
                 <div class="summary-section">
-                    <h6 class="fw-bold mb-3"><i class="ti ti-calculator me-2"></i>Récapitulatif</h6>
+                    <h6 class="fw-bold mb-3 text-primary">
+                        <i class="ti ti-calculator me-2"></i>Récapitulatif
+                    </h6>
                     <div class="summary-line">
                         <span>Sous-total HT</span>
-                        <strong>${parseFloat(order.subtotal_ht).toLocaleString('fr-TN', {minimumFractionDigits: 3})} DT</strong>
+                        <strong>${fmtPrice(order.subtotal_ht || 0)} DT</strong>
                     </div>
                     <div class="summary-line">
                         <span>Frais de livraison</span>
-                        <strong>${parseFloat(order.shipping_cost).toLocaleString('fr-TN', {minimumFractionDigits: 3})} DT</strong>
+                        <strong>${fmtPrice(order.shipping_cost || 0)} DT</strong>
                     </div>
                     <div class="summary-line">
                         <span class="fw-bold">Total TTC</span>
-                        <strong class="text-success fs-5">${parseFloat(order.total_ttc).toLocaleString('fr-TN', {minimumFractionDigits: 3})} DT</strong>
+                        <strong class="text-success fs-5">${fmtPrice(order.total_ttc || 0)} DT</strong>
                     </div>
                 </div>
-            </div>
-        `;
+
+            </div>`;
 
         $('#orderDetailsContent').html(content);
         $('#orderDetailsModal').modal('show');
     }
 
-    // ============================================
-    // HELPER FUNCTIONS
-    // ============================================
-    function getStatusBadge(data) {
-        let badgeClass = getStatusBadgeClass(data);
-        return `<span class="badge ${badgeClass} badge-status">${data}</span>`;
+    // ============================================================
+    // HELPERS
+    // ============================================================
+
+    function escapeHtml(str) {
+        if (str == null) return '—';
+        return String(str)
+            .replace(/&/g,  '&amp;')
+            .replace(/</g,  '&lt;')
+            .replace(/>/g,  '&gt;')
+            .replace(/"/g,  '&quot;')
+            .replace(/'/g,  '&#039;');
     }
 
-    function getStatusBadgeClass(data) {
-        let statutLower = data.toLowerCase();
-        if (statutLower.includes('livr')) return 'bg-label-success';
-        if (statutLower.includes('annul')) return 'bg-label-danger';
-        if (statutLower.includes('traitement')) return 'bg-label-warning';
-        if (statutLower.includes('livraison')) return 'bg-label-info';
+    function fmtPrice(val) {
+        return parseFloat(val || 0).toLocaleString('fr-TN', { minimumFractionDigits: 3 });
+    }
+
+    function safeJson(obj) {
+        return JSON.stringify(obj).replace(/'/g, "&#39;");
+    }
+
+    function getStatusBadge(label) {
+        return `<span class="badge ${getStatusBadgeClass(label)} badge-status">${escapeHtml(label)}</span>`;
+    }
+
+    function getStatusBadgeClass(label) {
+        const s = (label || '').toLowerCase();
+        if (s.includes('livr') && !s.includes('en cours')) return 'bg-label-success';
+        if (s.includes('annul'))      return 'bg-label-danger';
+        if (s.includes('traitement')) return 'bg-label-warning';
+        if (s.includes('en cours'))   return 'bg-label-info';
+        if (s.includes('livraison'))  return 'bg-label-info';
         return 'bg-label-secondary';
     }
 
@@ -620,13 +643,13 @@ $(function() {
         return `
             <div class="d-flex justify-content-center gap-1">
                 <button class="btn btn-sm btn-icon btn-primary view-order"
-                        data-order='${JSON.stringify(full).replace(/'/g, "&#39;")}'
-                        title="Voir">
+                        data-order='${safeJson(full)}'
+                        title="Voir détails">
                     <i class="ti ti-eye"></i>
                 </button>
                 <button class="btn btn-sm btn-icon btn-info edit-status"
                         data-id="${full.id}"
-                        title="Modifier">
+                        title="Modifier statut">
                     <i class="ti ti-edit"></i>
                 </button>
                 <a href="/admin/sirine-shopping/commandes/${full.id}/pdf"
@@ -640,122 +663,96 @@ $(function() {
                         title="Supprimer">
                     <i class="ti ti-trash"></i>
                 </button>
-            </div>
-        `;
+            </div>`;
     }
 
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+    function debounce(fn, wait) {
+        let t;
+        return function(...args) {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, args), wait);
         };
     }
 
-    // ============================================
+    // ============================================================
     // ÉVÉNEMENTS COMMUNS
-    // ============================================
+    // ============================================================
 
-    // Filtre statut
     $('#statut-filter').on('change', function() {
-        if (isMobile) {
-            currentPage = 1;
-            loadMobileOrders();
-        } else {
-            dtCommande.ajax.reload();
-        }
+        if (isMobile) { currentPage = 1; loadMobileOrders(); }
+        else          { dtCommande.ajax.reload(); }
     });
 
     // Modifier statut
     $(document).on('click', '.edit-status', function() {
-        const id = $(this).data('id');
-        const editUrl = "{{ route('commandes.edit-status', ':id') }}".replace(':id', id);
+        const id  = $(this).data('id');
+        const url = "{{ route('commandes.edit-status', ':id') }}".replace(':id', id);
 
-        $('#updateStatusContent').html('<div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>');
+        $('#updateStatusContent').html(`
+            <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary"></div>
+                <p class="mt-2 text-muted small">Chargement...</p>
+            </div>`);
+
         $('#updateStatusModal').modal('show');
-
-        $('#updateStatusContent').load(editUrl);
+        $('#updateStatusContent').load(url);
     });
 
     // Soumission statut
     $(document).on('submit', '#updateStatusForm', function(e) {
         e.preventDefault();
-
-        const submitBtn = $(this).find('button[type="submit"]');
-        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Enregistrement...');
+        const btn = $(this).find('button[type="submit"]');
+        btn.prop('disabled', true)
+           .html('<span class="spinner-border spinner-border-sm me-1"></span>Enregistrement...');
 
         $.ajax({
-            url: $(this).attr('action'),
+            url:  $(this).attr('action'),
             type: 'POST',
             data: $(this).serialize(),
-            success: function(response) {
+            success: function() {
                 $('#updateStatusModal').modal('hide');
-                if (isMobile) {
-                    loadMobileOrders();
-                } else {
-                    dtCommande.ajax.reload(null, false);
-                }
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Succès!',
-                    text: 'Statut mis à jour',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+                isMobile ? loadMobileOrders() : dtCommande.ajax.reload(null, false);
+                Swal.fire({ icon: 'success', title: 'Statut mis à jour !', timer: 2000, showConfirmButton: false });
             },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: 'Une erreur est survenue'
-                });
-                submitBtn.prop('disabled', false).html('<i class="ti ti-device-floppy me-1"></i> Enregistrer');
+            error: function() {
+                Swal.fire({ icon: 'error', title: 'Erreur', text: 'Une erreur est survenue' });
+                btn.prop('disabled', false)
+                   .html('<i class="ti ti-device-floppy me-1"></i> Enregistrer');
             }
         });
     });
 
     // Supprimer
     $(document).on('click', '.delete-order', function() {
-        const id = $(this).data('id');
-        const deleteUrl = "{{ route('commandes.destroy', ':id') }}".replace(':id', id);
+        const id  = $(this).data('id');
+        const url = "{{ route('commandes.destroy', ':id') }}".replace(':id', id);
 
         Swal.fire({
-            title: 'Êtes-vous sûr?',
-            text: "Cette action est irréversible!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Oui, supprimer!',
-            cancelButtonText: 'Annuler',
+            title:             'Êtes-vous sûr ?',
+            text:              'Cette action est irréversible !',
+            icon:              'warning',
+            showCancelButton:  true,
+            confirmButtonText: 'Oui, supprimer !',
+            cancelButtonText:  'Annuler',
             customClass: {
                 confirmButton: 'btn btn-danger me-3',
-                cancelButton: 'btn btn-secondary'
+                cancelButton:  'btn btn-secondary'
             },
             buttonsStyling: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: deleteUrl,
-                    type: 'DELETE',
-                    data: { _token: '{{ csrf_token() }}' },
-                    success: function() {
-                        if (isMobile) {
-                            loadMobileOrders();
-                        } else {
-                            dtCommande.ajax.reload(null, false);
-                        }
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Supprimée!',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    }
-                });
-            }
+        }).then(result => {
+            if (!result.isConfirmed) return;
+            $.ajax({
+                url:  url,
+                type: 'DELETE',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function() {
+                    isMobile ? loadMobileOrders() : dtCommande.ajax.reload(null, false);
+                    Swal.fire({ icon: 'success', title: 'Supprimée !', timer: 2000, showConfirmButton: false });
+                },
+                error: function() {
+                    Swal.fire({ icon: 'error', title: 'Erreur', text: 'Impossible de supprimer' });
+                }
+            });
         });
     });
 });

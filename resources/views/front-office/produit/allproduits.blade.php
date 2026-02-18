@@ -3,9 +3,89 @@
 @section('title', 'Tous les produits - Sirine Shopping')
 
 @section('meta')
-<meta name="description" content="Découvrez tous nos produits de décoration et accessoires. Collection complète de Sirine Shopping en Tunisie.">
-<meta name="keywords" content="décoration Tunisie, accessoires déco, produits déco, boutique en ligne Tunisie, Sirine Shopping">
-<link rel="canonical" href="{{ url()->current() }}">
+    {{-- ══ SEO Essentiels ══ --}}
+    <meta name="description" content="Découvrez toute la collection Sirine Shopping : meubles, luminaires, tapis et accessoires de décoration intérieure livrés partout en Tunisie. {{ $products->total() }} produits disponibles.">
+    <meta name="keywords" content="décoration intérieure Tunisie, meubles Tunisie, luminaires design, tapis, accessoires maison, boutique déco en ligne Tunisie, Sirine Shopping">
+    <meta name="author" content="Sirine Shopping">
+    <link rel="canonical" href="{{ $products->currentPage() > 1 ? url()->current() . '?page=' . $products->currentPage() : url('/produits') }}">
+
+    {{-- ══ Pagination SEO (prev/next) ══ --}}
+    @if($products->previousPageUrl())
+        <link rel="prev" href="{{ $products->previousPageUrl() }}">
+    @endif
+    @if($products->nextPageUrl())
+        <link rel="next" href="{{ $products->nextPageUrl() }}">
+    @endif
+
+    {{-- ══ Hreflang ══ --}}
+    <link rel="alternate" href="{{ url()->current() }}" hreflang="fr-tn">
+    <link rel="alternate" href="{{ url()->current() }}" hreflang="x-default">
+
+    {{-- ══ Open Graph ══ --}}
+    <meta property="og:locale"       content="fr_TN">
+    <meta property="og:type"         content="website">
+    <meta property="og:site_name"    content="Sirine Shopping">
+    <meta property="og:title"        content="Tous nos Produits - Décoration & Accessoires | Sirine Shopping">
+    <meta property="og:description"  content="Découvrez toute la collection Sirine Shopping : meubles, luminaires, tapis et accessoires de décoration intérieure livrés partout en Tunisie.">
+    <meta property="og:url"          content="{{ url()->current() }}">
+    <meta property="og:image"        content="{{ asset('assets/img/og-image-sirine.jpg') }}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"    content="Collection Sirine Shopping - Décoration Intérieure Tunisie">
+
+    {{-- ══ Twitter Card ══ --}}
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="Tous nos Produits - Décoration & Accessoires | Sirine Shopping">
+    <meta name="twitter:description" content="Découvrez toute la collection Sirine Shopping : meubles, luminaires, tapis et accessoires de décoration intérieure livrés partout en Tunisie.">
+    <meta name="twitter:image"       content="{{ asset('assets/img/og-image-sirine.jpg') }}">
+
+    {{-- ══ Schema.org CollectionPage ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Tous nos Produits - Sirine Shopping",
+        "description": "Collection complète de décoration intérieure, meubles, luminaires et accessoires maison de Sirine Shopping. Livraison dans toute la Tunisie.",
+        "url": "{{ url()->current() }}",
+        "inLanguage": "fr-TN",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "Sirine Shopping",
+            "url": "{{ url('/') }}"
+        },
+        "provider": {
+            "@type": "Organization",
+            "name": "Sirine Shopping",
+            "url": "{{ url('/') }}",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ asset('assets/img/logo-sirine.png') }}"
+            }
+        }
+    }
+    </script>
+
+    {{-- ══ Schema.org BreadcrumbList ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Accueil",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Tous les produits",
+                "item": "{{ url()->current() }}"
+            }
+        ]
+    }
+    </script>
 @endsection
 
 @section('content')

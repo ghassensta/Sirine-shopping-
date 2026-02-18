@@ -3,24 +3,103 @@
 @section('title', $selectedCategory->meta_title ?: ($selectedCategory->name . ' - Sirine Shopping'))
 
 @section('meta')
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="{{ $selectedCategory->meta_description ?: Str::limit(strip_tags($selectedCategory->description ?? ''), 155) }}">
-    <meta name="keywords" content="{{ $selectedCategory->meta_keywords ?: $selectedCategory->name . ', meubles, décoration' }}">
+    {{-- ══ SEO Essentiels ══ --}}
+    <meta name="description" content="{{ $selectedCategory->meta_description ?? Str::limit(strip_tags($selectedCategory->description ?? $selectedCategory->name . ' - Découvrez notre collection sur Sirine Shopping.'), 155) }}">
+    <meta name="keywords" content="{{ $selectedCategory->meta_keywords ?? $selectedCategory->name . ', décoration intérieure Tunisie, meubles, accessoires maison, Sirine Shopping' }}">
+    <meta name="author" content="Sirine Shopping">
+    <link rel="canonical" href="{{ url()->current() }}">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="{{ $selectedCategory->meta_title ?: $selectedCategory->name }}">
-    <meta property="og:description" content="{{ $selectedCategory->meta_description ?: Str::limit(strip_tags($selectedCategory->description ?? ''), 155) }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-    @if($selectedCategory->image)
-        <meta property="og:image" content="{{ asset('storage/' . $selectedCategory->image) }}">
-    @endif
-    <meta property="og:type" content="website">
+    {{-- ══ Hreflang ══ --}}
+    <link rel="alternate" href="{{ url()->current() }}" hreflang="fr-tn">
+    <link rel="alternate" href="{{ url()->current() }}" hreflang="x-default">
 
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $selectedCategory->meta_title ?: $selectedCategory->name }}">
-    <meta name="twitter:description" content="{{ $selectedCategory->meta_description ?: Str::limit(strip_tags($selectedCategory->description ?? ''), 155) }}">
+    {{-- ══ Open Graph ══ --}}
+    <meta property="og:locale"      content="fr_TN">
+    <meta property="og:type"        content="website">
+    <meta property="og:site_name"   content="Sirine Shopping">
+    <meta property="og:title"       content="{{ $selectedCategory->meta_title ?? $selectedCategory->name . ' - Sirine Shopping' }}">
+    <meta property="og:description" content="{{ $selectedCategory->meta_description ?? Str::limit(strip_tags($selectedCategory->description ?? $selectedCategory->name), 155) }}">
+    <meta property="og:url"         content="{{ url()->current() }}">
+    <meta property="og:image"       content="{{ $selectedCategory->image ? asset('storage/' . $selectedCategory->image) : asset('assets/img/og-image-sirine.jpg') }}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"   content="{{ $selectedCategory->name }} - Sirine Shopping">
+
+    {{-- ══ Twitter Card ══ --}}
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="{{ $selectedCategory->meta_title ?? $selectedCategory->name . ' - Sirine Shopping' }}">
+    <meta name="twitter:description" content="{{ $selectedCategory->meta_description ?? Str::limit(strip_tags($selectedCategory->description ?? $selectedCategory->name), 155) }}">
+    <meta name="twitter:image"       content="{{ $selectedCategory->image ? asset('storage/' . $selectedCategory->image) : asset('assets/img/og-image-sirine.jpg') }}">
+
+    {{-- ══ Schema.org CollectionPage + ItemList ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "{{ addslashes($selectedCategory->meta_title ?? $selectedCategory->name) }}",
+        "description": "{{ addslashes($selectedCategory->meta_description ?? Str::limit(strip_tags($selectedCategory->description ?? $selectedCategory->name), 155)) }}",
+        "url": "{{ url()->current() }}",
+        "inLanguage": "fr-TN",
+        "image": "{{ $selectedCategory->image ? asset('storage/' . $selectedCategory->image) : asset('assets/img/og-image-sirine.jpg') }}",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "Sirine Shopping",
+            "url": "{{ url('/') }}"
+        }
+        @if($selectedCategory->average_rating && $selectedCategory->total_reviews > 0)
+        ,"aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "{{ $selectedCategory->average_rating }}",
+            "reviewCount": "{{ $selectedCategory->total_reviews }}",
+            "bestRating": "5",
+            "worstRating": "1"
+        }
+        @endif
+    }
+    </script>
+
+    {{-- ══ Schema.org BreadcrumbList ══ --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Accueil",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Produits",
+                "item": "{{ route('allproduits') }}"
+            }
+            @if($selectedCategory->parent)
+            ,{
+                "@type": "ListItem",
+                "position": 3,
+                "name": "{{ addslashes($selectedCategory->parent->name) }}",
+                "item": "{{ route('categorie.produits', $selectedCategory->parent->slug) }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "{{ addslashes($selectedCategory->name) }}",
+                "item": "{{ url()->current() }}"
+            }
+            @else
+            ,{
+                "@type": "ListItem",
+                "position": 3,
+                "name": "{{ addslashes($selectedCategory->name) }}",
+                "item": "{{ url()->current() }}"
+            }
+            @endif
+        ]
+    }
+    </script>
 @endsection
 
 @section('css')
