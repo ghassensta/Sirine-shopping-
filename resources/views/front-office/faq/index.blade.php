@@ -74,7 +74,7 @@
         </div>
         <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-gray-900/60"></div>
         <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80&fit=facearea&facepad=2"
-            alt="Centre d'aide Sirine Shopping" class="absolute inset-0 w-full h-full object-cover z-0" loading="lazy">
+            alt="Centre d'aide Sirine Shopping" title="Centre d'aide Sirine Shopping" decoding="async" class="absolute inset-0 w-full h-full object-cover z-0">
     </section>
 
     <!-- Contenu FAQ enrichi -->

@@ -100,6 +100,8 @@
     {{-- Image : showroom / déco intérieure Tunisie --}}
     <img src="https://images.unsplash.com/photo-1618220179428-22790b461013?ixlib=rb-4.0.3&auto=format&fit=crop&w=1800&q=80"
          alt="Boutique de décoration en ligne Tunisie - Sirine Shopping à M'saken Sousse"
+         title="Boutique de décoration en ligne Tunisie - Sirine Shopping à M'saken Sousse"
+         decoding="async"
          class="absolute inset-0 w-full h-full object-cover scale-105 transition-transform duration-[8s] hover:scale-100"
          fetchpriority="high">
 
@@ -181,8 +183,10 @@
                 <div class="relative rounded-2xl overflow-hidden shadow-2xl">
                     <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
                          alt="Intérieur décoré par Sirine Shopping - Showroom M'saken Sousse"
-                         class="w-full h-[420px] object-cover"
-                         loading="lazy">
+                         title="Intérieur décoré par Sirine Shopping - Showroom M'saken Sousse"
+                         loading="lazy"
+                         decoding="async"
+                         class="w-full h-[420px] object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-dark/30 to-transparent"></div>
                 </div>
                 {{-- Badge flottant --}}
@@ -271,8 +275,10 @@
                 <div class="relative overflow-hidden h-56">
                     <img src="{{ $category->image_url }}"
                          alt="Catégorie {{ $category->name }} - Sirine Shopping Tunisie"
-                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                         loading="lazy">
+                         title="Catégorie {{ $category->name }} - Sirine Shopping Tunisie"
+                         loading="lazy"
+                         decoding="async"
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-dark/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
                 <div class="p-6">
@@ -388,8 +394,10 @@
                 <div class="relative rounded-2xl overflow-hidden shadow-2xl">
                     <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
                          alt="Conseils décoration intérieure - Sirine Shopping M'saken, Sousse"
-                         class="w-full h-[480px] object-cover"
-                         loading="lazy">
+                         title="Conseils décoration intérieure - Sirine Shopping M'saken, Sousse"
+                         loading="lazy"
+                         decoding="async"
+                         class="w-full h-[480px] object-cover">
                 </div>
                 {{-- Décoratif --}}
                 <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/10 rounded-full -z-10 hidden lg:block"></div>

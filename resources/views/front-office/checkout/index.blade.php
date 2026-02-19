@@ -275,6 +275,9 @@
                 const line = item.price * item.quantity;
                 return `<div class="flex items-center py-2">
                     <img src="${item.image}" alt="${item.name}"
+                         title="${item.name}"
+                         loading="lazy"
+                         decoding="async"
                          class="w-10 h-10 rounded-lg object-cover flex-shrink-0 mr-3">
                     <div class="flex-1">
                         <h4 class="font-medium text-gray-800 text-sm">${item.name}</h4>
@@ -330,6 +333,9 @@
                 subtotal += line;
                 return `<div class="flex items-center py-2">
                     <img src="${i.image}" alt="${i.name}"
+                         title="${i.name}"
+                         loading="lazy"
+                         decoding="async"
                          class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
                     <div class="ml-4 flex-1">
                         <h4 class="font-medium text-gray-800 text-sm">${i.name}</h4>

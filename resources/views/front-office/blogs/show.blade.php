@@ -207,7 +207,10 @@
                             @if($relatedBlog->image)
                                 <div class="h-48 overflow-hidden">
                                     <img src="{{ asset('storage/' . $relatedBlog->image) }}"
-                                         alt="{{ $relatedBlog->title }}"
+                                         alt="{{ $relatedBlog->title ?? 'Article blog décoration' }}"
+                                         title="{{ $relatedBlog->title ?? 'Article blog décoration' }}"
+                                         loading="lazy"
+                                         decoding="async"
                                          class="w-full h-full object-cover hover:scale-105 transition duration-300">
                                 </div>
                             @endif

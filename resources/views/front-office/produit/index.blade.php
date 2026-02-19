@@ -202,8 +202,9 @@
                         <img id="mainImage"
                              src="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
                              alt="{{ $product->name }}"
-                             class="w-full h-96 object-contain cursor-zoom-in transition-transform duration-300"
-                             loading="lazy" />
+                             title="{{ $product->name }}"
+                             decoding="async"
+                             class="w-full h-96 object-contain cursor-zoom-in transition-transform duration-300">
 
                         <div id="zoom-lens" class="absolute w-20 h-20 bg-white/50 border border-primary rounded-full pointer-events-none opacity-0 transition-opacity"></div>
                     </div>
@@ -257,7 +258,8 @@
                     @foreach($images as $index => $image)
                         <img src="{{ asset('storage/' . $image) }}"
                              alt="{{ $product->name }} - image {{ $index + 1 }}"
-                             loading="lazy"
+                             title="{{ $product->name }} - image {{ $index + 1 }}"
+                             decoding="async"
                              class="w-20 h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-primary transition-all duration-300 hover:scale-105 flex-shrink-0"
                              data-index="{{ $index }}" />
                     @endforeach

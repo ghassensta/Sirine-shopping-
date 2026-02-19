@@ -186,9 +186,11 @@
                         <div class="relative overflow-hidden aspect-square">
                             <a href="{{ route('preview-article', $product->slug) }}" class="block h-full">
                                 <img src="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
-                                     alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                                     loading="lazy">
+                                     alt="{{ $product->name ?? 'Produit décoration' }}"
+                                     title="{{ $product->name ?? 'Produit décoration' }}"
+                                     loading="lazy"
+                                     decoding="async"
+                                     class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
                             </a>
 
                             <!-- Badges -->

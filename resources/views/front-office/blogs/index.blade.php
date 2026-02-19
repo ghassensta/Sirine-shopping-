@@ -181,12 +181,16 @@
                        class="block">
                         <img src="{{ asset('storage/' . $blog->image) }}"
                              alt="{{ $blog->title }}"
+                             title="{{ $blog->title }}"
+                             decoding="async"
                              class="w-full h-auto max-h-[580px] object-cover transition-transform hover:scale-[1.02] duration-500"
                              loading="lazy">
                     </a>
                 @else
                     <img src="{{ asset('images/placeholder.jpg') }}"
                          alt="Image article blog"
+                         title="Image article blog"
+                         decoding="async"
                          class="w-full h-auto max-h-[580px] object-cover"
                          loading="lazy">
                 @endif
@@ -210,6 +214,8 @@
                                    data-image="{{ asset('storage/' . $image) }}">
                                     <img src="{{ asset('storage/' . $image) }}"
                                          alt="{{ $blog->title }} - photo {{ $loop->iteration }}"
+                                         title="{{ $blog->title }} - photo {{ $loop->iteration }}"
+                                         decoding="async"
                                          class="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-110"
                                          loading="lazy">
                                 </a>
@@ -230,6 +236,8 @@
                                 <div class="relative overflow-hidden aspect-[4/3]">
                                     <img src="{{ $related->image ? asset('storage/' . $related->image) : asset('images/placeholder.jpg') }}"
                                          alt="{{ $related->title }}"
+                                         title="{{ $related->title }}"
+                                         decoding="async"
                                          class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                          loading="lazy">
                                 </div>
@@ -280,6 +288,8 @@
                             <div class="modal-body p-0">
                                 <img src="${imageSrc}"
                                      alt="Image agrandie"
+                                     title="Image agrandie"
+                                     decoding="async"
                                      class="w-full max-h-[90vh] object-contain mx-auto rounded-lg shadow-2xl">
                             </div>
                         </div>

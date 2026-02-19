@@ -147,7 +147,10 @@
                 <a href="{{ route('categorie.produits', $category->slug) }}"
                    class="group relative overflow-hidden rounded-xl h-64">
                     <img src="{{ $category->image_url ?? asset('images/default-category.jpg') }}"
-                         alt="{{ $category->name }}"
+                         alt="{{ $category->name ?? 'Catégorie décoration' }}"
+                         title="{{ $category->name ?? 'Catégorie décoration' }}"
+                         loading="lazy"
+                         decoding="async"
                          class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
                         <div>
@@ -200,7 +203,10 @@
                                     <div class="relative overflow-hidden group">
                                         <a href="{{ route('preview-article', $product->slug) }}" class="block">
                                             <img src="{{ asset('storage/' . $product->image_avant) }}"
-                                                 alt="{{ $product->name }}"
+                                                 alt="{{ $product->name ?? 'Produit décoration' }}"
+                                                 title="{{ $product->name ?? 'Produit décoration' }}"
+                                                 loading="lazy"
+                                                 decoding="async"
                                                  class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500">
                                         </a>
 
@@ -364,7 +370,10 @@
                                             <div class="relative overflow-hidden group">
                                                 <a href="{{ route('preview-article', $product->slug) }}" class="block">
                                                     <img src="{{ asset('storage/' . $product->image_avant) }}"
-                                                         alt="{{ $product->name }}"
+                                                         alt="{{ $product->name ?? 'Produit décoration' }}"
+                                                         title="{{ $product->name ?? 'Produit décoration' }}"
+                                                         loading="lazy"
+                                                         decoding="async"
                                                          class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500">
                                                 </a>
 
@@ -510,7 +519,10 @@
                     <article class="bg-light rounded-xl overflow-hidden hover:shadow-lg transition">
                         <a href="{{ route('preview-blog', $post->slug) }}">
                             <img src="{{ $post->image ? asset('storage/' . $post->image) : asset('images/placeholder.jpg') }}"
-                                 alt="{{ $post->title }}"
+                                 alt="{{ $post->title ?? 'Article blog décoration' }}"
+                                 title="{{ $post->title ?? 'Article blog décoration' }}"
+                                 loading="lazy"
+                                 decoding="async"
                                  class="w-full h-48 object-cover">
                         </a>
                         <div class="p-6">

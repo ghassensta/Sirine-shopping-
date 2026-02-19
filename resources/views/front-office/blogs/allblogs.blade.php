@@ -137,9 +137,11 @@
                         <div class="relative overflow-hidden aspect-square">
                             <a href="{{ route('preview-blog', $blog->slug) }}" class="block h-full">
                                 <img src="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/placeholder.jpg') }}"
-                                    alt="{{ $blog->title }}"
-                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                    loading="lazy" />
+                                    alt="{{ $blog->title ?? 'Article blog décoration' }}"
+                                    title="{{ $blog->title ?? 'Article blog décoration' }}"
+                                    loading="lazy"
+                                    decoding="async"
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                             </a>
                             <!-- Badge for New Articles -->
                             @if($blog->created_at->diffInDays(now()) < 30)

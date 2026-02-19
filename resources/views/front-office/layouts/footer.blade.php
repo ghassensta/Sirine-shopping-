@@ -6,7 +6,7 @@
             <div class="text-left">
                 <div class="flex items-center justify-start space-x-3 mb-4">
                     <div class="flex-shrink-0">
-                        <img src="{{asset('assets/img/logo-srine-white.png')}}" alt="Sirine Shopping Logo" class="h-20 w-auto">
+                        <img src="{{asset('assets/img/logo-srine-white.png')}}" alt="Sirine Shopping Logo" title="Sirine Shopping Logo" loading="lazy" decoding="async" class="h-20 w-auto">
                     </div>
                     <div>
                         <div class="font-serif text-lg font-bold">Sirine Shopping</div>
