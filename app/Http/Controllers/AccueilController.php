@@ -26,7 +26,7 @@ class AccueilController extends Controller
             ->take(4)
             ->get();
 
-        $blogs = Blog::where('is_active', true)->latest()->take(4)->get();
+        $blogs = Blog::where('is_active', true)->latest()->take(3)->get();
 
         $testimonials = Avis::where('approved', true)
             ->with('product:id,name')

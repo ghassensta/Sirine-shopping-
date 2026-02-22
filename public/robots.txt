@@ -1,2 +1,24 @@
-Sitemap: https://sirineshopping.com/sitemap.xml
+User-agent: *
+Allow: /
+
+# Allow all important pages
+Allow: /allproduits
+Allow: /blogs
+Allow: /about
+Allow: /contact
+Allow: /politique-confidentialite
+Allow: /mentions-legales
+Allow: /faq
+
+# Disallow admin and system files
+Disallow: /admin/
+Disallow: /storage/app/
+Disallow: /storage/logs/
+Disallow: *.pdf
+Disallow: *.zip
+
+# Sitemap
+Sitemap: https://sirine-shopping.tn/sitemap.xml
+
+# Google site verification
 google-site-verification=XvcyV0f3IMnjIMN1zqCcpVUKjYOShFpheWikB40yCgg

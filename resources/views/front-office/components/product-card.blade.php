@@ -4,7 +4,7 @@
     <div class="relative overflow-hidden aspect-square bg-gray-50">
         <a href="{{ route('preview-article', $product->slug) }}" class="block h-full" aria-label="Voir {{ $product->name }}">
             <img src="{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
-                 alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                 alt="{{ $product->name }}" width="400" height="400" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
         </a>
 
         @if($product->created_at->diffInDays(now()) < 10)

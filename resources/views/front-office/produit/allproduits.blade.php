@@ -93,11 +93,11 @@
 <section class="bg-light py-12 md:py-16">
     <div class="container mx-auto px-4 text-center">
         <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-dark mb-4">
-            Notre Collection
+            Notre Collections
         </h1>
-        <p class="text-gray-600 text-lg max-w-2xl mx-auto mb-6">
+        <h2 class="text-gray-600 text-lg max-w-2xl mx-auto mb-6">
             Découvrez tous nos produits soigneusement sélectionnés
-        </p>
+        </h2>
         <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
     </div>
 </section>
@@ -151,7 +151,7 @@
 
                 <!-- Desktop Filters -->
                 <div class="hidden lg:block bg-white rounded-xl shadow-sm p-6 sticky top-4">
-                    <h2 class="text-xl font-bold text-dark mb-6">Catégories</h2>
+                    <span class="text-xl font-bold text-dark mb-6">Catégories</span>
                     <ul class="space-y-2">
                         @foreach($categories as $category)
                         <li>

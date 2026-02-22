@@ -70,6 +70,11 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/logo-sirine.png') }}">
 
+    {{-- Preload LCP image for homepage --}}
+    @if(request()->is('/'))
+        <link rel="preload" as="image" href="{{ $config->homepage_banner ? asset('storage/' . $config->homepage_banner) : asset('assets/img/hero-banner.jpg') }}" fetchpriority="high">
+    @endif
+
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -161,8 +166,25 @@
         gtag('config', 'G-YOUR-ID');
     </script>
 
-    <!-- Google Search Console verification -->
-    <meta name="google-site-verification" content="VOTRE-CODE-VERIFICATION">
+ <!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '2068037108452194');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=2068037108452194&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
+<meta name="facebook-domain-verification" content="gqxz72nres3p9fbd78kby8bshmeqjf" />
 </head>
 
 <body class="bg-light font-sans text-dark min-h-screen flex flex-col">
@@ -473,6 +495,21 @@ window.addToCart = function(button) {
         button.innerHTML = original;
         button.disabled  = false;
         cart.openCart();
+
+        // ─── ÉVÉNEMENT PIXEL AddToCart ────────────────────────────────
+        if (typeof fbq === 'function') {
+            fbq('track', 'AddToCart', {
+                content_name:  product.name,
+                content_ids:   [product.id.toString()],
+                content_type:  'product',
+                contents:      [{
+                    id:       product.id.toString(),
+                    quantity: 1
+                }],
+                value:         product.price,
+                currency:      'TND'
+            });
+        }
     }, 500);
 };
 
@@ -534,11 +571,13 @@ window.hideLoading = function() {
     .nav-link::after {
         content: '';
         @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300;
+        will-change: width;
     }
     .nav-link:hover::after { @apply w-full; }
 
     .product-card {
         @apply bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden;
+        will-change: transform;
     }
     .product-card:hover { transform: translateY(-5px); }
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboradController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\OrderController;
@@ -17,7 +18,7 @@ use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;       
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 
 Route::get('/', [AccueilController::class, 'nouveautes'])->name('welcome')->middleware('throttle:60,1');
@@ -60,29 +61,24 @@ Route::get('/politique-confidentialite', [AboutController::class, 'PolitiqueConf
 
 Route::get('/mentions-legales', [AboutController::class, 'MentionsLegales'])
     ->name('mentions-legales');
+
+// Sitemap routes - accessible from root domain
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])
+    ->name('sitemap.index');
+
+Route::get('/sitemap-static.xml', [SitemapController::class, 'static'])
+    ->name('sitemap.static');
+
+Route::get('/sitemap-products.xml', [SitemapController::class, 'products'])
+    ->name('sitemap.products');
+
+Route::get('/sitemap-categories.xml', [SitemapController::class, 'categories'])
+    ->name('sitemap.categories');
+
+Route::get('/sitemap-blogs.xml', [SitemapController::class, 'blogs'])
+    ->name('sitemap.blogs');
+
 Route::prefix('admin/sirine-shopping')->group(function () {
-    //
-    // 1) Routes accessibles aux **invités** seulement
-    //
-    Route::middleware('guest')->group(function () {
-        // Login
-        Route::get('login', [LoginController::class, 'showLoginForm'])
-            ->name('login');
-        Route::post('login', [LoginController::class, 'login']);
-
-        // Mot de passe oublié
-        Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])
-            ->name('password.request');
-        Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])
-            ->name('password.email');
-
-        // Réinitialisation
-        Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])
-            ->name('password.reset');
-        Route::post('password/reset', [ResetPasswordController::class, 'reset'])
-            ->name('password.update');
-    });
-
     //
     // 2) Routes **protégées** (auth + superadmin)
     //

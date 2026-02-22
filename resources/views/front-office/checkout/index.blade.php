@@ -256,17 +256,32 @@
         };
 
         /* Gestion de la modal de confirmation */
-        function openConfirmationModal() {
+        function openConfirmationModal(orderData) {
             const modal = document.getElementById('orderConfirmationModal');
 
             // Remplir les détails de la commande dans la modal
-            populateModalOrderDetails();
+            populateModalOrderDetails(orderData);
+
+            // ─── ÉVÉNEMENT PIXEL Purchase ────────────────────────────────
+            if (typeof fbq === 'function' && orderData) {
+                fbq('track', 'Purchase', {
+                    value:         orderData.total_ttc,
+                    currency:      'TND',
+                    content_ids:   orderData.items.map(item => item.product_id.toString()),
+                    contents:      orderData.items.map(item => ({
+                        id:       item.product_id.toString(),
+                        quantity: item.quantity
+                    })),
+                    num_items:     orderData.items.reduce((sum, item) => sum + item.quantity, 0),
+                    order_id:      orderData.numero_commande
+                });
+            }
 
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden'; // Prevent background scrolling
         }
 
-        function populateModalOrderDetails() {
+        function populateModalOrderDetails(orderData) {
             const cart = sanitize(getCart());
 
             // Remplir les articles
@@ -365,6 +380,22 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateOrderSummary();
 
+            // ─── ÉVÉNEMENT PIXEL InitiateCheckout ────────────────────────────────
+            if (typeof fbq === 'function') {
+                const cart = sanitize(getCart());
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                fbq('track', 'InitiateCheckout', {
+                    content_ids:   cart.map(item => item.id.toString()),
+                    contents:      cart.map(item => ({
+                        id:       item.id.toString(),
+                        quantity: item.quantity
+                    })),
+                    value:         subtotal,
+                    currency:      'TND',
+                    num_items:     cart.reduce((sum, item) => sum + item.quantity, 0)
+                });
+            }
+
             const form = document.getElementById('checkoutForm');
             const btn = document.getElementById('submitOrder');
             const spinner = document.getElementById('submitSpinner');
@@ -435,10 +466,7 @@
                         const data = await res.json();
 
                         // Ouvrir la modal de confirmation
-                        openConfirmationModal();
-
-                        // Vider immédiatement le panier après commande réussie
-                        localStorage.removeItem(STORAGE_KEY);
+                        openConfirmationModal(data.order);
 
                         // Vider le formulaire
                         form.reset();
@@ -447,6 +475,9 @@
                         if (window.cart) {
                             window.cart.updateUI();
                         }
+
+                        // Vider immédiatement le panier après commande réussie
+                        localStorage.removeItem(STORAGE_KEY);
                     } else if (res.status === 422) {
                         const errs = await res.json();
                         showNotification(Object.values(errs.errors).flat().join('\n'), 'error');

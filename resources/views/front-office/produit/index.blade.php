@@ -48,6 +48,13 @@
     <meta name="twitter:data2"       content="{{ $product->stock > 0 ? 'En stock' : 'Épuisé' }}">
 
     {{-- ══ Schema.org Product ══ --}}
+    {{--
+        CORRECTIONS GOOGLE SEARCH CONSOLE :
+        1. aggregateRating : n'affiché QUE si total_reviews >= 1 (reviewCount doit être un entier positif)
+        2. hasMerchantReturnPolicy : ajouté dans "offers"
+        3. deliveryTime : corrigé avec shippingDestination obligatoire
+        4. ratingValue : jamais affiché seul sans reviewCount valide
+    --}}
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -90,6 +97,10 @@
                     "value": "7.50",
                     "currency": "TND"
                 },
+                "shippingDestination": {
+                    "@type": "DefinedRegion",
+                    "addressCountry": "TN"
+                },
                 "deliveryTime": {
                     "@type": "ShippingDeliveryTime",
                     "handlingTime": {
@@ -105,13 +116,21 @@
                         "unitCode": "DAY"
                     }
                 }
+            },
+            "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "TN",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                "merchantReturnDays": 30,
+                "returnMethod": "https://schema.org/ReturnByMail",
+                "returnFees": "https://schema.org/FreeReturn"
             }
         }
-        @if($product->total_reviews > 0)
+        @if($product->total_reviews >= 1)
         ,"aggregateRating": {
             "@type": "AggregateRating",
-            "ratingValue": "{{ number_format($product->average_rating, 1) }}",
-            "reviewCount": "{{ $product->total_reviews }}",
+            "ratingValue": "{{ number_format($product->average_rating, 1, '.', '') }}",
+            "reviewCount": {{ (int) $product->total_reviews }},
             "bestRating": "5",
             "worstRating": "1"
         }
@@ -404,17 +423,17 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div class="bg-gray-50 p-4 rounded-lg text-center">
                             <i class="fas fa-truck text-primary text-xl mb-2"></i>
-                            <h4 class="font-semibold text-sm mb-1">Livraison rapide</h4>
+                            <span class="font-semibold text-sm mb-1">Livraison rapide</span>
                             <p class="text-xs text-gray-600">24-48h en Tunisie</p>
                         </div>
                         <div class="bg-gray-50 p-4 rounded-lg text-center">
                             <i class="fas fa-shield-alt text-primary text-xl mb-2"></i>
-                            <h4 class="font-semibold text-sm mb-1">Paiement sécurisé</h4>
+                            <span class="font-semibold text-sm mb-1">Paiement sécurisé</span>
                             <p class="text-xs text-gray-600">SSL & cartes bancaires</p>
                         </div>
                         <div class="bg-gray-50 p-4 rounded-lg text-center">
                             <i class="fas fa-undo-alt text-primary text-xl mb-2"></i>
-                            <h4 class="font-semibold text-sm mb-1">Retour facile</h4>
+                            <span class="font-semibold text-sm mb-1">Retour facile</span>
                             <p class="text-xs text-gray-600">30 jours satisfait</p>
                         </div>
                     </div>
@@ -454,7 +473,7 @@
         <!-- Section Avis -->
         <div id="reviews" class="mt-12 bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="p-6">
-                <h3 class="text-2xl font-serif font-bold text-dark mb-6">Avis clients</h3>
+                <span class="text-2xl font-serif font-bold text-dark mb-6">Avis clients</span>
 
                 <div class="grid md:grid-cols-2 gap-8 mb-8">
                     <div>
@@ -486,7 +505,7 @@
 
                     <!-- Formulaire avis -->
                     <div>
-                        <h4 class="font-semibold mb-4">Donnez votre avis</h4>
+                        <span class="font-semibold mb-4">Donnez votre avis</span>
                         <p class="text-gray-600 mb-4">Votre expérience aide les autres acheteurs.</p>
                         <button id="writeReviewBtn" class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium w-full transition">
                             <i class="fas fa-pen mr-2"></i> Écrire un avis
@@ -496,7 +515,7 @@
 
                 <!-- Formulaire (déployé) -->
                 <div id="reviewForm" class="hidden bg-gray-50 p-6 rounded-lg mb-8">
-                    <h4 class="text-lg font-semibold mb-4">Votre avis</h4>
+                    <span class="text-lg font-semibold mb-4">Votre avis</span>
                     <form id="reviewFormSubmit" class="space-y-4">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
@@ -644,7 +663,10 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Variables
+
+    // ────────────────────────────────────────────────
+    //    VARIABLES & ÉLÉMENTS DOM (ton code existant)
+    // ────────────────────────────────────────────────
     const mainImage = document.getElementById('mainImage');
     const thumbnails = document.querySelectorAll('[data-index]');
     const prevButton = document.getElementById('prevImage');
@@ -664,7 +686,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedSize = null;
     let selectedColor = null;
 
-    // Image Gallery with Zoom
+    // ────────────────────────────────────────────────
+    //    GALLERY + ZOOM + THUMBNAILS (inchangé)
+    // ────────────────────────────────────────────────
     if (thumbnails.length > 0) {
         images.forEach(src => {
             const img = new Image();
@@ -701,7 +725,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (nextButton) nextButton.addEventListener('click', () => changeImage(currentIndex + 1));
     }
 
-    // Zoom functionality
+    // Zoom functionality (inchangé)
     let isZooming = false;
 
     const updateZoomLens = (e) => {
@@ -743,7 +767,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Variants selection
+    // Variants selection (inchangé)
     document.querySelectorAll('.size-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
@@ -760,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Quantity Management
+    // Quantity Management (inchangé)
     window.updateQuantity = (change) => {
         let currentQuantity = parseInt(quantityElement.textContent);
         const maxStock = parseInt(addToCartButton.dataset.stock);
@@ -770,7 +794,9 @@ document.addEventListener('DOMContentLoaded', function() {
         quantityElement.textContent = currentQuantity;
     };
 
-    // Add to Cart
+    // ────────────────────────────────────────────────
+    //    ADD TO CART + ÉVÉNEMENT PIXEL AddToCart
+    // ────────────────────────────────────────────────
     window.addToCart = function(button) {
         const productCard = button.closest('.swiper-slide > div, .bg-white.rounded-xl');
         const originalContent = button.innerHTML;
@@ -799,6 +825,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 color: selectedColor
             };
 
+            // AJOUT RÉUSSI → ENVOI PIXEL AddToCart
+            if (typeof fbq === 'function') {
+                fbq('track', 'AddToCart', {
+                    content_name:  product.name,
+                    content_ids:   [product.id.toString()],
+                    content_type:  'product',
+                    contents:      [{
+                        id:       product.id.toString(),
+                        quantity: product.quantity
+                    }],
+                    value:         product.price * product.quantity,
+                    currency:      'TND',
+                    content_category: '{{ addslashes($product->categories->first()->name ?? "Décoration intérieure") }}'
+                });
+            }
+
             if (window.cart && typeof window.cart.addProduct === 'function') {
                 window.cart.addProduct(product);
             }
@@ -821,7 +863,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     };
 
-    // Share functionality
+    // Share functionality (inchangé)
     window.shareProduct = function(platform) {
         const url = encodeURIComponent(window.location.href);
         const title = encodeURIComponent(document.title);
@@ -837,7 +879,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (shareUrl) window.open(shareUrl, '_blank', 'width=600,height=400');
     };
 
-    // Review System
+    // Review System (inchangé – je garde tout tel quel)
     const writeReviewBtn = document.getElementById('writeReviewBtn');
     const reviewForm = document.getElementById('reviewForm');
     const cancelReviewBtn = document.getElementById('cancelReview');
@@ -865,7 +907,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Star rating
     starButtons.forEach(button => {
         button.addEventListener('click', function() {
             const rating = parseInt(this.dataset.rating);
@@ -883,7 +924,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Review form submission
     if (reviewFormSubmit) {
         reviewFormSubmit.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -940,7 +980,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Related Products Slider
+    // Related Products Slider (inchangé)
     const relatedSwiper = new Swiper('.related-products', {
         slidesPerView: 1,
         spaceBetween: 20,
@@ -956,7 +996,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Notification function
+    // Notification function (inchangé)
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform translate-y-full opacity-0 transition-all duration-300 ${
@@ -974,6 +1014,25 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => { notification.classList.remove('translate-y-full', 'opacity-0'); notification.classList.add('translate-y-0', 'opacity-100'); }, 10);
         setTimeout(() => { notification.classList.remove('translate-y-0', 'opacity-100'); notification.classList.add('translate-y-full', 'opacity-0'); setTimeout(() => notification.remove(), 300); }, 3000);
     }
+
+    // ────────────────────────────────────────────────
+    //    ÉVÉNEMENT PIXEL ViewContent (chargement page produit)
+    // ────────────────────────────────────────────────
+    if (typeof fbq === 'function') {
+        fbq('track', 'ViewContent', {
+            content_name:  '{{ addslashes($product->name) }}',
+            content_ids:   ['{{ $product->id }}'],
+            content_type:  'product',
+            contents:      [{
+                id:       '{{ $product->id }}',
+                quantity: 1
+            }],
+            value:         {{ number_format($product->price, 2, '.', '') }},
+            currency:      'TND',
+            content_category: '{{ addslashes($product->categories->first()->name ?? "Décoration intérieure") }}'
+        });
+    }
+
 });
 </script>
 @endsection

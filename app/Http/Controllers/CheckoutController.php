@@ -118,7 +118,18 @@ class CheckoutController extends Controller
             Mail::to(env('EMAIL_ADMIN'))
                 ->queue(new CheckoutConfirmMail($order));
 
-            return response()->json(['message' => 'Commande enregistrée.']);
+            return response()->json([
+                'message' => 'Commande enregistrée.',
+                'order' => [
+                    'id' => $order->id,
+                    'numero_commande' => $order->numero_commande,
+                    'total_ttc' => $order->total_ttc,
+                    'items' => $order->items->map(fn($item) => [
+                        'product_id' => $item->product_id,
+                        'quantity' => $item->quantity
+                    ])->toArray()
+                ]
+            ]);
 
         } catch (\Throwable $e) {
             DB::rollBack();
