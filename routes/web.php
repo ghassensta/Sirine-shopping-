@@ -80,6 +80,27 @@ Route::get('/sitemap-blogs.xml', [SitemapController::class, 'blogs'])
 
 Route::prefix('admin/sirine-shopping')->group(function () {
     //
+    // 1) Routes accessibles aux **invités** seulement
+    //
+    Route::middleware('guest')->group(function () {
+        // Login
+        Route::get('login', [LoginController::class, 'showLoginForm'])
+            ->name('login');
+        Route::post('login', [LoginController::class, 'login']);
+
+        // Mot de passe oublié
+        Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])
+            ->name('password.request');
+        Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+            ->name('password.email');
+
+        // Réinitialisation
+        Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])
+            ->name('password.reset');
+        Route::post('password/reset', [ResetPasswordController::class, 'reset'])
+            ->name('password.update');
+    });
+    //
     // 2) Routes **protégées** (auth + superadmin)
     //
     Route::middleware(['auth', 'role:superadmin'])->group(function () {

@@ -125,14 +125,48 @@
                         </div>
                     </div>
 
-                    <a href="/panier"
-                        class="block mt-4 text-primary hover:text-secondary text-center font-medium hover:underline">
+                    <button onclick="openCartModal()"
+                        class="block mt-4 text-primary hover:text-secondary text-center font-medium hover:underline cursor-pointer">
                         Modifier le panier
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Modal Modifier le Panier -->
+    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Modifier votre panier</h2>
+                    <button onclick="closeCartModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <div id="cartModalContent" class="space-y-4">
+                    <!-- Les articles du panier seront insérés ici par JavaScript -->
+                </div>
+
+                <div class="border-t border-gray-200 mt-6 pt-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-semibold">Total:</span>
+                        <span id="cartModalTotal" class="text-xl font-bold text-primary">0 DT</span>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button onclick="closeCartModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-6 rounded-xl font-semibold transition-all duration-300">
+                            Continuer mes achats
+                        </button>
+                        <button onclick="closeCartModal()" class="flex-1 bg-primary hover:bg-secondary text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300">
+                            Valider les modifications
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal de confirmation de commande -->
     <div id="orderConfirmationModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
@@ -254,6 +288,107 @@
             document.body.appendChild(n);
             setTimeout(() => n.remove(), 3000);
         };
+
+        /* Gestion du modal du panier */
+        function openCartModal() {
+            const modal = document.getElementById('cartModal');
+            populateCartModal();
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCartModal() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+
+            // Mettre à jour le résumé de la commande après modifications
+            updateOrderSummary();
+        }
+
+        function populateCartModal() {
+            const cart = sanitize(getCart());
+            const modalContent = document.getElementById('cartModalContent');
+            const modalTotal = document.getElementById('cartModalTotal');
+
+            if (cart.length === 0) {
+                modalContent.innerHTML = '<div class="text-center py-8 text-gray-500">Votre panier est vide</div>';
+                modalTotal.textContent = '0 DT';
+                return;
+            }
+
+            let total = 0;
+            modalContent.innerHTML = cart.map((item, index) => {
+                const lineTotal = item.price * item.quantity;
+                total += lineTotal;
+
+                return `
+                    <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl">
+                        <img src="${item.image}" alt="${item.name}"
+                             title="${item.name}"
+                             loading="lazy"
+                             decoding="async"
+                             class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-800">${item.name}</h4>
+                            <p class="text-gray-600 text-sm">${item.price.toFixed(2)} DT</p>
+                        </div>
+
+                        <div class="flex items-center space-x-3">
+                            <button onclick="updateCartQuantity(${index}, -1)"
+                                    class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors"
+                                    ${item.quantity <= 1 ? 'disabled class="opacity-50 cursor-not-allowed"' : ''}>
+                                <i class="fas fa-minus text-sm"></i>
+                            </button>
+
+                            <span class="w-8 text-center font-medium">${item.quantity}</span>
+
+                            <button onclick="updateCartQuantity(${index}, 1)"
+                                    class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-800">${lineTotal.toFixed(2)} DT</p>
+                            <button onclick="removeCartItem(${index})"
+                                    class="text-red-500 hover:text-red-700 text-sm mt-1">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            modalTotal.textContent = `${total.toFixed(2)} DT`;
+        }
+
+        function updateCartQuantity(index, change) {
+            const cart = sanitize(getCart());
+            if (index < 0 || index >= cart.length) return;
+
+            const newQuantity = cart[index].quantity + change;
+            if (newQuantity < 1) return;
+
+            cart[index].quantity = newQuantity;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+
+            populateCartModal();
+            showNotification('Quantité mise à jour', 'success');
+        }
+
+        function removeCartItem(index) {
+            const cart = sanitize(getCart());
+            if (index < 0 || index >= cart.length) return;
+
+            const itemName = cart[index].name;
+            cart.splice(index, 1);
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+            populateCartModal();
+            showNotification(`"${itemName}" retiré du panier`, 'success');
+        }
 
         /* Gestion de la modal de confirmation */
         function openConfirmationModal(orderData) {
@@ -403,17 +538,21 @@
             // Gestionnaire pour fermer la modal
             document.getElementById('closeConfirmationModal')?.addEventListener('click', closeConfirmationModal);
 
-            // Fermer la modal en cliquant sur le fond
-            document.getElementById('orderConfirmationModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'orderConfirmationModal') {
-                    closeConfirmationModal();
+            // Gestionnaires pour le modal du panier
+            document.getElementById('cartModal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'cartModal') {
+                    closeCartModal();
                 }
             });
 
-            // Fermer la modal avec Échap
+            // Fermer les modals avec Échap
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !document.getElementById('orderConfirmationModal').classList.contains('hidden')) {
-                    closeConfirmationModal();
+                if (e.key === 'Escape') {
+                    if (!document.getElementById('orderConfirmationModal').classList.contains('hidden')) {
+                        closeConfirmationModal();
+                    } else if (!document.getElementById('cartModal').classList.contains('hidden')) {
+                        closeCartModal();
+                    }
                 }
             });
 

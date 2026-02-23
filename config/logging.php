@@ -127,6 +127,14 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'seo' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/seo.log'),
+            'level' => 'info',
+            'days' => 30, // Garder les logs SEO plus longtemps
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

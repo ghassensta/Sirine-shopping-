@@ -72,6 +72,7 @@
         <!-- Bas de page -->
         <div class="border-t border-gray-700 mt-6 pt-6 text-center text-xs text-gray-400">
             <p>© {{ date('Y') }} Sirine Shopping. Tous droits réservés.</p>
+            <p class="mt-1 text-gray-500">Réalisé par professionnel de <a href="https://wisecode.tn" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition">wisecode.tn</a></p>
             <div class="mt-2 flex flex-wrap justify-center gap-4">
                 <a href="{{ route('politique-confidentialite') }}" class="hover:text-primary transition">Confidentialité</a>
                 <a href="{{ route('mentions-legales') }}" class="hover:text-primary transition">Mentions légales</a>
