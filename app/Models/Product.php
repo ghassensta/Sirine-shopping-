@@ -38,7 +38,7 @@ class Product extends Model
 
     public function getRouteKeyName(): string
     {
-        return 'slug';
+        return 'id';
     }
 
     public function scopeActive($query)

@@ -7,7 +7,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#D4AF37">
     <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
-
     @php
         use App\Models\Category;
         $categories = Category::tree()->active()->with('children')->get();
@@ -39,7 +38,6 @@
     <!-- ═══════════════════════════════════════════════
          SEO PAR DÉFAUT  (peuvent être surchargés par @section('meta'))
     ═══════════════════════════════════════════════ -->
-    <meta name="description" content="{{ $siteDesc }}">
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- Open Graph (défaut) -->
@@ -186,7 +184,7 @@ src="https://www.facebook.com/tr?id=2068037108452194&ev=PageView&noscript=1"
 
 <meta name="facebook-domain-verification" content="gqxz72nres3p9fbd78kby8bshmeqjf" />
 </head>
-
+@include('front-office.layouts.ai-chatbot')
 <body class="bg-light font-sans text-dark min-h-screen flex flex-col">
 
 <!-- ═══════════════════════════════════════════════
@@ -392,7 +390,7 @@ class CartManager {
             <div class="flex items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
                 <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg" loading="lazy">
                 <div class="flex-1 ml-4">
-                    <h4 class="font-semibold text-dark">${item.name}</h4>
+                    <span class="font-semibold text-dark">${item.name}</span>
                     <p class="text-primary font-bold mt-1">${item.price.toFixed(2)} ${CONFIG.currency}</p>
                     <div class="flex items-center mt-2" role="group" aria-label="Quantité">
                         <button onclick="cart.updateQuantity(${item.id}, -1)"
@@ -447,12 +445,24 @@ class CartManager {
         document.getElementById('cartOverlay')?.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
         this.updateUI();
+
+        // Hide floating icons when cart is open
+        const aiBubble = document.getElementById('sc-bubble');
+        const whatsappBtn = document.querySelector('.whatsapp-float-btn');
+        if (aiBubble) aiBubble.style.display = 'none';
+        if (whatsappBtn) whatsappBtn.style.display = 'none';
     }
 
     closeCart() {
         document.getElementById('cartOffcanvas')?.classList.add('translate-x-full');
         document.getElementById('cartOverlay')?.classList.add('hidden');
         document.body.style.overflow = '';
+
+        // Show floating icons when cart is closed
+        const aiBubble = document.getElementById('sc-bubble');
+        const whatsappBtn = document.querySelector('.whatsapp-float-btn');
+        if (aiBubble) aiBubble.style.display = '';
+        if (whatsappBtn) whatsappBtn.style.display = '';
     }
 
     init() {

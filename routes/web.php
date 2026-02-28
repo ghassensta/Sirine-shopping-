@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AccueilController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AjaxController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AvisController;
@@ -77,6 +78,9 @@ Route::get('/sitemap-categories.xml', [SitemapController::class, 'categories'])
 
 Route::get('/sitemap-blogs.xml', [SitemapController::class, 'blogs'])
     ->name('sitemap.blogs');
+
+    Route::post('/api/chat', [ChatController::class, 'chat'])->name('chat');
+
 
 Route::prefix('admin/sirine-shopping')->group(function () {
     //

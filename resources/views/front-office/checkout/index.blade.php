@@ -67,9 +67,10 @@
                         <div>
                             <label for="phone" class="block text-sm font-medium text-gray-700">Téléphone *</label>
                             <input type="tel" id="phone" name="phone" required
+                                pattern="^(\\+216)?[2459][0-9]{7}$"
                                 class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm
                           focus:ring-primary focus:border-primary sm:text-sm p-2"
-                                placeholder="+216 12 345 678">
+                                placeholder="+216 22 345 678">
                         </div>
 
                         <!-- Adresse -->
@@ -295,12 +296,24 @@
             populateCartModal();
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+
+            // Hide floating icons when cart modal is open
+            const aiBubble = document.getElementById('sc-bubble');
+            const whatsappBtn = document.querySelector('.whatsapp-float-btn');
+            if (aiBubble) aiBubble.style.display = 'none';
+            if (whatsappBtn) whatsappBtn.style.display = 'none';
         }
 
         function closeCartModal() {
             const modal = document.getElementById('cartModal');
             modal.classList.add('hidden');
             document.body.style.overflow = '';
+
+            // Show floating icons when cart modal is closed
+            const aiBubble = document.getElementById('sc-bubble');
+            const whatsappBtn = document.querySelector('.whatsapp-float-btn');
+            if (aiBubble) aiBubble.style.display = '';
+            if (whatsappBtn) whatsappBtn.style.display = '';
 
             // Mettre à jour le résumé de la commande après modifications
             updateOrderSummary();
