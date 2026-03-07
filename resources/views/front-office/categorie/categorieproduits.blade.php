@@ -45,16 +45,22 @@
             "@type": "WebSite",
             "name": "Sirine Shopping",
             "url": "{{ url('/') }}"
+        },
+        "mainEntity": {
+            "@type": "ItemList",
+            "numberOfItems": {{ $products->total() }},
+            "itemListElement": [
+                @foreach($products as $index => $product)
+                {
+                    "@type": "ListItem",
+                    "position": {{ $index + 1 + ($products->currentPage() - 1) * $products->perPage() }},
+                    "name": "{{ addslashes($product->name) }}",
+                    "url": "{{ route('preview-article', $product->slug) }}",
+                    "image": "{{ asset('storage/' . ($product->image_avant ?? 'default.jpg')) }}"
+                }{{ !$loop->last ? ',' : '' }}
+                @endforeach
+            ]
         }
-        @if($selectedCategory->average_rating && $selectedCategory->total_reviews > 0)
-        ,"aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "{{ $selectedCategory->average_rating }}",
-            "reviewCount": "{{ $selectedCategory->total_reviews }}",
-            "bestRating": "5",
-            "worstRating": "1"
-        }
-        @endif
     }
     </script>
 

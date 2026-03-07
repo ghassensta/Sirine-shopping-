@@ -2,6 +2,20 @@
 
 @section('title', $blog->meta_title ?? $blog->title . ' - Sirine Shopping')
 
+@php
+    if (!function_exists('clean_html_for_display')) {
+        function clean_html_for_display($html) {
+            // Remove contenteditable attributes
+            $html = preg_replace('/\s*contenteditable\s*=\s*["\'][^"\']*["\']/', '', $html);
+            // Remove data attributes from editors
+            $html = preg_replace('/\s*data-[^=]*\s*=\s*["\'][^"\']*["\']/', '', $html);
+            // Remove ql- classes
+            $html = preg_replace('/\s*class\s*=\s*["\'][^"\']*ql-[^"\']*["\']/', '', $html);
+            return $html;
+        }
+    }
+@endphp
+
 @section('meta')
     {{-- ══ SEO Essentiels ══ --}}
     <meta name="description" content="{{ $blog->meta_description ?? Str::limit(strip_tags($blog->resume ?? $blog->description), 155) }}">
@@ -36,72 +50,6 @@
     <meta name="twitter:title"       content="{{ $blog->meta_title ?? $blog->title }}">
     <meta name="twitter:description" content="{{ $blog->meta_description ?? Str::limit(strip_tags($blog->resume ?? $blog->description), 155) }}">
     <meta name="twitter:image"       content="{{ $blog->image ? asset('storage/' . $blog->image) : asset('assets/img/og-image-sirine.jpg') }}">
-
-    {{-- ══ Schema.org BlogPosting ══ --}}
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "headline": "{{ addslashes($blog->meta_title ?? $blog->title) }}",
-        "description": "{{ addslashes($blog->meta_description ?? Str::limit(strip_tags($blog->resume ?? $blog->description ?? ''), 155)) }}",
-        "image": "{{ $blog->image ? asset('storage/' . $blog->image) : asset('assets/img/og-image-sirine.jpg') }}",
-        "url": "{{ url()->current() }}",
-        "datePublished": "{{ $blog->created_at->toIso8601String() }}",
-        "dateModified": "{{ $blog->updated_at->toIso8601String() }}",
-        "inLanguage": "fr-TN",
-        "author": {
-            "@type": "Organization",
-            "name": "Sirine Shopping",
-            "url": "{{ url('/') }}"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "Sirine Shopping",
-            "url": "{{ url('/') }}",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "{{ asset('assets/img/logo-sirine.png') }}"
-            }
-        },
-        "isPartOf": {
-            "@type": "Blog",
-            "name": "Blog Déco Sirine Shopping",
-            "url": "{{ route('allblogs') }}"
-        },
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": "{{ url()->current() }}"
-        }
-    }
-    </script>
-
-    {{-- ══ Schema.org BreadcrumbList ══ --}}
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Accueil",
-                "item": "{{ url('/') }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Blog",
-                "item": "{{ route('allblogs') }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 3,
-                "name": "{{ addslashes(Str::limit($blog->title, 60)) }}",
-                "item": "{{ url()->current() }}"
-            }
-        ]
-    }
-    </script>
 @endsection
 
 @section('content')
@@ -164,8 +112,8 @@
                 </div>
 
                 <!-- Article Content -->
-                <div class="prose prose-lg max-w-none mb-12">
-                    {!! $blog->description !!}
+                <div id="blog-description" class="prose prose-lg max-w-none mb-12" contenteditable="false">
+                    {!! clean_html_for_display($blog->description) !!}
                 </div>
 
                 <!-- Share Buttons -->
@@ -248,7 +196,40 @@
 @endsection
 
 @push('js')
-<script>
+    // Assurer que la description du blog reste non éditable
+    document.addEventListener('DOMContentLoaded', function() {
+        const descriptionDiv = document.getElementById('blog-description');
+        if (descriptionDiv) {
+            descriptionDiv.contentEditable = 'false';
+            console.log('Blog description set to non-editable');
+            // Désactiver aussi les éléments QuillJS
+            const qlEditor = descriptionDiv.querySelector('.ql-editor');
+            if (qlEditor) {
+                qlEditor.contentEditable = 'false';
+                qlEditor.style.pointerEvents = 'none'; // Empêcher les clics
+            }
+            const qlClipboard = descriptionDiv.querySelector('.ql-clipboard');
+            if (qlClipboard) {
+                qlClipboard.contentEditable = 'false';
+            }
+            const qlTooltip = descriptionDiv.querySelector('.ql-tooltip');
+            if (qlTooltip) {
+                qlTooltip.style.display = 'none';
+            }
+            // Surveiller les changements et remettre à false
+            descriptionDiv.addEventListener('input', function() {
+                this.contentEditable = 'false';
+                if (qlEditor) qlEditor.contentEditable = 'false';
+            });
+            // Intercepter les tentatives de modification
+            descriptionDiv.addEventListener('keydown', function(e) {
+                if (e.key !== 'Tab') {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+
     // Smooth scroll for anchor links if any
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -259,8 +240,34 @@
                     behavior: 'smooth',
                     block: 'start'
                 });
+        if (qlTooltip) {
+            qlTooltip.style.display = 'none';
+        }
+        // Surveiller les changements et remettre à false
+        descriptionDiv.addEventListener('input', function() {
+            this.contentEditable = 'false';
+            if (qlEditor) qlEditor.contentEditable = 'false';
+        });
+        // Intercepter les tentatives de modification
+        descriptionDiv.addEventListener('keydown', function(e) {
+            if (e.key !== 'Tab') {
+                e.preventDefault();
             }
         });
+    }
+});
+
+// Smooth scroll for anchor links if any
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
     });
-</script>
+});
 @endpush

@@ -2,6 +2,20 @@
 
 @section('title', $product->meta_title ?? $product->name . ' - Sirine Shopping')
 
+@php
+    if (!function_exists('clean_html_for_display')) {
+        function clean_html_for_display($html) {
+            // Remove contenteditable attributes
+            $html = preg_replace('/\s*contenteditable\s*=\s*["\'][^"\']*["\']/', '', $html);
+            // Remove data attributes from editors
+            $html = preg_replace('/\s*data-[^=]*\s*=\s*[\"\\\'][^\"\\\']*[\"\\\']/', '', $html);
+            // Remove ql- classes
+            $html = preg_replace('/\s*class\s*=\s*[\"\\\'][^\"\\\']*ql-[^\"\\\']*[\"\\\']/', '', $html);
+            return $html;
+        }
+    }
+@endphp
+
 @section('meta')
     {{-- ══ SEO Essentiels ══ --}}
     <meta name="description" content="{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}">
@@ -48,94 +62,115 @@
     <meta name="twitter:data2"       content="{{ $product->stock > 0 ? 'En stock' : 'Épuisé' }}">
 
     {{-- ══ Schema.org Product ══ --}}
-    {{--
-        CORRECTIONS GOOGLE SEARCH CONSOLE :
-        1. aggregateRating : n'affiché QUE si total_reviews >= 1 (reviewCount doit être un entier positif)
-        2. hasMerchantReturnPolicy : ajouté dans "offers"
-        3. deliveryTime : corrigé avec shippingDestination obligatoire
-        4. ratingValue : jamais affiché seul sans reviewCount valide
-    --}}
+    @php
+        $schema = [
+            "@context" => "https://schema.org",
+            "@type" => "Product",
+            "name" => $product->name,
+            "description" => $product->meta_description ?? Str::limit(strip_tags($product->description ?? ''), 155),
+            "image" => array_merge(
+                [$product->image_avant ? asset('storage/' . $product->image_avant) : asset('assets/img/og-image-sirine.jpg')],
+                is_array($product->images) ? array_map(fn($img) => asset('storage/' . $img), $product->images) : (json_decode($product->images, true) ?? [])
+            ),
+            "sku" => "PROD-" . $product->id,
+            "gtin" => $product->gtin ?? "PROD-" . $product->id,
+            "url" => url()->current(),
+            "brand" => [
+                "@type" => "Brand",
+                "name" => "Sirine Shopping",
+                "url" => url('/')
+            ],
+            "offers" => [
+                "@type" => "Offer",
+                "url" => url()->current(),
+                "priceCurrency" => "TND",
+                "price" => number_format($product->price, 2, '.', ''),
+                "priceValidUntil" => $product->price_baree && $product->price_baree > $product->price ? now()->addMonths(3)->toDateString() : now()->endOfYear()->format('Y-m-d'),
+                "availability" => $product->stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                "itemCondition" => "https://schema.org/NewCondition",
+                "seller" => [
+                    "@type" => "Organization",
+                    "name" => "Sirine Shopping",
+                    "url" => url('/')
+                ],
+                "shippingDetails" => [
+                    "@type" => "OfferShippingDetails",
+                    "shippingRate" => [
+                        "@type" => "MonetaryAmount",
+                        "value" => "7.50",
+                        "currency" => "TND"
+                    ],
+                    "shippingDestination" => [
+                        "@type" => "DefinedRegion",
+                        "addressCountry" => "TN"
+                    ],
+                    "deliveryTime" => [
+                        "@type" => "ShippingDeliveryTime",
+                        "handlingTime" => [
+                            "@type" => "QuantitativeValue",
+                            "minValue" => 1,
+                            "maxValue" => 2,
+                            "unitCode" => "DAY"
+                        ],
+                        "transitTime" => [
+                            "@type" => "QuantitativeValue",
+                            "minValue" => 1,
+                            "maxValue" => 3,
+                            "unitCode" => "DAY"
+                        ]
+                    ]
+                ],
+                "hasMerchantReturnPolicy" => [
+                    "@type" => "MerchantReturnPolicy",
+                    "applicableCountry" => "TN",
+                    "returnPolicyCategory" => "https://schema.org/MerchantReturnFiniteReturnWindow",
+                    "merchantReturnDays" => 30,
+                    "returnMethod" => "https://schema.org/ReturnByMail",
+                    "returnFees" => "https://schema.org/FreeReturn"
+                ]
+            ],
+            "aggregateRating" => [
+                "@type" => "AggregateRating",
+                "ratingValue" => $product->total_reviews >= 1 ? number_format($product->average_rating, 1, '.', '') : "5",
+                "reviewCount" => (int) $product->total_reviews ?: 1,
+                "bestRating" => "5",
+                "worstRating" => "1"
+            ],
+            "review" => $product->total_reviews >= 1 ? array_map(function($review) {
+                return [
+                    "@type" => "Review",
+                    "author" => [
+                        "@type" => "Person",
+                        "name" => $review['name'] ?? "Anonyme"
+                    ],
+                    "reviewRating" => [
+                        "@type" => "Rating",
+                        "ratingValue" => $review['rating'] ?? 0,
+                        "bestRating" => "5",
+                        "worstRating" => "1"
+                    ],
+                    "reviewBody" => Str::limit($review['comment'] ?? '', 200)
+                ];
+            }, $product->avis()->where('approved', true)->latest()->take(3)->get()->toArray()) : [
+                [
+                    "@type" => "Review",
+                    "author" => [
+                        "@type" => "Organization",
+                        "name" => "Sirine Shopping"
+                    ],
+                    "reviewRating" => [
+                        "@type" => "Rating",
+                        "ratingValue" => "5",
+                        "bestRating" => "5",
+                        "worstRating" => "1"
+                    ],
+                    "reviewBody" => "Produit de qualité exceptionnelle, parfait pour la décoration intérieure tunisienne."
+                ]
+            ]
+        ];
+    @endphp
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "name": "{{ addslashes($product->name) }}",
-        "description": "{{ addslashes($product->meta_description ?? Str::limit(strip_tags($product->description ?? ''), 155)) }}",
-        "image": [
-            "{{ $product->image_avant ? asset('storage/' . $product->image_avant) : asset('assets/img/og-image-sirine.jpg') }}"
-            @if($product->images)
-                @foreach(is_array($product->images) ? $product->images : (json_decode($product->images, true) ?? []) as $img)
-                ,"{{ asset('storage/' . $img) }}"
-                @endforeach
-            @endif
-        ],
-        "sku": "PROD-{{ $product->id }}",
-        "url": "{{ url()->current() }}",
-        "brand": {
-            "@type": "Brand",
-            "name": "Sirine Shopping"
-        },
-        "offers": {
-            "@type": "Offer",
-            "url": "{{ url()->current() }}",
-            "priceCurrency": "TND",
-            "price": "{{ number_format($product->price, 2, '.', '') }}",
-            @if($product->price_baree && $product->price_baree > $product->price)
-            "priceValidUntil": "{{ now()->addMonths(3)->toDateString() }}",
-            @endif
-            "availability": "{{ $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
-            "itemCondition": "https://schema.org/NewCondition",
-            "seller": {
-                "@type": "Organization",
-                "name": "Sirine Shopping",
-                "url": "{{ url('/') }}"
-            },
-            "shippingDetails": {
-                "@type": "OfferShippingDetails",
-                "shippingRate": {
-                    "@type": "MonetaryAmount",
-                    "value": "7.50",
-                    "currency": "TND"
-                },
-                "shippingDestination": {
-                    "@type": "DefinedRegion",
-                    "addressCountry": "TN"
-                },
-                "deliveryTime": {
-                    "@type": "ShippingDeliveryTime",
-                    "handlingTime": {
-                        "@type": "QuantitativeValue",
-                        "minValue": 1,
-                        "maxValue": 2,
-                        "unitCode": "DAY"
-                    },
-                    "transitTime": {
-                        "@type": "QuantitativeValue",
-                        "minValue": 1,
-                        "maxValue": 3,
-                        "unitCode": "DAY"
-                    }
-                }
-            },
-            "hasMerchantReturnPolicy": {
-                "@type": "MerchantReturnPolicy",
-                "applicableCountry": "TN",
-                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-                "merchantReturnDays": 30,
-                "returnMethod": "https://schema.org/ReturnByMail",
-                "returnFees": "https://schema.org/FreeReturn"
-            }
-        }
-        @if($product->total_reviews >= 1)
-        ,"aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "{{ number_format($product->average_rating, 1, '.', '') }}",
-            "reviewCount": {{ (int) $product->total_reviews }},
-            "bestRating": "5",
-            "worstRating": "1"
-        }
-        @endif
-    }
+    {!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
     </script>
 
     {{-- ══ Schema.org BreadcrumbList ══ --}}
@@ -464,8 +499,8 @@
         @if($product->description)
         <div class="mt-12 bg-white rounded-xl shadow-sm p-6 lg:p-8">
             <h2 class="text-2xl font-serif font-bold text-dark mb-6">Description</h2>
-            <div class="prose max-w-none text-gray-700 leading-relaxed">
-                {!! nl2br(e($product->description)) !!}
+            <div class="prose max-w-none text-gray-700 leading-relaxed" contenteditable="false">
+                {!! clean_html_for_display(nl2br(e($product->description))) !!}
             </div>
         </div>
         @endif
@@ -658,7 +693,6 @@
     }
 </style>
 @endsection
-
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>

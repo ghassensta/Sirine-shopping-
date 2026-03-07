@@ -569,7 +569,9 @@ window.hideLoading = function() {
 </script>
 
 <!-- JS spécifique à la page -->
-@yield('js')
+<script>
+@stack('js')
+</script>
 
 <!-- ═══════════════════════════════════════════════
      STYLES GLOBAUX
