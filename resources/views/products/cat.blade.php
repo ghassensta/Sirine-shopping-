@@ -322,15 +322,13 @@
                 <h4 class="font-bold uppercase tracking-wide mb-3">Sirine Shopping</h4>
                 <p class="text-xs text-gray-500">L’élégance contemporaine pour votre maison : accessoires, meubles, éclairages sélectionnés avec soin.</p>
                 <div class="flex space-x-4 mt-4">
-                    <a href="https://facebook.com" target="_blank" aria-label="Facebook" class="text-gray-600 hover:text-primary transition">
+                    <a href="https://www.facebook.com/profile.php?id=100076049144577" target="_blank" aria-label="Facebook" class="text-gray-600 hover:text-primary transition">
                         <i class="fab fa-facebook-f h-5 w-5"></i>
                     </a>
-                    <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="text-gray-600 hover:text-primary transition">
+                    <a href="https://www.instagram.com/sirine.shopping" target="_blank" aria-label="Instagram" class="text-gray-600 hover:text-primary transition">
                         <i class="fab fa-instagram h-5 w-5"></i>
                     </a>
-                    <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="text-gray-600 hover:text-primary transition">
-                        <i class="fab fa-twitter h-5 w-5"></i>
-                    </a>
+
                 </div>
             </div>
             <div>

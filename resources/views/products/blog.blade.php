@@ -191,7 +191,7 @@
         </p>
         <div class="flex space-x-4 mt-4">
           <a
-            href="https://facebook.com"
+            href="https://www.facebook.com/profile.php?id=100076049144577"
             target="_blank"
             aria-label="Facebook"
             class="text-gray-600 hover:text-primary transition text-lg"
@@ -199,21 +199,14 @@
             <i class="fab fa-facebook-f"></i>
           </a>
           <a
-            href="https://instagram.com"
+            href="http://instagram.com/sirine.shopping"
             target="_blank"
             aria-label="Instagram"
             class="text-gray-600 hover:text-primary transition text-lg"
           >
             <i class="fab fa-instagram"></i>
           </a>
-          <a
-            href="https://twitter.com"
-            target="_blank"
-            aria-label="Twitter"
-            class="text-gray-600 hover:text-primary transition text-lg"
-          >
-            <i class="fab fa-twitter"></i>
-          </a>
+
         </div>
       </div>
       <div>

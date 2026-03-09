@@ -20,7 +20,7 @@ use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-
+use App\Http\Controllers\AnalyticsController;
 
 Route::get('/', [AccueilController::class, 'nouveautes'])->name('welcome')->middleware('throttle:60,1');
 
@@ -39,7 +39,10 @@ Route::get('/show', function () {
     return view('products.show');
 });
 
-
+Route::post('/api/analytics/track', [AnalyticsController::class, 'track'])
+    ->name('analytics.track')
+    ->middleware('throttle:60,1');
+    
 Route::get('/a-propos', [AboutController::class, 'index'])
     ->name('about');
 
@@ -142,6 +145,16 @@ Route::prefix('admin/sirine-shopping')->group(function () {
         Route::get('/commandes/{id}/pdf', [PdfController::class, 'generatePDF'])
             ->where('id', '[0-9]+')
             ->name('commandes.pdf');
+
+
+            Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+            Route::get('analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
+            Route::delete('analytics/purge', [AnalyticsController::class, 'purge'])->name('analytics.purge');
+            Route::get('analytics/api/overview', [AnalyticsController::class, 'apiOverview'])->name('analytics.api.overview');
+            Route::get('analytics/api/visits-chart', [AnalyticsController::class, 'apiVisitsChart'])->name('analytics.api.visits');
+            Route::get('analytics/api/revenue-chart', [AnalyticsController::class, 'apiRevenueChart'])->name('analytics.api.revenue');
+            Route::get('analytics/api/top-pages', [AnalyticsController::class, 'apiTopPages'])->name('analytics.api.pages');
+            // Tracking front (public)
 
     });
 });

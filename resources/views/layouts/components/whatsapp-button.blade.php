@@ -109,7 +109,7 @@
 @endonce
 
 {{-- Bouton WhatsApp HTML --}}
-<a href="https://wa.me/21626686286?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20le%20site.%20Je%20souhaiterais%20des%20renseignements%20sur%20vos%20produits%20ou%20services.%20Merci%20%21"
+<a href="https://wa.me/21626868286?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20le%20site.%20Je%20souhaiterais%20des%20renseignements%20sur%20vos%20produits%20ou%20services.%20Merci%20%21"
    target="_blank"
    rel="noopener noreferrer"
    aria-label="Contacter nous sur WhatsApp"

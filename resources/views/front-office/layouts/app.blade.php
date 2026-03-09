@@ -16,7 +16,7 @@
         $siteDesc      = $config->meta_description ?? 'Boutique de décoration et accessoires en Tunisie : articles de décoration intérieure, accessoires design et objets décoratifs artisanaux.';
         $defaultOgImg  = asset('assets/img/og-image-sirine.jpg');
         $supportEmail  = $config->support_email    ?? 'contact@sirine-shopping.tn';
-        $supportPhone  = $config->support_phone    ?? '+216 28 000 000';
+        $supportPhone  = $config->support_phone    ?? '+216 26 868 286';
         $addressText   = $config->address          ?? 'Centre Commercial, Tunis, Tunisie';
         $shippingCost  = (float) ($config->shipping_cost       ?? 7.5);
         $freeShipping  = (float) ($config->free_shipping_limit ?? 120);
@@ -569,9 +569,7 @@ window.hideLoading = function() {
 </script>
 
 <!-- JS spécifique à la page -->
-<script>
-@stack('js')
-</script>
+@yield('js')
 
 <!-- ═══════════════════════════════════════════════
      STYLES GLOBAUX

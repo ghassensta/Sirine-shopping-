@@ -407,18 +407,13 @@
                     <!-- Social Share -->
                     <div class="flex items-center pt-4 border-t border-gray-200">
                         <span class="text-sm text-gray-600 mr-3">Partager :</span>
-                        <a href="#" class="text-gray-500 hover:text-blue-500 mx-1">
+                        <a href="https://www.facebook.com/profile.php?id=100076049144577" class="text-gray-500 hover:text-blue-500 mx-1">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="text-gray-500 hover:text-pink-500 mx-1">
+                        <a href="https://www.instagram.com/sirine.shopping" class="text-gray-500 hover:text-pink-500 mx-1">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="text-gray-500 hover:text-blue-400 mx-1">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="text-gray-500 hover:text-red-500 mx-1">
-                            <i class="fab fa-pinterest-p"></i>
-                        </a>
+
                     </div>
                 </div>
             </div>
@@ -743,27 +738,21 @@
                 <p class="text-xs text-gray-500">L’élégance contemporaine pour votre maison : accessoires, meubles,
                     éclairages sélectionnés avec soin.</p>
                 <div class="flex space-x-4 mt-4">
-                    <a href="https://facebook.com" target="_blank" aria-label="Facebook"
+                    <a href="https://www.facebook.com/profile.php?id=100076049144577" target="_blank" aria-label="Facebook"
                         class="text-gray-600 hover:text-indigo-600 transition">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path
                                 d="M22 12.073C22 6.507 17.523 2 12 2S2 6.507 2 12.073c0 4.986 3.657 9.128 8.438 9.877v-6.987h-2.54v-2.89h2.54V9.845c0-2.508 1.493-3.89 3.777-3.89 1.094 0 2.238 .196 2.238 .196v2.46h-1.26c-1.243 0-1.63 .771-1.63 1.562v1.875h2.773l-.443 2.89h-2.33v6.987C18.343 21.201 22 17.059 22 12.073z" />
                         </svg>
                     </a>
-                    <a href="https://instagram.com" target="_blank" aria-label="Instagram"
+                    <a href="https://www.instagram.com/sirine.shopping" target="_blank" aria-label="Instagram"
                         class="text-gray-600 hover:text-indigo-600 transition">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path
                                 d="M7.75 2h8.5C19.821 2 22 4.179 22 7.75v8.5C22 19.821 19.821 22 16.25 22h-8.5C4.179 22 2 19.821 2 16.25v-8.5C2 4.179 4.179 2 7.75 2zm0 2C5.679 4 4 5.679 4 7.75v8.5C4 18.321 5.679 20 7.75 20h8.5c2.071 0 3.75-1.679 3.75-3.75v-8.5C20 5.679 18.321 4 16.25 4h-8.5zm8.75 1.75a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0zm-4.5 1.5a5.5 5.5 0 110 11 5.5 5.5 0 010-11zm0 2C10.672 9.75 9.75 10.672 9.75 12s.922 2.25 2.25 2.25 2.25-.922 2.25-2.25S13.328 9.75 12 9.75z" />
                         </svg>
                     </a>
-                    <a href="https://twitter.com" target="_blank" aria-label="Twitter"
-                        class="text-gray-600 hover:text-indigo-600 transition">
-                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M22.162 5.656c-.814 .363-1.688 .607-2.606 .717a4.548 4.548 0 001.992-2.506 9.055 9.055 0 01-2.885 1.104 4.523 4.523 0 00-7.697 4.123 12.833 12.833 0 01-9.316-4.725 4.526 4.526 0 001.402 6.044 4.502 4.502 0 01-2.049-.566v.057a4.527 4.527 0 003.632 4.439 4.536 4.536 0 01-2.042 .078 4.529 4.529 a 4.529 0 004.227 3.141 9.074 9.074 0 01-5.596 1.928 9.293 9.293 0 01-1.077-.063 12.79 12.79 0 006.914 2.027c8.295 0 12.83-6.872 12.83-12.83 0-.196-.004-.393-.013-.588a9.174 9.174 0 002.257-2.339z" />
-                        </svg>
-                    </a>
+
                 </div>
             </div>
             <div>

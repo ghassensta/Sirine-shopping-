@@ -5,7 +5,6 @@
 <div class="container d-flex justify-content-center align-items-center min-vh-100">
   <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px; border-radius: 1rem;">
     {{-- Logo --}}
-    
 
     <h2 class="text-center mb-2" style="font-weight: 700; font-size: 1.75rem;">Bienvenue ! 👋</h2>
     <p class="text-center text-muted mb-4">Connectez-vous à votre compte pour commencer</p>
@@ -87,12 +86,12 @@
     const togglePassword = document.getElementById('togglePassword');
     const password = document.getElementById('password');
     const toggleIcon = document.getElementById('toggleIcon');
-    
+
     if (togglePassword && password && toggleIcon) {
       togglePassword.addEventListener('click', function() {
         const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
         password.setAttribute('type', type);
-        
+
         // Toggle the eye / eye-slash icon
         if (type === 'password') {
           toggleIcon.classList.remove('fa-eye');

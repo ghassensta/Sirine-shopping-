@@ -212,18 +212,11 @@
                            class="text-gray-500 hover:text-blue-500 mx-1" target="_blank" aria-label="Partager sur Facebook">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="https://www.instagram.com/?url={{ urlencode(route('product.show', $product->slug)) }}"
+                        <a href="https://www.instagram.com/sirine.shopping"
                            class="text-gray-500 hover:text-pink-500 mx-1" target="_blank" aria-label="Partager sur Instagram">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('product.show', $product->slug)) }}&text={{ urlencode($product->name) }}"
-                           class="text-gray-500 hover:text-blue-400 mx-1" target="_blank" aria-label="Partager sur Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="https://pinterest.com/pin/create/button/?url={{ urlencode(route('product.show', $product->slug)) }}&media={{ urlencode(asset('storage/' . $product->images[0])) }}"
-                           class="text-gray-500 hover:text-red-500 mx-1" target="_blank" aria-label="Partager sur Pinterest">
-                            <i class="fab fa-pinterest-p"></i>
-                        </a>
+                      
                     </div>
                 </div>
             </div>

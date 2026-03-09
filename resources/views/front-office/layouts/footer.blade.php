@@ -58,14 +58,14 @@
                         <i class="fab fa-facebook-f" aria-hidden="true"></i>
                         <span class="sr-only">Facebook</span>
                     </a>
-                    <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Suivez-nous sur Instagram"
+                    <a href="https://www.instagram.com/sirine.shopping" target="_blank" rel="noopener noreferrer" aria-label="Suivez-nous sur Instagram"
                        class="w-9 h-9 bg-gray-700 hover:bg-pink-500 rounded-full flex items-center justify-center transition duration-200">
                         <i class="fab fa-instagram" aria-hidden="true"></i>
                         <span class="sr-only">Instagram</span>
                     </a>
                 </div>
 
-                
+
             </div>
         </div>
 

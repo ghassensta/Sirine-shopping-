@@ -120,18 +120,20 @@
                 <div class="border-t border-gray-200 pt-8 mb-12">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Partager cet article</h3>
                     <div class="flex space-x-4">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
+                        <a href="https://www.facebook.com/profile.php?id=100076049144577"
                            target="_blank" rel="noopener noreferrer"
                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
                             <i class="fab fa-facebook-f mr-2"></i>
                             Facebook
                         </a>
-                        <a href="https://wa.me/?text={{ urlencode($blog->title . ' - ' . url()->current()) }}"
-                           target="_blank" rel="noopener noreferrer"
-                           class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200">
-                            <i class="fab fa-whatsapp mr-2"></i>
-                            WhatsApp
-                        </a>
+                       <a href="https://wa.me/21626868286?text={{ urlencode($blog->title . ' - ' . url()->current()) }}"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200">
+
+   <i class="fab fa-whatsapp mr-2"></i>
+   WhatsApp
+</a>
                     </div>
                 </div>
             </div>

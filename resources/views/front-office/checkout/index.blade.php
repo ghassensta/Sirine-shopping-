@@ -2,19 +2,16 @@
 @extends('front-office.layouts.app')
 
 @php
-    /*  Paramètres livraison  */
-    $shippingCost = (float) ($config->shipping_cost ?? 7); // 7 DT par défaut
+    $shippingCost = (float) ($config->shipping_cost ?? 7);
     $freeShippingLimit = (float) ($config->free_shipping_limit ?? 150);
 @endphp
 
 @section('title', 'Finaliser votre commande | Sirine Shopping Tunisie')
 
 @section('meta')
-    <meta name="description"
-        content="Finalisez votre commande sur Sirine Shopping Tunisie. Livraison rapide, paiement à la livraison, déco de qualité garantie.">
+    <meta name="description" content="Finalisez votre commande sur Sirine Shopping Tunisie. Livraison rapide, paiement à la livraison, déco de qualité garantie.">
     <meta property="og:title" content="Finaliser votre commande | Sirine Shopping">
-    <meta property="og:description"
-        content="Achetez facilement vos articles de décoration. Paiement à la livraison partout en Tunisie.">
+    <meta property="og:description" content="Achetez facilement vos articles de décoration. Paiement à la livraison partout en Tunisie.">
     <meta name="author" content="Sirine Shopping">
     <meta name="publisher" content="Sirine Shopping">
     <link rel="canonical" href="{{ url()->current() }}">
@@ -23,145 +20,121 @@
     <meta name="robots" content="noindex, nofollow">
 @endsection
 
-
-
 @section('content')
-    <section class="py-16 bg-light checkout-section">
-        <div class="container mx-auto px-6 max-w-7xl">
-            <h1 class="text-3xl font-bold text-center mb-12 text-gray-800">
+    <section class="py-10 md:py-16 bg-gray-50 checkout-section min-h-screen">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-8 md:mb-12 text-gray-900">
                 Finaliser Votre Commande
             </h1>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
 
                 <!-- ================= FORMULAIRE ================= -->
-                <!-- ================= FORMULAIRE ================= -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 checkout-card">
+                <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 lg:p-10 order-2 lg:order-1">
                     <form id="checkoutForm" action="/order/submit" method="POST" class="space-y-6">
                         @csrf
 
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                            Informations de Livraison
-                        </h2>
+                        <h2 class="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Informations de Livraison</h2>
 
-                        <!-- Prénom / Nom -->
                         <div>
-                            <label for="first_name" class="block text-sm font-medium text-gray-700">Nom & Prénom *</label>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1.5">Nom & Prénom *</label>
                             <input type="text" id="first_name" name="full_name" required
-                                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm
-                              focus:ring-primary focus:border-primary sm:text-sm p-2"
-                                placeholder="Nom & Prénom">
+                                   class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-600 focus:ring-amber-500 sm:text-sm px-4 py-3"
+                                   placeholder="Entrez votre nom complet">
                         </div>
 
-                        <!-- Email -->
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email (optionnel)</label>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">Email (optionnel)</label>
                             <input type="email" id="email" name="email"
-                                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm
-                  focus:ring-primary focus:border-primary sm:text-sm p-2"
-                                placeholder="votre@email.com">
+                                   class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-600 focus:ring-amber-500 sm:text-sm px-4 py-3"
+                                   placeholder="votre@email.com">
                         </div>
 
-
-                        <!-- Téléphone -->
                         <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700">Téléphone *</label>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1.5">Téléphone *</label>
                             <input type="tel" id="phone" name="phone" required
-                                pattern="^(\\+216)?[2459][0-9]{7}$"
-                                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm
-                          focus:ring-primary focus:border-primary sm:text-sm p-2"
-                                placeholder="+216 22 345 678">
+                                   pattern="^(\\+216)?[2459][0-9]{7}$"
+                                   class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-600 focus:ring-amber-500 sm:text-sm px-4 py-3"
+                                   placeholder="+216 98 123 456">
                         </div>
 
-                        <!-- Adresse -->
                         <div>
-                            <label for="address" class="block text-sm font-medium text-gray-700">Adresse *</label>
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1.5">Adresse complète *</label>
                             <input type="text" id="address" name="address" required
-                                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm
-                          focus:ring-primary focus:border-primary sm:text-sm p-2"
-                                placeholder="123 Rue de la Déco">
+                                   class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-600 focus:ring-amber-500 sm:text-sm px-4 py-3"
+                                   placeholder="Rue, numéro, quartier, ville">
                         </div>
+
                         <button type="submit" id="submitOrder"
-                            class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg
-                       font-semibold text-lg transition-colors duration-300 shadow-md
-                       hover:shadow-lg flex items-center justify-center focus:outline-none
-                       focus:ring-2 focus:ring-primary">
-                            <span>Passer la Commande</span>
-                            <svg id="submitSpinner" class="hidden animate-spin h-5 w-5 text-white ml-2"
-                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path>
+                                class="w-full bg-amber-600 hover:bg-amber-700 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-wait flex items-center justify-center gap-3">
+                            <span>Confirmer la commande</span>
+                            <svg id="submitSpinner" class="hidden animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path>
                             </svg>
                         </button>
                     </form>
                 </div>
 
+                <!-- ================= RÉSUMÉ ================= -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 lg:p-10 lg:sticky lg:top-8 h-fit order-1 lg:order-2">
+                    <h2 class="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Résumé de la Commande</h2>
 
-                <!-- ================== RÉSUMÉ =================== -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 sticky top-20 checkout-card">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                        Résumé de la Commande
-                    </h2>
-
-                    <div id="orderSummary" class="space-y-4">
-                        <div class="text-center py-4 text-gray-500 text-sm">
-                            Votre panier est vide
-                        </div>
+                    <div id="orderSummary" class="space-y-5 min-h-[140px]">
+                        <div class="text-center py-10 text-gray-500">Votre panier est vide</div>
                     </div>
 
-                    <div class="border-t border-gray-200 mt-6 pt-4 space-y-2 text-gray-800">
-                        <div class="flex justify-between">
+                    <div class="border-t border-gray-200 mt-6 pt-5 space-y-3 text-gray-900">
+                        <div class="flex justify-between text-base">
                             <span>Sous-total</span>
                             <span id="orderSubtotal">0 DT</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span>Frais de livraison</span>
+                        <div class="flex justify-between text-base">
+                            <span>Livraison</span>
                             <span id="orderShipping">0 DT</span>
                         </div>
-                        <div class="flex justify-between text-lg font-semibold pt-2 border-t border-gray-200">
+                        <div class="flex justify-between text-xl font-bold pt-4 border-t border-gray-300">
                             <span>Total</span>
                             <span id="orderTotal">0 DT</span>
                         </div>
                     </div>
 
                     <button onclick="openCartModal()"
-                        class="block mt-4 text-primary hover:text-secondary text-center font-medium hover:underline cursor-pointer">
-                        Modifier le panier
+                            class="mt-6 text-amber-600 hover:text-amber-800 font-medium hover:underline block text-center w-full text-base">
+                        Modifier mon panier →
                     </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Modal Modifier le Panier -->
-    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
-            <div class="p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">Modifier votre panier</h2>
-                    <button onclick="closeCartModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full">
+    <!-- ================= MODAL PANIER ================= -->
+    <div id="cartModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 sm:p-6">
+        <div class="bg-white rounded-2xl sm:rounded-3xl w-full max-w-[94vw] sm:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-100 flex flex-col">
+            <div class="p-5 sm:p-6 lg:p-8 flex flex-col h-full">
+                <div class="flex items-center justify-between mb-5 sm:mb-6">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Votre Panier</h2>
+                    <button onclick="closeCartModal()" class="p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
 
-                <div id="cartModalContent" class="space-y-4">
-                    <!-- Les articles du panier seront insérés ici par JavaScript -->
+                <div id="cartModalContent" class="flex-1 overflow-y-auto space-y-4 sm:space-y-5 pr-1">
+                    <!-- JS remplit ici -->
                 </div>
 
                 <div class="border-t border-gray-200 mt-6 pt-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-lg font-semibold">Total:</span>
-                        <span id="cartModalTotal" class="text-xl font-bold text-primary">0 DT</span>
+                    <div class="flex justify-between items-center mb-5">
+                        <span class="text-lg font-semibold">Total :</span>
+                        <span id="cartModalTotal" class="text-xl font-bold text-amber-600">0 DT</span>
                     </div>
 
-                    <div class="flex space-x-3">
-                        <button onclick="closeCartModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-6 rounded-xl font-semibold transition-all duration-300">
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="closeCartModal()" class="py-3.5 px-5 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition text-gray-800 text-base">
                             Continuer mes achats
                         </button>
-                        <button onclick="closeCartModal()" class="flex-1 bg-primary hover:bg-secondary text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300">
-                            Valider les modifications
+                        <button onclick="closeCartModal()" class="py-3.5 px-5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium transition text-base">
+                            Valider
                         </button>
                     </div>
                 </div>
@@ -169,397 +142,293 @@
         </div>
     </div>
 
-    <!-- Modal de confirmation de commande -->
-    <div id="orderConfirmationModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-lg w-full p-8 text-center border border-white/20">
-            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <i class="fas fa-check-circle text-3xl text-white"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                Commande Confirmée !
-            </h2>
-            <p class="text-gray-600 mb-6">
-                Votre commande a été enregistrée avec succès.
-                Nous vous contacterons bientôt pour confirmer les détails.
-            </p>
+    <!-- ================= MODAL CONFIRMATION ================= -->
+    <div id="orderConfirmationModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 sm:p-6">
+        <div class="bg-white rounded-2xl sm:rounded-3xl w-full max-w-[94vw] sm:max-w-md lg:max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 relative">
+            <button id="closeConfirmationModal" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition z-10">
+                <i class="fas fa-times text-xl"></i>
+            </button>
 
-            <!-- Détails de la commande -->
-            <div id="modalOrderDetails" class="bg-gray-50 rounded-2xl p-6 mb-6 text-left">
-                <h3 class="font-semibold text-gray-800 mb-4 text-center">Détails de votre commande</h3>
-                <div id="modalOrderItems" class="space-y-3 mb-4"></div>
-                <div class="border-t border-gray-200 pt-4 space-y-2">
-                    <div class="flex justify-between text-sm">
-                        <span>Sous-total</span>
-                        <span id="modalSubtotal">0 DT</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span>Frais de livraison</span>
-                        <span id="modalShipping">0 DT</span>
-                    </div>
-                    <div class="flex justify-between font-semibold text-lg pt-2 border-t border-gray-300">
-                        <span>Total</span>
-                        <span id="modalTotal">0 DT</span>
+            <div class="p-6 sm:p-8 lg:p-10 text-center">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-check text-4xl text-white"></i>
+                </div>
+
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Commande Confirmée !</h2>
+
+                <p class="text-gray-600 mb-8 text-base sm:text-lg px-2">
+                    Merci pour votre commande !<br>
+                    Nous vous contacterons très bientôt.
+                </p>
+
+                <div class="bg-gray-50 rounded-2xl p-6 mb-8 text-left">
+                    <h3 class="font-semibold text-lg text-center mb-5">Détails de la commande</h3>
+                    <div id="modalOrderItems" class="space-y-4 mb-6 text-sm sm:text-base"></div>
+
+                    <div class="border-t border-gray-200 pt-5 space-y-3">
+                        <div class="flex justify-between">
+                            <span>Sous-total</span>
+                            <span id="modalSubtotal">0 DT</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Livraison</span>
+                            <span id="modalShipping">0 DT</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-lg pt-3 border-t border-gray-300">
+                            <span>Total TTC</span>
+                            <span id="modalTotal">0 DT</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="space-y-3">
-                <a href="/" class="block w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                    Retour à l'accueil
-                </a>
-                <a href="/toutes/produits" class="block w-full bg-white border-2 border-gray-200 hover:border-primary text-gray-700 hover:text-primary py-3 px-6 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
-                    Continuer mes achats
-                </a>
+                <div class="space-y-4">
+                    <a href="/" class="block w-full bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white py-4 rounded-xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all">
+                        Retour à l'accueil
+                    </a>
+                    <a href="/toutes/produits" class="block w-full border-2 border-gray-300 hover:border-amber-600 text-gray-800 hover:text-amber-700 py-4 rounded-xl font-semibold text-base sm:text-lg transition-all">
+                        Continuer mes achats
+                    </a>
+                </div>
             </div>
-            <button id="closeConfirmationModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full">
-                <i class="fas fa-times text-lg"></i>
-            </button>
         </div>
     </div>
 @endsection
 
-{{-- ========================= STYLES ======================== --}}
 @section('css')
     <style>
-        #checkoutForm input {
-            transition: border-color .3s, box-shadow .3s;
+        .checkout-section {
+            background: linear-gradient(135deg, #f9fafb 0%, #f1f5f9 100%);
         }
 
-        #checkoutForm input:focus {
-            border-color: rgb(223, 181, 78);
-            box-shadow: 0 0 0 3px rgba(223, 181, 78, .15);
+        input:focus {
+            outline: none;
+            ring-color: #d97706;
+            border-color: #d97706;
         }
 
         #submitOrder.loading {
-            background: rgb(227, 199, 134);
-            cursor: wait;
+            background-color: #fbbf24 !important;
         }
 
-        #submitOrder.loading #submitSpinner {
-            display: inline-block;
-        }
-
-        #orderSummary .flex {
-            transition: background-color .2s;
-        }
-
-        #orderSummary .flex:hover {
-            background: #f9fafb;
-        }
-
-        #orderSummary img {
-            border: 1px solid #e5e7eb;
-        }
-
-        @media(max-width:1024px) {
-            .sticky {
-                position: static;
-            }
-        }
-
-        /* Theme consistency */
-        .checkout-section {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        }
-
-        .checkout-card {
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        @media (max-width: 640px) {
+            .max-w-[94vw] { max-width: 94vw !important; }
+            .p-5, .p-6 { padding: 1.25rem !important; }
+            .text-2xl { font-size: 1.5rem !important; line-height: 2rem !important; }
+            .space-y-6 > * + * { margin-top: 1.5rem !important; }
+            button { min-height: 48px; }
         }
     </style>
 @endsection
 
-{{-- ========================= SCRIPTS ======================= --}}
 @section('js')
     <script>
-        /* Constantes livraison */
-        const SHIPPING_const = {{ json_encode($shippingCost, JSON_NUMERIC_CHECK) }};
-        const FREE_SHIPPING_Amount = {{ json_encode($freeShippingLimit, JSON_NUMERIC_CHECK) }};
-        console.log("SHIPPING_FEE",SHIPPING_const);
-        console.log("FREE_SHIPPING_MIN",FREE_SHIPPING_Amount);
-        /* Helpers LocalStorage */
+        // ────────────────────────────────────────────────
+        //  CONSTANTES & HELPERS
+        // ────────────────────────────────────────────────
+        const SHIPPING_COST = {{ json_encode($shippingCost, JSON_NUMERIC_CHECK) }};
+        const FREE_SHIPPING_LIMIT = {{ json_encode($freeShippingLimit, JSON_NUMERIC_CHECK) }};
         const STORAGE_KEY = 'sirine_cart';
-        const sanitize = c => c.filter(i => i.id && i.name && i.image && !isNaN(i.price));
+
+        const sanitizeCart = items => items.filter(i => i?.id && i?.name && i?.image && !isNaN(i.price));
         const getCart = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
         const showNotification = (msg, type = 'success') => {
-            const n = document.createElement('div');
-            n.className = `fixed top-10 right-4 z-50 px-4 py-2 rounded-lg shadow-lg
-                ${type==='success'?'bg-green-500':'bg-red-500'} text-white`;
-            n.textContent = msg;
-            document.body.appendChild(n);
-            setTimeout(() => n.remove(), 3000);
+            const el = document.createElement('div');
+            el.className = `fixed top-5 right-5 z-50 px-5 py-3 rounded-xl shadow-2xl text-white font-medium text-sm
+                ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+            el.textContent = msg;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3800);
         };
 
-        /* Gestion du modal du panier */
+        // ────────────────────────────────────────────────
+        //  MODAL PANIER
+        // ────────────────────────────────────────────────
         function openCartModal() {
-            const modal = document.getElementById('cartModal');
             populateCartModal();
-            modal.classList.remove('hidden');
+            document.getElementById('cartModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-
-            // Hide floating icons when cart modal is open
-            const aiBubble = document.getElementById('sc-bubble');
-            const whatsappBtn = document.querySelector('.whatsapp-float-btn');
-            if (aiBubble) aiBubble.style.display = 'none';
-            if (whatsappBtn) whatsappBtn.style.display = 'none';
         }
 
         function closeCartModal() {
-            const modal = document.getElementById('cartModal');
-            modal.classList.add('hidden');
+            document.getElementById('cartModal').classList.add('hidden');
             document.body.style.overflow = '';
-
-            // Show floating icons when cart modal is closed
-            const aiBubble = document.getElementById('sc-bubble');
-            const whatsappBtn = document.querySelector('.whatsapp-float-btn');
-            if (aiBubble) aiBubble.style.display = '';
-            if (whatsappBtn) whatsappBtn.style.display = '';
-
-            // Mettre à jour le résumé de la commande après modifications
             updateOrderSummary();
         }
 
         function populateCartModal() {
-            const cart = sanitize(getCart());
-            const modalContent = document.getElementById('cartModalContent');
-            const modalTotal = document.getElementById('cartModalTotal');
+            const cart = sanitizeCart(getCart());
+            const container = document.getElementById('cartModalContent');
+            const totalEl = document.getElementById('cartModalTotal');
 
-            if (cart.length === 0) {
-                modalContent.innerHTML = '<div class="text-center py-8 text-gray-500">Votre panier est vide</div>';
-                modalTotal.textContent = '0 DT';
+            if (!cart.length) {
+                container.innerHTML = '<div class="text-center py-12 text-gray-500 text-base">Votre panier est vide</div>';
+                totalEl.textContent = '0 DT';
                 return;
             }
 
             let total = 0;
-            modalContent.innerHTML = cart.map((item, index) => {
+            container.innerHTML = cart.map((item, idx) => {
                 const lineTotal = item.price * item.quantity;
                 total += lineTotal;
 
                 return `
-                    <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl">
-                        <img src="${item.image}" alt="${item.name}"
-                             title="${item.name}"
-                             loading="lazy"
-                             decoding="async"
-                             class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
-
-                        <div class="flex-1">
-                            <h4 class="font-medium text-gray-800">${item.name}</h4>
-                            <p class="text-gray-600 text-sm">${item.price.toFixed(2)} DT</p>
-                        </div>
-
-                        <div class="flex items-center space-x-3">
-                            <button onclick="updateCartQuantity(${index}, -1)"
-                                    class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors"
-                                    ${item.quantity <= 1 ? 'disabled class="opacity-50 cursor-not-allowed"' : ''}>
+                <div class="flex gap-4 p-4 bg-gray-50 rounded-2xl">
+                    <img src="${item.image}" alt="${item.name}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-semibold text-gray-900 text-base truncate">${item.name}</h4>
+                        <p class="text-gray-600 text-sm mt-0.5">${item.price.toFixed(2)} DT</p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateCartQuantity(${idx}, -1)" ${item.quantity <= 1 ? 'disabled' : ''} class="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition disabled:opacity-50">
                                 <i class="fas fa-minus text-sm"></i>
                             </button>
-
-                            <span class="w-8 text-center font-medium">${item.quantity}</span>
-
-                            <button onclick="updateCartQuantity(${index}, 1)"
-                                    class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors">
+                            <span class="w-10 text-center font-medium">${item.quantity}</span>
+                            <button onclick="updateCartQuantity(${idx}, 1)" class="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition">
                                 <i class="fas fa-plus text-sm"></i>
                             </button>
                         </div>
-
-                        <div class="text-right">
-                            <p class="font-semibold text-gray-800">${lineTotal.toFixed(2)} DT</p>
-                            <button onclick="removeCartItem(${index})"
-                                    class="text-red-500 hover:text-red-700 text-sm mt-1">
-                                <i class="fas fa-trash"></i> Supprimer
-                            </button>
-                        </div>
+                        <p class="font-bold text-gray-900">${lineTotal.toFixed(2)} DT</p>
+                        <button onclick="removeCartItem(${idx})" class="text-red-600 hover:text-red-800 text-sm">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
-                `;
-            }).join('');
-
-            modalTotal.textContent = `${total.toFixed(2)} DT`;
-        }
-
-        function updateCartQuantity(index, change) {
-            const cart = sanitize(getCart());
-            if (index < 0 || index >= cart.length) return;
-
-            const newQuantity = cart[index].quantity + change;
-            if (newQuantity < 1) return;
-
-            cart[index].quantity = newQuantity;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-
-            populateCartModal();
-            showNotification('Quantité mise à jour', 'success');
-        }
-
-        function removeCartItem(index) {
-            const cart = sanitize(getCart());
-            if (index < 0 || index >= cart.length) return;
-
-            const itemName = cart[index].name;
-            cart.splice(index, 1);
-
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-            populateCartModal();
-            showNotification(`"${itemName}" retiré du panier`, 'success');
-        }
-
-        /* Gestion de la modal de confirmation */
-        function openConfirmationModal(orderData) {
-            const modal = document.getElementById('orderConfirmationModal');
-
-            // Remplir les détails de la commande dans la modal
-            populateModalOrderDetails(orderData);
-
-            // ─── ÉVÉNEMENT PIXEL Purchase ────────────────────────────────
-            if (typeof fbq === 'function' && orderData) {
-                fbq('track', 'Purchase', {
-                    value:         orderData.total_ttc,
-                    currency:      'TND',
-                    content_ids:   orderData.items.map(item => item.product_id.toString()),
-                    contents:      orderData.items.map(item => ({
-                        id:       item.product_id.toString(),
-                        quantity: item.quantity
-                    })),
-                    num_items:     orderData.items.reduce((sum, item) => sum + item.quantity, 0),
-                    order_id:      orderData.numero_commande
-                });
-            }
-
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
-        }
-
-        function populateModalOrderDetails(orderData) {
-            const cart = sanitize(getCart());
-
-            // Remplir les articles
-            const modalItems = document.getElementById('modalOrderItems');
-            modalItems.innerHTML = cart.map(item => {
-                const line = item.price * item.quantity;
-                return `<div class="flex items-center py-2">
-                    <img src="${item.image}" alt="${item.name}"
-                         title="${item.name}"
-                         loading="lazy"
-                         decoding="async"
-                         class="w-10 h-10 rounded-lg object-cover flex-shrink-0 mr-3">
-                    <div class="flex-1">
-                        <h4 class="font-medium text-gray-800 text-sm">${item.name}</h4>
-                        <p class="text-gray-500 text-xs">${item.quantity} × ${item.price.toFixed(2)} DT</p>
-                    </div>
-                    <p class="text-gray-600 font-semibold text-sm">${line.toFixed(2)} DT</p>
                 </div>`;
             }).join('');
 
-            // Remplir les totaux
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const shipping = subtotal >= FREE_SHIPPING_Amount ? 0 : SHIPPING_const;
-            const total = subtotal + shipping;
-
-            document.getElementById('modalSubtotal').textContent = `${subtotal.toFixed(2)} DT`;
-            document.getElementById('modalShipping').textContent = shipping === 0 ? 'Offert' : `${shipping.toFixed(2)} DT`;
-            document.getElementById('modalTotal').textContent = `${total.toFixed(2)} DT`;
+            totalEl.textContent = total.toFixed(2) + ' DT';
         }
 
-        function closeConfirmationModal() {
-            const modal = document.getElementById('orderConfirmationModal');
-            modal.classList.add('hidden');
-            document.body.style.overflow = ''; // Restore scrolling
-
-            // Vider le panier quand l'utilisateur ferme la modal
-            localStorage.removeItem(STORAGE_KEY);
-
-            // Mettre à jour l'affichage du panier dans l'interface
-            if (window.cart) {
-                window.cart.updateUI();
-            }
+        function updateCartQuantity(index, delta) {
+            let cart = sanitizeCart(getCart());
+            if (index < 0 || index >= cart.length) return;
+            let qty = cart[index].quantity + delta;
+            if (qty < 1) return;
+            cart[index].quantity = qty;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+            populateCartModal();
+            showNotification('Quantité modifiée');
         }
 
-        /* Mise à jour résumé */
+        function removeCartItem(index) {
+            let cart = sanitizeCart(getCart());
+            if (index < 0 || index >= cart.length) return;
+            const name = cart[index].name;
+            cart.splice(index, 1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+            populateCartModal();
+            showNotification(`« ${name} » supprimé`, 'success');
+        }
+
+        // ────────────────────────────────────────────────
+        //  RÉSUMÉ COMMANDE (checkout page)
+        // ────────────────────────────────────────────────
         function updateOrderSummary() {
-            const summary = document.getElementById('orderSummary');
-            const subT = document.getElementById('orderSubtotal');
-            const shipT = document.getElementById('orderShipping');
-            const totT = document.getElementById('orderTotal');
+            const container = document.getElementById('orderSummary');
+            const subEl = document.getElementById('orderSubtotal');
+            const shipEl = document.getElementById('orderShipping');
+            const totalEl = document.getElementById('orderTotal');
 
-            const cart = sanitize(getCart());
-            if (cart.length === 0) {
-                summary.innerHTML = '<div class="text-center py-4 text-gray-500 text-sm">Votre panier est vide</div>';
-                subT.textContent = '0 DT';
-                shipT.textContent = '0 DT';
-                totT.textContent = '0 DT';
+            const cart = sanitizeCart(getCart());
+
+            if (!cart.length) {
+                container.innerHTML = '<div class="text-center py-12 text-gray-500 text-base">Votre panier est vide</div>';
+                subEl.textContent = '0 DT';
+                shipEl.textContent = '0 DT';
+                totalEl.textContent = '0 DT';
                 return;
             }
 
             let subtotal = 0;
-            summary.innerHTML = cart.map(i => {
-                const line = i.price * i.quantity;
+            container.innerHTML = cart.map(item => {
+                const line = item.price * item.quantity;
                 subtotal += line;
-                return `<div class="flex items-center py-2">
-                    <img src="${i.image}" alt="${i.name}"
-                         title="${i.name}"
-                         loading="lazy"
-                         decoding="async"
-                         class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
-                    <div class="ml-4 flex-1">
-                        <h4 class="font-medium text-gray-800 text-sm">${i.name}</h4>
-                        <div class="flex items-center space-x-2">
-                            ${i.discountPrice && i.discountPrice < i.originalPrice ?
-                                `<span class="text-gray-500 line-through text-xs">${i.originalPrice.toFixed(2)} DT</span>
-                                 <span class="text-primary font-semibold text-sm">${i.discountPrice.toFixed(2)} DT</span>
-                                 <span class="text-green-600 text-xs bg-green-100 px-1 rounded">-${Math.round((1 - i.discountPrice / i.originalPrice) * 100)}%</span>` :
-                                `<span class="text-gray-500 text-xs">${i.price.toFixed(2)} DT</span>`
-                            }
-                        </div>
-                        <p class="text-gray-500 text-xs">${i.quantity} × ${i.price.toFixed(2)} DT</p>
+                return `
+                <div class="flex gap-4 py-3 border-b border-gray-100 last:border-0">
+                    <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-900">${item.name}</h4>
+                        <p class="text-sm text-gray-600 mt-0.5">${item.quantity} × ${item.price.toFixed(2)} DT</p>
                     </div>
-                    <p class="text-gray-600 font-semibold text-sm">${line.toFixed(2)} DT</p>
+                    <p class="font-semibold text-gray-900">${line.toFixed(2)} DT</p>
                 </div>`;
             }).join('');
 
-            const shipping = subtotal >= FREE_SHIPPING_Amount ? 0 : SHIPPING_const;
+            const shipping = subtotal >= FREE_SHIPPING_LIMIT ? 0 : SHIPPING_COST;
             const total = subtotal + shipping;
 
-            subT.textContent = `${subtotal.toFixed(2)} DT`;
-            shipT.textContent = shipping === 0 ? 'Offert' : `${shipping.toFixed(2)} DT`;
-            totT.textContent = `${total.toFixed(2)} DT`;
+            subEl.textContent = subtotal.toFixed(2) + ' DT';
+            shipEl.textContent = shipping === 0 ? 'Offert' : shipping.toFixed(2) + ' DT';
+            totalEl.textContent = total.toFixed(2) + ' DT';
         }
 
-        /* Soumission Ajax */
+        // ────────────────────────────────────────────────
+        //  MODAL CONFIRMATION + soumission
+        // ────────────────────────────────────────────────
+        function openConfirmationModal(orderData) {
+            populateModalOrderDetails(orderData);
+            document.getElementById('orderConfirmationModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function populateModalOrderDetails(orderData) {
+            const cart = sanitizeCart(getCart());
+            const itemsEl = document.getElementById('modalOrderItems');
+            let subtotal = 0;
+
+            itemsEl.innerHTML = cart.map(item => {
+                const line = item.price * item.quantity;
+                subtotal += line;
+                return `
+                <div class="flex items-center gap-4 py-2 border-b border-gray-100 last:border-0">
+                    <img src="${item.image}" alt="${item.name}" class="w-14 h-14 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-900 text-base">${item.name}</h4>
+                        <p class="text-sm text-gray-600">${item.quantity} × ${item.price.toFixed(2)} DT</p>
+                    </div>
+                    <p class="font-semibold text-gray-900">${line.toFixed(2)} DT</p>
+                </div>`;
+            }).join('');
+
+            const shipping = subtotal >= FREE_SHIPPING_LIMIT ? 0 : SHIPPING_COST;
+            const total = subtotal + shipping;
+
+            document.getElementById('modalSubtotal').textContent = subtotal.toFixed(2) + ' DT';
+            document.getElementById('modalShipping').textContent = shipping === 0 ? 'Offert' : shipping.toFixed(2) + ' DT';
+            document.getElementById('modalTotal').textContent = total.toFixed(2) + ' DT';
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('orderConfirmationModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            localStorage.removeItem(STORAGE_KEY);
+            updateOrderSummary();
+        }
+
+        // ────────────────────────────────────────────────
+        //  INITIALISATION + EVENT LISTENERS
+        // ────────────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', () => {
             updateOrderSummary();
 
-            // ─── ÉVÉNEMENT PIXEL InitiateCheckout ────────────────────────────────
-            if (typeof fbq === 'function') {
-                const cart = sanitize(getCart());
-                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                fbq('track', 'InitiateCheckout', {
-                    content_ids:   cart.map(item => item.id.toString()),
-                    contents:      cart.map(item => ({
-                        id:       item.id.toString(),
-                        quantity: item.quantity
-                    })),
-                    value:         subtotal,
-                    currency:      'TND',
-                    num_items:     cart.reduce((sum, item) => sum + item.quantity, 0)
-                });
-            }
-
             const form = document.getElementById('checkoutForm');
-            const btn = document.getElementById('submitOrder');
+            const submitBtn = document.getElementById('submitOrder');
             const spinner = document.getElementById('submitSpinner');
 
-            // Gestionnaire pour fermer la modal
             document.getElementById('closeConfirmationModal')?.addEventListener('click', closeConfirmationModal);
 
-            // Gestionnaires pour le modal du panier
-            document.getElementById('cartModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'cartModal') {
-                    closeCartModal();
-                }
+            // Clic extérieur pour fermer modals
+            document.getElementById('cartModal')?.addEventListener('click', e => {
+                if (e.target.id === 'cartModal') closeCartModal();
             });
 
-            // Fermer les modals avec Échap
-            document.addEventListener('keydown', (e) => {
+            document.getElementById('orderConfirmationModal')?.addEventListener('click', e => {
+                if (e.target.id === 'orderConfirmationModal') closeConfirmationModal();
+            });
+
+            // Touche Échap
+            document.addEventListener('keydown', e => {
                 if (e.key === 'Escape') {
                     if (!document.getElementById('orderConfirmationModal').classList.contains('hidden')) {
                         closeConfirmationModal();
@@ -571,79 +440,63 @@
 
             form.addEventListener('submit', async e => {
                 e.preventDefault();
-                let invalid = false;
-                form.querySelectorAll('[required]').forEach(f => {
-                    f.classList.toggle('border-red-500', !f.value.trim());
-                    if (!f.value.trim()) invalid = true;
+
+                let hasError = false;
+                form.querySelectorAll('[required]').forEach(el => {
+                    if (!el.value.trim()) {
+                        el.classList.add('border-red-500');
+                        hasError = true;
+                    } else {
+                        el.classList.remove('border-red-500');
+                    }
                 });
-                if (invalid) {
-                    showNotification('Veuillez remplir tous les champs.', 'error');
+
+                if (hasError) {
+                    showNotification('Veuillez remplir tous les champs obligatoires', 'error');
                     return;
                 }
 
-                const payload = Object.fromEntries(new FormData(form));
-                const cart = sanitize(getCart());
-                if (cart.length === 0) {
-                    showNotification('Votre panier est vide.', 'error');
+                const formData = Object.fromEntries(new FormData(form));
+                const cart = sanitizeCart(getCart());
+
+                if (!cart.length) {
+                    showNotification('Votre panier est vide', 'error');
                     return;
                 }
 
-                btn.classList.add('loading');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
                 spinner.classList.remove('hidden');
-                btn.disabled = true;
-                btn.innerHTML = `
-                    <span class="flex items-center justify-center">
-                        <svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path>
-                        </svg>
-                        Traitement en cours...
-                    </span>
-                `;
+
                 try {
-                    const res = await fetch('/order/submit', {
+                    const response = await fetch('/order/submit', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .content
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                         },
-                        body: JSON.stringify({
-                            ...payload,
-                            cart
-                        })
+                        body: JSON.stringify({ ...formData, cart })
                     });
-                    if (res.ok) {
-                        const data = await res.json();
 
-                        // Ouvrir la modal de confirmation
-                        openConfirmationModal(data.order);
+                    const data = await response.json();
 
-                        // Vider le formulaire
+                    if (response.ok) {
+                        openConfirmationModal(data.order || data);
                         form.reset();
-
-                        // Mettre à jour l'interface du panier
-                        if (window.cart) {
-                            window.cart.updateUI();
-                        }
-
-                        // Vider immédiatement le panier après commande réussie
                         localStorage.removeItem(STORAGE_KEY);
-                    } else if (res.status === 422) {
-                        const errs = await res.json();
-                        showNotification(Object.values(errs.errors).flat().join('\n'), 'error');
+                    } else if (response.status === 422) {
+                        showNotification(Object.values(data.errors || {}).flat().join('\n') || 'Erreur de validation', 'error');
                     } else {
-                        showNotification('Erreur serveur.', 'error');
+                        showNotification(data.message || 'Erreur lors de l\'envoi', 'error');
                     }
                 } catch (err) {
-                    showNotification('Connexion impossible.', 'error');
-                    console.log(err);
+                    showNotification('Problème de connexion', 'error');
+                    console.error(err);
                 } finally {
-                    btn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
                     spinner.classList.add('hidden');
-                    btn.disabled = false;
-                    btn.innerHTML = '<span>Passer la Commande</span><svg id="submitSpinner" class="hidden animate-spin h-5 w-5 text-white ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path></svg>';
                 }
             });
         });
