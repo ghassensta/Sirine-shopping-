@@ -378,7 +378,6 @@
                                 {{ number_format($product->price, 2) }} DT
                             </span>
                         @endif
-                        <p class="text-sm text-gray-500 mt-1">TVA incluse • Livraison calculée à l'étape suivante</p>
                     </div>
 
                     <!-- Variants -->

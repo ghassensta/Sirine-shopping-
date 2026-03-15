@@ -113,7 +113,6 @@
                     <!-- Price -->
                     <div class="mb-6">
                         <p class="text-3xl font-bold text-gray-900">{{ number_format($product->price, 2) }} DT</p>
-                        <p class="text-sm text-gray-500">TVA incluse</p>
                     </div>
 
                     <!-- Description -->
@@ -216,7 +215,7 @@
                            class="text-gray-500 hover:text-pink-500 mx-1" target="_blank" aria-label="Partager sur Instagram">
                             <i class="fab fa-instagram"></i>
                         </a>
-                      
+
                     </div>
                 </div>
             </div>

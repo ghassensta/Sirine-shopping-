@@ -18,25 +18,19 @@
         $supportEmail  = $config->support_email    ?? 'contact@sirine-shopping.tn';
         $supportPhone  = $config->support_phone    ?? '+216 26 868 286';
         $addressText   = $config->address          ?? 'Centre Commercial, Tunis, Tunisie';
-        $shippingCost  = (float) ($config->shipping_cost       ?? 7.5);
-        $freeShipping  = (float) ($config->free_shipping_limit ?? 120);
+        $shippingCost  = (float) ($config->shipping_cost ?? 7.5);
 
-        /*
-         * Pour le <title> et les balises OG/Twitter, on construit la valeur
-         * une seule fois ici afin d'éviter les doublons.
-         * Les vues enfants peuvent surcharger via @section('title').
-         */
         $pageTitle = trim($__env->yieldContent('title'))
                      ?: ($siteName . ' | Décoration & Accessoires Tunisie');
     @endphp
 
     <!-- ═══════════════════════════════════════════════
-         TITLE  —  défini ici, ne pas le remettre dans @section('meta')
+         TITLE
     ═══════════════════════════════════════════════ -->
     <title>{{ $pageTitle }}</title>
 
     <!-- ═══════════════════════════════════════════════
-         SEO PAR DÉFAUT  (peuvent être surchargés par @section('meta'))
+         SEO PAR DÉFAUT
     ═══════════════════════════════════════════════ -->
     <link rel="canonical" href="{{ url()->current() }}">
 
@@ -59,9 +53,7 @@
     <meta name="twitter:image"       content="{{ $defaultOgImg }}">
 
     <!-- ═══════════════════════════════════════════════
-         SECTION META  —  les vues enfants injectent ici leurs balises
-         spécifiques (description produit, OG produit, JSON-LD produit…).
-         Ces balises ÉCRASENT / COMPLÈTENT les valeurs par défaut ci-dessus.
+         SECTION META
     ═══════════════════════════════════════════════ -->
     @yield('meta')
 
@@ -73,16 +65,13 @@
         <link rel="preload" as="image" href="{{ $config->homepage_banner ? asset('storage/' . $config->homepage_banner) : asset('assets/img/hero-banner.jpg') }}" fetchpriority="high">
     @endif
 
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
-          rel="stylesheet">
+    <!-- Fonts optimisés (self-hosted) -->
+    <link rel="preload" href="{{ asset('fonts/fonts.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}"></noscript>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Font Awesome (optimisé) -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
 
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -120,8 +109,7 @@
     @yield('css')
 
     <!-- ═══════════════════════════════════════════════
-         STRUCTURED DATA GLOBALE  —  HomeGoodsStore
-         (JSON-LD spécifiques aux pages sont dans @section('meta'))
+         STRUCTURED DATA GLOBALE — HomeGoodsStore
     ═══════════════════════════════════════════════ -->
     <script type="application/ld+json">
     {
@@ -152,37 +140,45 @@
     }
     </script>
 
-    <!-- ═══════════════════════════════════════════════
-         GOOGLE ANALYTICS / GTM
-         Remplace G-YOUR-ID par ton vrai identifiant
-    ═══════════════════════════════════════════════ -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID"></script>
+    <!-- Optimized Google Analytics (deferred) -->
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-YOUR-ID');
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID';
+                document.head.appendChild(script);
+
+                script.onload = function() {
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'G-YOUR-ID');
+                };
+            }, 2000);
+        });
     </script>
 
- <!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '2068037108452194');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=2068037108452194&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
+    <!-- Optimized Meta Pixel Code (deferred) -->
+    <script>
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', 'YOUR-PIXEL-ID');
+            fbq('track', 'PageView');
+        }, 3000);
+    });
+    </script>
+    <!-- End Meta Pixel Code -->
 
-<meta name="facebook-domain-verification" content="gqxz72nres3p9fbd78kby8bshmeqjf" />
+    <meta name="facebook-domain-verification" content="gqxz72nres3p9fbd78kby8bshmeqjf" />
 </head>
 @include('front-office.layouts.ai-chatbot')
 <body class="bg-light font-sans text-dark min-h-screen flex flex-col">
@@ -288,10 +284,9 @@ src="https://www.facebook.com/tr?id=2068037108452194&ev=PageView&noscript=1"
 <script type="module">
 // ─── Configuration ────────────────────────────────────────────────────────────
 const CONFIG = {
-    shippingCost:   {{ $shippingCost }},
-    freeShippingMin: {{ $freeShipping }},
-    currency:       'DT',
-    storageKey:     'sirine_cart'
+    shippingCost: {{ $shippingCost }},
+    currency:     'DT',
+    storageKey:   'sirine_cart'
 };
 
 // ─── Gestionnaire de panier ───────────────────────────────────────────────────
@@ -362,7 +357,7 @@ class CartManager {
     }
 
     getSubtotal()  { return this.cart.reduce((s, i) => s + i.price * i.quantity, 0); }
-    getShipping()  { return this.getSubtotal() >= CONFIG.freeShippingMin ? 0 : CONFIG.shippingCost; }
+    getShipping()  { return CONFIG.shippingCost; }
     getTotal()     { return this.getSubtotal() + this.getShipping(); }
     getItemCount() { return this.cart.reduce((s, i) => s + i.quantity, 0); }
 
@@ -419,14 +414,10 @@ class CartManager {
         const subtotalEl = document.getElementById('cartSubtotal');
         const shippingEl = document.getElementById('shippingCost');
         const totalEl    = document.getElementById('cartTotal');
-        const ship       = this.getShipping();
 
         if (subtotalEl) subtotalEl.textContent = `${this.getSubtotal().toFixed(2)} ${CONFIG.currency}`;
-        if (shippingEl) {
-            shippingEl.textContent  = ship === 0 ? 'Gratuit' : `${ship.toFixed(2)} ${CONFIG.currency}`;
-            shippingEl.className    = ship === 0 ? 'font-semibold text-green-600' : 'font-semibold';
-        }
-        if (totalEl) totalEl.textContent = `${this.getTotal().toFixed(2)} ${CONFIG.currency}`;
+        if (shippingEl) shippingEl.textContent  = `${CONFIG.shippingCost.toFixed(2)} ${CONFIG.currency}`;
+        if (totalEl)    totalEl.textContent      = `${this.getTotal().toFixed(2)} ${CONFIG.currency}`;
     }
 
     showNotification(message, type = 'success') {
@@ -446,11 +437,10 @@ class CartManager {
         document.body.style.overflow = 'hidden';
         this.updateUI();
 
-        // Hide floating icons when cart is open
-        const aiBubble = document.getElementById('sc-bubble');
+        const aiBubble   = document.getElementById('sc-bubble');
         const whatsappBtn = document.querySelector('.whatsapp-float-btn');
-        if (aiBubble) aiBubble.style.display = 'none';
-        if (whatsappBtn) whatsappBtn.style.display = 'none';
+        if (aiBubble)    aiBubble.style.display    = 'none';
+        if (whatsappBtn) whatsappBtn.style.display  = 'none';
     }
 
     closeCart() {
@@ -458,11 +448,10 @@ class CartManager {
         document.getElementById('cartOverlay')?.classList.add('hidden');
         document.body.style.overflow = '';
 
-        // Show floating icons when cart is closed
-        const aiBubble = document.getElementById('sc-bubble');
+        const aiBubble   = document.getElementById('sc-bubble');
         const whatsappBtn = document.querySelector('.whatsapp-float-btn');
-        if (aiBubble) aiBubble.style.display = '';
-        if (whatsappBtn) whatsappBtn.style.display = '';
+        if (aiBubble)    aiBubble.style.display    = '';
+        if (whatsappBtn) whatsappBtn.style.display  = '';
     }
 
     init() {
@@ -474,7 +463,6 @@ class CartManager {
         document.getElementById('continueShoppingBtn')?.addEventListener('click', () => this.closeCart());
         document.getElementById('cartOverlay')?.addEventListener('click',          () => this.closeCart());
 
-        // Fermeture au clavier (Echap)
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') this.closeCart();
         });
@@ -484,7 +472,7 @@ class CartManager {
 // Instance globale
 window.cart = new CartManager();
 
-// Fonction globale addToCart utilisée dans les templates enfants
+// Fonction globale addToCart
 window.addToCart = function(button) {
     const product = {
         id:            parseInt(button.dataset.id),
@@ -506,16 +494,12 @@ window.addToCart = function(button) {
         button.disabled  = false;
         cart.openCart();
 
-        // ─── ÉVÉNEMENT PIXEL AddToCart ────────────────────────────────
         if (typeof fbq === 'function') {
             fbq('track', 'AddToCart', {
                 content_name:  product.name,
                 content_ids:   [product.id.toString()],
                 content_type:  'product',
-                contents:      [{
-                    id:       product.id.toString(),
-                    quantity: 1
-                }],
+                contents:      [{ id: product.id.toString(), quantity: 1 }],
                 value:         product.price,
                 currency:      'TND'
             });
@@ -597,13 +581,11 @@ window.hideLoading = function() {
     }
     .animate-slide-up { animation: slideUp 0.3s ease-out; }
 
-    /* Scrollbar personnalisée */
     ::-webkit-scrollbar       { width: 6px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
     ::-webkit-scrollbar-thumb { background: rgba(212,175,55,.3); border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,.5); }
 
-    /* Accessibilité : focus visible */
     :focus-visible {
         outline: 2px solid #D4AF37;
         outline-offset: 2px;

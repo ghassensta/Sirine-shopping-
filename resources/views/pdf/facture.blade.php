@@ -154,7 +154,6 @@
                     <th>Désignation</th>
                     <th>Prix Unitaire</th>
                     <th>Qté</th>
-                    <th>TVA (%)</th>
                     <th>Total HT</th>
                 </tr>
             </thead>
@@ -167,7 +166,6 @@
                         <td>{{ $item->product->name }}</td>
                         <td>{{ number_format($item->unit_price, 2, ',', ' ') }} {{ $data['currency'] }}</td>
                         <td>{{ $item->quantity }}</td>
-                        <td>{{ $data['tax_rate'] }} %</td>
                         <td>{{ number_format($ligneHT, 2, ',', ' ') }} {{ $data['currency'] }}</td>
                     </tr>
                 @empty
@@ -185,10 +183,7 @@
                         <td>{{ number_format($data['shipping_cost'], 2, ',', ' ') }} {{ $data['currency'] }}</td>
                     </tr>
                 @endif
-                <tr class="total-row">
-                    <td colspan="4">TVA ({{ $data['tax_rate'] }} %)</td>
-                    <td>{{ number_format($data['tax_tva'], 2, ',', ' ') }} {{ $data['currency'] }}</td>
-                </tr>
+
                 <tr class="total-row">
                     <td colspan="4">Total TTC</td>
                     <td>{{ number_format($data['total_ttc'], 2, ',', ' ') }} {{ $data['currency'] }}</td>

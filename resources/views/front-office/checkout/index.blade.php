@@ -3,7 +3,6 @@
 
 @php
     $shippingCost = (float) ($config->shipping_cost ?? 7);
-    $freeShippingLimit = (float) ($config->free_shipping_limit ?? 150);
 @endphp
 
 @section('title', 'Finaliser votre commande | Sirine Shopping Tunisie')
@@ -52,10 +51,13 @@
 
                         <div>
                             <label for="phone" class="block text-sm font-medium text-gray-700 mb-1.5">Téléphone *</label>
-                            <input type="tel" id="phone" name="phone" required
-                                   pattern="^(\\+216)?[2459][0-9]{7}$"
-                                   class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-600 focus:ring-amber-500 sm:text-sm px-4 py-3"
-                                   placeholder="+216 98 123 456">
+                        <input type="tel"
+       id="phone"
+       name="phone"
+       required
+       pattern="^[2459][0-9]{7}$"
+       class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-600 focus:ring-amber-500 sm:text-sm px-4 py-3"
+       placeholder="98 123 456">
                         </div>
 
                         <div>
@@ -123,20 +125,29 @@
                     <!-- JS remplit ici -->
                 </div>
 
-                <div class="border-t border-gray-200 mt-6 pt-6">
-                    <div class="flex justify-between items-center mb-5">
+                <!-- ── Récapitulatif livraison dans la modal ── -->
+                <div class="border-t border-gray-200 mt-6 pt-5 space-y-3 text-gray-900">
+                    <div class="flex justify-between text-base">
+                        <span>Sous-total</span>
+                        <span id="cartModalSubtotal">0 DT</span>
+                    </div>
+                    <div class="flex justify-between text-base">
+                        <span>Livraison</span>
+                        <span id="cartModalShipping" class="font-semibold text-amber-600">0 DT</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-gray-200">
                         <span class="text-lg font-semibold">Total :</span>
                         <span id="cartModalTotal" class="text-xl font-bold text-amber-600">0 DT</span>
                     </div>
+                </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="closeCartModal()" class="py-3.5 px-5 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition text-gray-800 text-base">
-                            Continuer mes achats
-                        </button>
-                        <button onclick="closeCartModal()" class="py-3.5 px-5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium transition text-base">
-                            Valider
-                        </button>
-                    </div>
+                <div class="mt-5 grid grid-cols-2 gap-4">
+                    <button onclick="closeCartModal()" class="py-3.5 px-5 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition text-gray-800 text-base">
+                        Continuer mes achats
+                    </button>
+                    <button onclick="closeCartModal()" class="py-3.5 px-5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium transition text-base">
+                        Valider
+                    </button>
                 </div>
             </div>
         </div>
@@ -175,7 +186,7 @@
                             <span id="modalShipping">0 DT</span>
                         </div>
                         <div class="flex justify-between font-bold text-lg pt-3 border-t border-gray-300">
-                            <span>Total TTC</span>
+                            <span>Total</span>
                             <span id="modalTotal">0 DT</span>
                         </div>
                     </div>
@@ -199,17 +210,14 @@
         .checkout-section {
             background: linear-gradient(135deg, #f9fafb 0%, #f1f5f9 100%);
         }
-
         input:focus {
             outline: none;
             ring-color: #d97706;
             border-color: #d97706;
         }
-
         #submitOrder.loading {
             background-color: #fbbf24 !important;
         }
-
         @media (max-width: 640px) {
             .max-w-[94vw] { max-width: 94vw !important; }
             .p-5, .p-6 { padding: 1.25rem !important; }
@@ -226,11 +234,10 @@
         //  CONSTANTES & HELPERS
         // ────────────────────────────────────────────────
         const SHIPPING_COST = {{ json_encode($shippingCost, JSON_NUMERIC_CHECK) }};
-        const FREE_SHIPPING_LIMIT = {{ json_encode($freeShippingLimit, JSON_NUMERIC_CHECK) }};
-        const STORAGE_KEY = 'sirine_cart';
+        const STORAGE_KEY   = 'sirine_cart';
 
         const sanitizeCart = items => items.filter(i => i?.id && i?.name && i?.image && !isNaN(i.price));
-        const getCart = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const getCart      = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
         const showNotification = (msg, type = 'success') => {
             const el = document.createElement('div');
@@ -257,20 +264,24 @@
         }
 
         function populateCartModal() {
-            const cart = sanitizeCart(getCart());
-            const container = document.getElementById('cartModalContent');
-            const totalEl = document.getElementById('cartModalTotal');
+            const cart        = sanitizeCart(getCart());
+            const container   = document.getElementById('cartModalContent');
+            const subtotalEl  = document.getElementById('cartModalSubtotal');
+            const shippingEl  = document.getElementById('cartModalShipping');
+            const totalEl     = document.getElementById('cartModalTotal');
 
             if (!cart.length) {
                 container.innerHTML = '<div class="text-center py-12 text-gray-500 text-base">Votre panier est vide</div>';
-                totalEl.textContent = '0 DT';
+                subtotalEl.textContent = '0 DT';
+                shippingEl.textContent = SHIPPING_COST.toFixed(2) + ' DT';
+                totalEl.textContent    = SHIPPING_COST.toFixed(2) + ' DT';
                 return;
             }
 
-            let total = 0;
+            let subtotal = 0;
             container.innerHTML = cart.map((item, idx) => {
                 const lineTotal = item.price * item.quantity;
-                total += lineTotal;
+                subtotal += lineTotal;
 
                 return `
                 <div class="flex gap-4 p-4 bg-gray-50 rounded-2xl">
@@ -297,13 +308,17 @@
                 </div>`;
             }).join('');
 
-            totalEl.textContent = total.toFixed(2) + ' DT';
+            const total = subtotal + SHIPPING_COST;
+
+            subtotalEl.textContent = subtotal.toFixed(2) + ' DT';
+            shippingEl.textContent = SHIPPING_COST.toFixed(2) + ' DT';
+            totalEl.textContent    = total.toFixed(2) + ' DT';
         }
 
         function updateCartQuantity(index, delta) {
             let cart = sanitizeCart(getCart());
             if (index < 0 || index >= cart.length) return;
-            let qty = cart[index].quantity + delta;
+            const qty = cart[index].quantity + delta;
             if (qty < 1) return;
             cart[index].quantity = qty;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
@@ -326,17 +341,16 @@
         // ────────────────────────────────────────────────
         function updateOrderSummary() {
             const container = document.getElementById('orderSummary');
-            const subEl = document.getElementById('orderSubtotal');
-            const shipEl = document.getElementById('orderShipping');
-            const totalEl = document.getElementById('orderTotal');
-
-            const cart = sanitizeCart(getCart());
+            const subEl     = document.getElementById('orderSubtotal');
+            const shipEl    = document.getElementById('orderShipping');
+            const totalEl   = document.getElementById('orderTotal');
+            const cart      = sanitizeCart(getCart());
 
             if (!cart.length) {
-                container.innerHTML = '<div class="text-center py-12 text-gray-500 text-base">Votre panier est vide</div>';
-                subEl.textContent = '0 DT';
-                shipEl.textContent = '0 DT';
-                totalEl.textContent = '0 DT';
+                container.innerHTML    = '<div class="text-center py-12 text-gray-500 text-base">Votre panier est vide</div>';
+                subEl.textContent      = '0 DT';
+                shipEl.textContent     = SHIPPING_COST.toFixed(2) + ' DT';
+                totalEl.textContent    = SHIPPING_COST.toFixed(2) + ' DT';
                 return;
             }
 
@@ -355,11 +369,10 @@
                 </div>`;
             }).join('');
 
-            const shipping = subtotal >= FREE_SHIPPING_LIMIT ? 0 : SHIPPING_COST;
-            const total = subtotal + shipping;
+            const total = subtotal + SHIPPING_COST;
 
-            subEl.textContent = subtotal.toFixed(2) + ' DT';
-            shipEl.textContent = shipping === 0 ? 'Offert' : shipping.toFixed(2) + ' DT';
+            subEl.textContent   = subtotal.toFixed(2) + ' DT';
+            shipEl.textContent  = SHIPPING_COST.toFixed(2) + ' DT';
             totalEl.textContent = total.toFixed(2) + ' DT';
         }
 
@@ -373,9 +386,9 @@
         }
 
         function populateModalOrderDetails(orderData) {
-            const cart = sanitizeCart(getCart());
+            const cart    = sanitizeCart(getCart());
             const itemsEl = document.getElementById('modalOrderItems');
-            let subtotal = 0;
+            let subtotal  = 0;
 
             itemsEl.innerHTML = cart.map(item => {
                 const line = item.price * item.quantity;
@@ -391,12 +404,11 @@
                 </div>`;
             }).join('');
 
-            const shipping = subtotal >= FREE_SHIPPING_LIMIT ? 0 : SHIPPING_COST;
-            const total = subtotal + shipping;
+            const total = subtotal + SHIPPING_COST;
 
             document.getElementById('modalSubtotal').textContent = subtotal.toFixed(2) + ' DT';
-            document.getElementById('modalShipping').textContent = shipping === 0 ? 'Offert' : shipping.toFixed(2) + ' DT';
-            document.getElementById('modalTotal').textContent = total.toFixed(2) + ' DT';
+            document.getElementById('modalShipping').textContent = SHIPPING_COST.toFixed(2) + ' DT';
+            document.getElementById('modalTotal').textContent    = total.toFixed(2) + ' DT';
         }
 
         function closeConfirmationModal() {
@@ -412,13 +424,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateOrderSummary();
 
-            const form = document.getElementById('checkoutForm');
+            const form      = document.getElementById('checkoutForm');
             const submitBtn = document.getElementById('submitOrder');
-            const spinner = document.getElementById('submitSpinner');
+            const spinner   = document.getElementById('submitSpinner');
 
             document.getElementById('closeConfirmationModal')?.addEventListener('click', closeConfirmationModal);
 
-            // Clic extérieur pour fermer modals
             document.getElementById('cartModal')?.addEventListener('click', e => {
                 if (e.target.id === 'cartModal') closeCartModal();
             });
@@ -427,7 +438,6 @@
                 if (e.target.id === 'orderConfirmationModal') closeConfirmationModal();
             });
 
-            // Touche Échap
             document.addEventListener('keydown', e => {
                 if (e.key === 'Escape') {
                     if (!document.getElementById('orderConfirmationModal').classList.contains('hidden')) {
@@ -457,7 +467,7 @@
                 }
 
                 const formData = Object.fromEntries(new FormData(form));
-                const cart = sanitizeCart(getCart());
+                const cart     = sanitizeCart(getCart());
 
                 if (!cart.length) {
                     showNotification('Votre panier est vide', 'error');

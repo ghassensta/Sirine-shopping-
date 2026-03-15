@@ -327,7 +327,6 @@
                     <!-- Price -->
                     <div class="mb-6">
                         <p class="text-3xl font-bold text-gray-900">25 DT</p>
-                        <p class="text-sm text-gray-500">TVA incluse</p>
                     </div>
 
                     <!-- Description -->

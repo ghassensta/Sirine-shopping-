@@ -25,5 +25,35 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/line-clamp'),
+  ],
+  // PurgeCSS pour la production
+  purge: {
+    enabled: process.env.NODE_ENV === 'production',
+    content: [
+      './resources/**/*.blade.php',
+      './resources/**/*.js',
+      './resources/**/*.vue',
+      './resources/views/**/*.php',
+    ],
+    options: {
+      safelist: [
+        // Conserver les classes utilisées dynamiquement
+        'swiper-*',
+        'fa-*',
+        /^bg-/,
+        /^text-/,
+        /^border-/,
+        /^hover:/,
+        /^focus:/,
+        /^active:/,
+        /^group-hover:/,
+        /^dark:/,
+      ],
+    },
+  },
 };
