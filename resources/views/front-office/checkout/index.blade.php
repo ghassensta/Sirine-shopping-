@@ -142,7 +142,7 @@
                 </div>
 
                 <div class="mt-5 grid grid-cols-2 gap-4">
-                    <button onclick="closeCartModal()" class="py-3.5 px-5 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition text-gray-800 text-base">
+                    <button onclick="clearCartAndNavigate(event, '{{ route('allproduits') }}')" class="py-3.5 px-5 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition text-gray-800 text-base">
                         Continuer mes achats
                     </button>
                     <button onclick="closeCartModal()" class="py-3.5 px-5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium transition text-base">
@@ -193,10 +193,10 @@
                 </div>
 
                 <div class="space-y-4">
-                    <a href="/" class="block w-full bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white py-4 rounded-xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all">
+                    <a href="/" onclick="clearCartAndNavigate(event, '/')" class="block w-full bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white py-4 rounded-xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all">
                         Retour à l'accueil
                     </a>
-                    <a href="/toutes/produits" class="block w-full border-2 border-gray-300 hover:border-amber-600 text-gray-800 hover:text-amber-700 py-4 rounded-xl font-semibold text-base sm:text-lg transition-all">
+                    <a href="/toutes/produits" onclick="clearCartAndNavigate(event, '/toutes/produits')" class="block w-full border-2 border-gray-300 hover:border-amber-600 text-gray-800 hover:text-amber-700 py-4 rounded-xl font-semibold text-base sm:text-lg transition-all">
                         Continuer mes achats
                     </a>
                 </div>
@@ -418,6 +418,27 @@
             updateOrderSummary();
         }
 
+        // Fonction pour vider le panier et naviguer
+        function clearCartAndNavigate(event, url) {
+            event.preventDefault();
+            
+            // Vider le panier localStorage
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem('cart');
+            localStorage.removeItem('sirine_cart');
+            
+            // Vider le panier global si existe
+            if (typeof window.cart !== 'undefined' && window.cart.clear) {
+                window.cart.clear();
+            }
+            
+            // Fermer le modal s'il est ouvert
+            closeCartModal();
+            
+            // Naviguer vers l'URL
+            window.location.href = url;
+        }
+
         // ────────────────────────────────────────────────
         //  INITIALISATION + EVENT LISTENERS
         // ────────────────────────────────────────────────
@@ -492,9 +513,8 @@
                     const data = await response.json();
 
                     if (response.ok) {
-                        openConfirmationModal(data.order || data);
-                        form.reset();
-                        localStorage.removeItem(STORAGE_KEY);
+                        // Rediriger vers la page de confirmation
+                        window.location.href = data.redirect_url;
                     } else if (response.status === 422) {
                         showNotification(Object.values(data.errors || {}).flat().join('\n') || 'Erreur de validation', 'error');
                     } else {

@@ -103,11 +103,10 @@ class Order extends Model
     public function calculateTotals()
     {
         $subtotal_ht = $this->items()->sum('subtotal');
-        $tax_tva = $subtotal_ht * ($this->tax_rate / 100);
-        $total_ttc = $subtotal_ht + $this->shipping_cost + $tax_tva;
+        $total_ttc = $subtotal_ht + $this->shipping_cost;  // Plus de TVA
 
         $this->subtotal_ht = $subtotal_ht;
-        $this->tax_tva = $tax_tva;
+        $this->tax_tva = 0;              // Pas de TVA
         $this->total_ttc = $total_ttc;
 
         // Mise à jour silencieuse pour éviter les boucles infinies

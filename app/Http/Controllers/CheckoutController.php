@@ -29,6 +29,15 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Show order success page.
+     */
+    public function showSuccess($orderId)
+    {
+        $order = Order::with(['items', 'items.product', 'client'])->findOrFail($orderId);
+        return view('front-office.order.success', compact('order'));
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function storeOrder(Request $request)
@@ -76,23 +85,18 @@ class CheckoutController extends Controller
                 ? 0
                 : $shippingCostFixed;
 
-            /* 2.5 TVA (19 %) sur HT + port */
-            $taxRate = 0.19;
-            $taxBase = $subTotal + $shippingCost;
-            $taxAmount = round($taxBase * $taxRate, 2);
+            /* 2.5 Total TTC (sans TVA) */
+            $grandTotal = round($subTotal + $shippingCost, 2);
 
-            /* 2.6 Total TTC */
-            $grandTotal = round($taxBase + $taxAmount, 2);
-
-            /* 2.7 Création de la commande */
+            /* 2.6 Création de la commande */
             $order = Order::create([
                 'numero_commande' => 'CMD-' . strtoupper(uniqid()),
                 'client_id' => $client->id,
                 'statut_id' => 4,            // « en cours »
                 'subtotal_ht' => $subTotal,
                 'shipping_cost' => $shippingCost,
-                'tax_rate' => $taxRate,     // pour mémoire
-                'tax_tva' => $taxAmount,
+                'tax_rate' => 0,             // pas de TVA
+                'tax_tva' => 0,              // pas de TVA
                 'total_ttc' => $grandTotal,
                 'shipped_at' => null,
                 'paid_at' => null,
@@ -120,6 +124,7 @@ class CheckoutController extends Controller
 
             return response()->json([
                 'message' => 'Commande enregistrée.',
+                'redirect_url' => route('order.success', ['order' => $order->id]),
                 'order' => [
                     'id' => $order->id,
                     'numero_commande' => $order->numero_commande,

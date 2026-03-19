@@ -29,6 +29,8 @@ Route::get('/blog/{slug}', action: [AccueilController::class, 'BlogShow'])->name
 Route::resource('/checkout', CheckoutController::class);
 Route::post('/order/submit', [CheckoutController::class, 'storeOrder'])
     ->name('order.submit');
+Route::get('/order/success/{order}', [CheckoutController::class, 'showSuccess'])
+    ->name('order.success');
 Route::get('/toutes/produits', [AccueilController::class, 'AllProduits'])->name('allproduits');
 
 Route::get('/toutes/blogs', [AccueilController::class, 'AllBlogs'])->name('allblogs');
