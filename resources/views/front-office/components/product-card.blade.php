@@ -23,7 +23,9 @@
 
     <div class="p-5">
         <h3 class="font-semibold text-dark mb-2 line-clamp-2 hover:text-primary transition-colors">
-            <a href="{{ route('preview-article', $product->slug) }}" class="block">{{ $product->name }}</a>
+            <a href="{{ route('preview-article', $product->slug) }}" class="block"><h3 class="text-base font-medium">
+    {{ $product->name }}
+</h3></a>
         </h3>
 
         @php $reviews = $product->avis()->where('approved', true); $avgRating = $reviews->avg('rating'); $reviewCount = $reviews->count(); @endphp

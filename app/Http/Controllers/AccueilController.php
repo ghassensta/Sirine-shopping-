@@ -68,57 +68,52 @@ class AccueilController extends Controller
         return view('front-office.inspirations.index', compact('inspiration', 'relatedInspirations'));
     }
 
-    public function ProduitShow($slug)
-    {
-        // Récupérer le produit avec les avis approuvés
-        $product = Product::where('slug', $slug)
-            ->where('is_active', true)
-            ->with(['avis' => function($query) {
+  public function ProduitShow($slug)
+{
+    // Récupérer le produit avec ses relations utiles
+    $product = Product::where('slug', $slug)
+        ->where('is_active', true)
+        ->with([
+            'categories',                    // Pour les produits similaires
+            'avis' => function ($query) {    // Seulement les avis approuvés
                 $query->where('approved', true)->latest();
-            }])
-            ->firstOrFail();
+            }
+        ])
+        ->firstOrFail();
 
-        // Récupérer les avis approuvés
-        $reviews = $product->avis()->where('approved', true)->latest()->get();
+    // Produits similaires (corrigé avec la relation many-to-many)
+    $similarProducts = Product::where('is_active', true)
+        ->where('id', '!=', $product->id)
+        ->whereHas('categories', function ($query) use ($product) {
+            $query->whereIn('categories.id', $product->categories->pluck('id'));
+        })
+        ->withCount(['avis' => fn($q) => $q->where('approved', true)])   // total_reviews
+        ->withAvg(['avis' => fn($q) => $q->where('approved', true)], 'rating') // average_rating
+        ->inRandomOrder()
+        ->limit(8)
+        ->get();
 
-        // Calculs pour les avis
-        $totalReviews = $reviews->count();
-        $averageRating = $totalReviews > 0 ? round($reviews->avg('rating'), 1) : 0;
+    // On garde tes variables existantes pour ne rien casser
+    $reviews = $product->avis;                    // déjà chargé avec le with()
+    $totalReviews = $reviews->count();
+    $averageRating = $totalReviews > 0 ? round($reviews->avg('rating'), 1) : 5.0;
 
-        // Distribution des notes
-        $ratingDistribution = [];
-        for ($i = 5; $i >= 1; $i--) {
-            $count = $reviews->where('rating', $i)->count();
-            $ratingDistribution[$i] = $totalReviews > 0 ? round(($count / $totalReviews) * 100, 1) : 0;
-        }
-
-        // Produits similaires
-        $categories = $product->category_ids;
-        $similarProducts = collect();
-
-        if (is_array($categories) && count($categories) > 0) {
-            $similarProducts = Product::where('is_active', true)
-                ->where('id', '!=', $product->id)
-                ->where(function ($query) use ($categories) {
-                    foreach ($categories as $categoryId) {
-                        $query->orWhereJsonContains('category_ids', $categoryId);
-                    }
-                })
-                ->inRandomOrder()
-                ->limit(8)
-                ->get();
-        }
-
-        return view('front-office.produit.index', [
-            'product' => $product,
-            'similarProducts' => $similarProducts,
-            'reviews' => $reviews,
-            'averageRating' => $averageRating,
-            'ratingDistribution' => $ratingDistribution,
-            'totalReviews' => $totalReviews,
-        ]);
+    // Distribution des notes (si tu l'utilises ailleurs)
+    $ratingDistribution = [];
+    for ($i = 5; $i >= 1; $i--) {
+        $count = $reviews->where('rating', $i)->count();
+        $ratingDistribution[$i] = $totalReviews > 0 ? round(($count / $totalReviews) * 100, 1) : 0;
     }
 
+    return view('front-office.produit.index', [
+        'product'           => $product,
+        'similarProducts'   => $similarProducts,     // ← maintenant correct et performant
+        'reviews'           => $reviews,
+        'averageRating'     => $averageRating,
+        'ratingDistribution'=> $ratingDistribution,
+        'totalReviews'      => $totalReviews,
+    ]);
+}
     public function storeReview(Request $request)
     {
         $validator = Validator::make($request->all(), [

@@ -20,21 +20,21 @@
 
     <div class="menu-inner-shadow"></div>
     <ul class="menu-inner py-1">
-        <!-- Dashboard -->
+
         <li class="menu-item {{ request()->routeIs('superadmin.dashborad') ? 'active' : '' }}">
             <a href="{{ route('superadmin.dashborad') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-layout-dashboard"></i>
                 <div>Tableau de bord</div>
             </a>
         </li>
-
+<!-- Dashboard
         <li class="menu-item {{ request()->routeIs('analytics.index') ? 'active' : '' }}">
             <a href="{{ route('analytics.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-chart-bar"></i>
                 <div>Analytics</div>
             </a>
         </li>
-
+-->
         <!-- Boutiques -->
         <li class="menu-item {{ request()->routeIs('commandes.*') ? 'active' : '' }}">
             <a href="{{ route('commandes.index') }}" class="menu-link">

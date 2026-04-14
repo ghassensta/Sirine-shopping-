@@ -93,10 +93,10 @@
 <section class="bg-light py-12 md:py-16">
     <div class="container mx-auto px-4 text-center">
         <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-dark mb-4">
-            Notre Collections
+            Collection de Décoration Intérieure Chic en Tunisie
         </h1>
         <h2 class="text-gray-600 text-lg max-w-2xl mx-auto mb-6">
-            Découvrez tous nos produits soigneusement sélectionnés
+           Boutique de décoration intérieure en Tunisie
         </h2>
         <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
     </div>
@@ -132,7 +132,7 @@
                 <!-- Mobile Filters (Hidden) -->
                 <div id="mobileFilters" class="lg:hidden mb-6 bg-white p-4 rounded-xl shadow-sm hidden">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold">Catégories</h3>
+                        <H2> Nos catégories de décoration
                         <button onclick="toggleMobileFilters()" class="text-gray-500">
                             <i class="fas fa-times"></i>
                         </button>

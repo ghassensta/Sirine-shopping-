@@ -122,11 +122,14 @@
             </div>
         </div>
     </section>
+@endsection
 
+@section('js')
     <!-- Facebook Pixel Purchase Event -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        if (typeof fbq === 'function') {
+        // Vérifier si l'événement purchase a déjà été tracké pour éviter le double déclenchement
+        if (typeof fbq === 'function' && !sessionStorage.getItem('purchase_tracked')) {
             fbq('track', 'Purchase', {
                 content_ids: @json($order->items->pluck('product_id')->toArray()),
                 content_type: 'product',
@@ -135,6 +138,9 @@
                 num_items: {{ $order->items->sum('quantity') }},
                 order_id: '{{ $order->numero_commande }}'
             });
+            
+            // Marquer l'événement comme tracké pour éviter le double déclenchement
+            sessionStorage.setItem('purchase_tracked', '1');
         }
 
         // Vider le panier si l'utilisateur quitte cette page (fermeture, navigation arrière, nouvelle URL)

@@ -24,8 +24,8 @@ use App\Http\Controllers\AnalyticsController;
 
 Route::get('/', [AccueilController::class, 'nouveautes'])->name('welcome')->middleware('throttle:60,1');
 
-Route::get('/article/{slug}', action: [AccueilController::class, 'ProduitShow'])->name('preview-article');
-Route::get('/blog/{slug}', action: [AccueilController::class, 'BlogShow'])->name('preview-blog');
+Route::get('/article/{slug}', [AccueilController::class, 'ProduitShow'])->name('preview-article');
+Route::get('/blog/{slug}', [AccueilController::class, 'BlogShow'])->name('preview-blog');
 Route::resource('/checkout', CheckoutController::class);
 Route::post('/order/submit', [CheckoutController::class, 'storeOrder'])
     ->name('order.submit');

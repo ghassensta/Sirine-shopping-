@@ -278,14 +278,14 @@
   }
 </style>
 
-<!-- Toggle bubble -->
+<!-- Toggle bubble
 <div id="sc-bubble">
   <div id="sc-hint" onclick="scToggle()">💬 Besoin d'aide pour choisir ?</div>
   <button id="sc-toggle" onclick="scToggle()" aria-label="Assistant shopping">
     <svg class="ic-chat" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
     <svg class="ic-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
   </button>
-</div>
+</div>-->
 
 <!-- Chat window -->
 <div id="sc-window" role="dialog" aria-label="Assistant Sirine Shopping">

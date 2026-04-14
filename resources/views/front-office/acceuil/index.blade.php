@@ -4,7 +4,7 @@
 
 @section('meta')
     {{-- Canonical --}}
-    <link rel="canonical" href="{{ url('/') }}">
+    <link rel="canonical" href="{{ url()->current() }}">
 
     {{-- Meta description --}}
     <meta name="description" content="Découvrez Sirine Shopping, votre boutique en ligne de décoration intérieure et accessoires élégants en Tunisie. Livraison rapide 24-48h dans toute la Tunisie.">
@@ -102,9 +102,13 @@
                 <span class="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full font-semibold mb-4">
                     Nouvelle Collection
                 </span>
-                <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-dark mb-6">
-                    Élégance & <br>
-                    <span class="text-primary">Décoration</span> Chic
+                <h1
+                    id="hero-heading"
+                    class="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-dark mb-6"
+                    >
+                    Décoration Intérieure &amp; <br>
+                    <span class="text-primary">Accessoires Élégants</span><br>
+                    en Tunisie
                 </h1>
                 <p class="text-gray-600 text-lg mb-8 max-w-lg">
                     Découvrez notre collection exclusive d'accessoires de décoration et d'articles d'intérieur soigneusement sélectionnés.
@@ -517,7 +521,7 @@
             <div class="grid md:grid-cols-3 gap-8">
                 @foreach($blogs as $post)
                     <article class="bg-light rounded-xl overflow-hidden hover:shadow-lg transition">
-                        <a href="{{ route('preview-blog', $post->slug) }}">
+                        <a href="{{ route('blogs.show', $post->slug) }}">
                             <img src="{{ $post->image ? asset('storage/' . $post->image) : asset('images/placeholder.jpg') }}"
                                  alt="{{ $post->title ?? 'Article blog décoration' }}"
                                  title="{{ $post->title ?? 'Article blog décoration' }}"
@@ -532,14 +536,14 @@
                                 <span><i class="far fa-clock mr-1"></i> 3 min</span>
                             </div>
                             <h3 class="font-semibold text-xl text-dark mb-3">
-                                <a href="{{ route('preview-blog', $post->slug) }}" class="hover:text-primary transition">
+                                <a href="{{ route('blogs.show', $post->slug) }}" class="hover:text-primary transition">
                                     {{ Str::limit($post->title, 50) }}
                                 </a>
                             </h3>
                             <p class="text-gray-600 mb-4">
                                 {{ Str::limit(strip_tags($post->resume), 100) }}
                             </p>
-                            <a href="{{ route('preview-blog', $post->slug) }}"
+                            <a href="{{ route('blogs.show', $post->slug) }}"
                                class="inline-flex items-center text-primary hover:text-secondary font-medium">
                                 Lire l'article <i class="fas fa-arrow-right ml-2"></i>
                             </a>
@@ -624,7 +628,76 @@
             </div>
         </div>
     </section>
+   
 @endif
+<hr>
+ <section
+        class="py-16 bg-white"
+        aria-labelledby="editorial-heading">
+        <div class="container mx-auto px-4 w-full">
+
+            <h2
+                id="editorial-heading"
+                class="text-3xl md:text-4xl font-bold text-dark mb-6 text-center"
+                >
+                Boutique en ligne de décoration intérieure en Tunisie
+            </h2>
+
+            <p class="text-gray-700 mb-6 text-lg">
+                Soyez élégant et sublimez votre intérieur grâce à <strong>Sirine Shopping</strong>,
+                votre boutique en ligne spécialisée en <strong>décoration intérieure en Tunisie</strong>.
+                Nous vous proposons une large sélection d'accessoires modernes et tendances pour embellir
+                chaque pièce de votre maison, du salon à la chambre en passant par la cuisine et la salle de bain.
+            </p>
+
+            <h3 class="text-2xl font-semibold text-dark mb-4">
+                Plus de 500 accessoires de décoration tendance
+            </h3>
+            <p class="text-gray-700 mb-6">
+                Découvrez un catalogue riche de plus de <strong>500 produits</strong> incluant des luminaires design,
+                vases décoratifs, sculptures modernes, articles d'art de table, accessoires pour cuisine et salle de bain,
+                ainsi que du linge de maison élégant. Chaque collection est renouvelée régulièrement pour vous offrir
+                les dernières tendances en décoration.
+            </p>
+
+            <h3 class="text-2xl font-semibold text-dark mb-4">
+                Des produits de qualité premium soigneusement sélectionnés
+            </h3>
+            <p class="text-gray-700 mb-6">
+                Chaque produit est soigneusement sélectionné pour garantir une <strong>qualité supérieure</strong>
+                et un design moderne. Notre objectif est de vous offrir des articles durables, élégants et parfaitement
+                adaptés à tous les styles d'intérieur : contemporain, minimaliste, bohème ou classique.
+            </p>
+
+            <h3 class="text-2xl font-semibold text-dark mb-4">
+                Livraison rapide partout en Tunisie — 24 à 48&nbsp;h
+            </h3>
+            <p class="text-gray-700 mb-6">
+                Commandez facilement sur <strong>sirine-shopping.tn</strong> et profitez d'une
+                <strong>livraison rapide en 24 à 48&nbsp;h</strong> dans toute la Tunisie : Tunis, Sfax, Sousse,
+                Monastir, Bizerte, Nabeul, Gabès et toutes les régions. Notre service client est disponible pour
+                vous accompagner dans votre expérience d'achat.
+            </p>
+
+            <h3 class="text-2xl font-semibold text-dark mb-4">
+                Promotions et offres exclusives sur la décoration
+            </h3>
+            <p class="text-gray-700 mb-6">
+                Profitez régulièrement de <strong>promotions et de bons plans</strong> pour acheter vos articles
+                de décoration au meilleur prix, sans compromis sur la qualité. Inscrivez-vous à notre newsletter
+                pour ne manquer aucune offre exclusive.
+            </p>
+
+            <h3 class="text-2xl font-semibold text-dark mb-4">
+                Une boutique en ligne de confiance en Tunisie
+            </h3>
+            <p class="text-gray-700">
+                Avec des milliers de clients satisfaits, <strong>Sirine Shopping</strong> s'impose comme une
+                référence en <strong>décoration en ligne en Tunisie</strong>. Nous innovons constamment pour
+                vous offrir une expérience utilisateur fluide, un paiement sécurisé et une livraison fiable.
+            </p>
+        </div>
+    </section>
 
 @endsection
 

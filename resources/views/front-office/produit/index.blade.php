@@ -385,7 +385,7 @@
                     <div class="mb-6">
                         @if($product->available_sizes)
                         <div class="mb-4">
-                            <h3 class="text-sm font-semibold text-dark mb-2">Tailles disponibles</h3>
+                            <span class="text-sm font-semibold text-dark mb-2">Tailles disponibles</span>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($product->available_sizes as $size)
                                     <button class="size-btn border border-gray-300 hover:border-primary px-3 py-2 rounded-lg text-sm transition-colors" data-size="{{ $size }}">
@@ -398,7 +398,7 @@
 
                         @if($product->available_colors)
                         <div class="mb-4">
-                            <h3 class="text-sm font-semibold text-dark mb-2">Couleurs disponibles</h3>
+                            <span class="text-sm font-semibold text-dark mb-2">Couleurs disponibles</span>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($product->available_colors as $colorItem)
                                     @php
@@ -494,140 +494,246 @@
             </div>
         </div>
 
-        <!-- Description complète du produit -->
+<!-- ==================== SECTION TABS : Description & Avis ==================== -->
+<div class="mt-12 bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+
+    <!-- Navigation des onglets -->
+    <div class="flex border-b border-gray-200 bg-gray-50">
+        <button
+            id="tab-description"
+            onclick="switchTab('description')"
+            data-active="true"
+            class="flex-1 md:flex-none px-8 py-6 text-lg font-serif font-semibold text-dark border-b-2 border-transparent hover:text-primary hover:border-primary data-[active=true]:border-primary data-[active=true]:text-primary flex items-center justify-center gap-3 transition-all duration-200">
+            <i class="fas fa-file-alt text-xl"></i>
+            Description
+        </button>
+
+        <button
+            id="tab-reviews"
+            onclick="switchTab('reviews')"
+            class="flex-1 md:flex-none px-8 py-6 text-lg font-serif font-semibold text-dark border-b-2 border-transparent hover:text-primary hover:border-primary data-[active=true]:border-primary data-[active=true]:text-primary flex items-center justify-center gap-3 transition-all duration-200">
+            <i class="fas fa-comment-dots text-xl"></i>
+            Avis clients
+        </button>
+    </div>
+
+    <!-- Contenu : Description -->
+    <div id="content-description" class="tab-content p-6 lg:p-8">
         @if($product->description)
-        <div class="mt-12 bg-white rounded-xl shadow-sm p-6 lg:p-8">
-            <h2 class="text-2xl font-serif font-bold text-dark mb-6">Description</h2>
-            <div class="prose max-w-none text-gray-700 leading-relaxed" contenteditable="false">
+            <div class="prose max-w-none text-gray-700 leading-relaxed">
                 {!! clean_html_for_display(nl2br(e($product->description))) !!}
             </div>
-        </div>
+        @else
+            <p class="text-gray-500 italic py-12 text-center">Aucune description disponible pour le moment.</p>
         @endif
+    </div>
 
-        <!-- Section Avis -->
-        <div id="reviews" class="mt-12 bg-white rounded-xl shadow-sm overflow-hidden">
-            <div class="p-6">
-                <span class="text-2xl font-serif font-bold text-dark mb-6">Avis clients</span>
+    <!-- Contenu : Avis clients -->
+    <div id="content-reviews" class="tab-content hidden p-6 lg:p-8">
 
-                <div class="grid md:grid-cols-2 gap-8 mb-8">
-                    <div>
-                        <div class="flex items-center mb-4">
-                            <div class="mr-6">
-                                <span class="text-5xl font-bold text-dark">{{ number_format($product->average_rating, 1) }}</span>
-                                <span class="text-gray-500">/5</span>
-                            </div>
-                            <div>
-                                <div class="flex text-yellow-400 text-xl mb-2">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star {{ $i <= floor($product->average_rating) ? '' : ($i - $product->average_rating < 1 ? 'fa-star-half-alt' : 'far fa-star text-gray-300') }}"></i>
-                                    @endfor
-                                </div>
-                                <p class="text-gray-600">{{ $product->total_reviews }} avis</p>
-                            </div>
-                        </div>
+        <h2 class="text-2xl font-serif font-bold text-dark mb-6">Avis clients</h2>
 
-                        <div class="space-y-2 text-sm">
-                            @foreach([5,4,3,2,1] as $r)
-                                <div class="flex items-center">
-                                    <span class="w-8">{{ $r }}★</span>
-                                    <div class="flex-1 mx-2 bg-gray-200 rounded-full h-2"></div>
-                                    <span class="w-12 text-gray-600">–</span>
-                                </div>
-                            @endforeach
-                        </div>
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
+            <!-- Note moyenne + étoiles -->
+            <div>
+                <div class="flex items-center mb-4">
+                    <div class="mr-6">
+                        <span class="text-5xl font-bold text-dark">{{ number_format($product->average_rating, 1) }}</span>
+                        <span class="text-gray-500">/5</span>
                     </div>
-
-                    <!-- Formulaire avis -->
                     <div>
-                        <span class="font-semibold mb-4">Donnez votre avis</span>
-                        <p class="text-gray-600 mb-4">Votre expérience aide les autres acheteurs.</p>
-                        <button id="writeReviewBtn" class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium w-full transition">
-                            <i class="fas fa-pen mr-2"></i> Écrire un avis
-                        </button>
+                        <div class="flex text-yellow-400 text-2xl mb-2">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fas fa-star {{ $i <= floor($product->average_rating) ? '' : ($i - $product->average_rating < 1 ? 'fa-star-half-alt' : 'far fa-star text-gray-300') }}"></i>
+                            @endfor
+                        </div>
+                        <p class="text-gray-600">{{ $product->total_reviews }} avis</p>
                     </div>
                 </div>
 
-                <!-- Formulaire (déployé) -->
-                <div id="reviewForm" class="hidden bg-gray-50 p-6 rounded-lg mb-8">
-                    <span class="text-lg font-semibold mb-4">Votre avis</span>
-                    <form id="reviewFormSubmit" class="space-y-4">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Note *</label>
-                            <div class="flex space-x-1" id="starRating">
-                                @for($i = 1; $i <= 5; $i++)
-                                    <button type="button" class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="{{ $i }}">
-                                        <i class="far fa-star"></i>
-                                    </button>
-                                @endfor
-                            </div>
-                            <input type="hidden" id="rating" name="rating" required>
+                <div class="space-y-2 text-sm">
+                    @foreach([5,4,3,2,1] as $r)
+                        <div class="flex items-center">
+                            <span class="w-8 font-medium">{{ $r }}★</span>
+                            <div class="flex-1 mx-3 bg-gray-200 rounded-full h-2.5"></div>
+                            <span class="w-12 text-gray-500 text-right">–</span>
                         </div>
-
-                        <div>
-                            <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Commentaire *</label>
-                            <textarea id="comment" name="comment" rows="4" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-primary focus:border-primary" required></textarea>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nom / Pseudo</label>
-                                <input type="text" id="name" name="name" class="w-full border border-gray-300 rounded-lg p-3">
-                            </div>
-                            <div>
-                                <label for="location" class="block text-sm font-medium text-gray-700 mb-2">Ville (optionnel)</label>
-                                <input type="text" id="location" name="location" class="w-full border border-gray-300 rounded-lg p-3">
-                            </div>
-                        </div>
-
-                        <div class="flex space-x-4">
-                            <button type="submit" class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-lg font-medium transition">
-                                Publier l'avis
-                            </button>
-                            <button type="button" id="cancelReview" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-6 rounded-lg font-medium transition">
-                                Annuler
-                            </button>
-                        </div>
-                    </form>
+                    @endforeach
                 </div>
+            </div>
 
-                <!-- Liste des avis -->
-                <div id="reviewsList" class="space-y-6">
-                    @forelse ($product->avis()->where('approved', true)->latest()->take(6)->get() as $review)
-                        <div class="border-b border-gray-200 pb-6 last:border-0">
-                            <div class="flex items-center mb-2">
-                                <div class="flex text-yellow-400 mr-3">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star {{ $i <= $review->rating ? '' : 'text-gray-300' }}"></i>
-                                    @endfor
-                                </div>
-                                <span class="text-sm text-gray-500">{{ $review->created_at->format('d/m/Y') }}</span>
-                            </div>
-                            <p class="text-gray-700 mb-3">{{ $review->comment }}</p>
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
-                                    <span class="font-bold text-primary">{{ strtoupper(substr($review->name ?? 'A', 0, 1)) }}</span>
-                                </div>
-                                <div>
-                                    <p class="font-medium">{{ $review->name ?? 'Anonyme' }}</p>
-                                    @if($review->location)
-                                        <p class="text-sm text-gray-500">{{ $review->location }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-12 text-gray-500">
-                            <i class="fas fa-comment-slash text-4xl mb-4 block"></i>
-                            <p>Aucun avis pour le moment.<br>Soyez le premier à partager votre expérience !</p>
-                        </div>
-                    @endforelse
-                </div>
+            <!-- Bouton écrire un avis -->
+            <div class="flex flex-col justify-center">
+                <span class="font-semibold text-lg mb-2">Donnez votre avis</span>
+                <p class="text-gray-600 mb-6">Votre expérience aide les autres acheteurs.</p>
+                <button id="writeReviewBtn"
+                        class="bg-primary hover:bg-secondary text-white py-4 px-8 rounded-2xl font-medium flex items-center justify-center gap-3 transition-all active:scale-95">
+                    <i class="fas fa-pen"></i>
+                    Écrire un avis
+                </button>
             </div>
         </div>
 
+        <!-- Formulaire (déployé) -->
+        <div id="reviewForm" class="hidden bg-gray-50 p-6 rounded-2xl mb-8">
+            <span class="text-lg font-semibold mb-4 block">Votre avis</span>
+            <form id="reviewFormSubmit" class="space-y-4">
+                @csrf
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Note *</label>
+                    <div class="flex space-x-1" id="starRating">
+                        @for($i = 1; $i <= 5; $i++)
+                            <button type="button" class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="{{ $i }}">
+                                <i class="far fa-star"></i>
+                            </button>
+                        @endfor
+                    </div>
+                    <input type="hidden" id="rating" name="rating" required>
+                </div>
+
+                <div>
+                    <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Commentaire *</label>
+                    <textarea id="comment" name="comment" rows="4" class="w-full border border-gray-300 rounded-2xl p-3 focus:ring-primary focus:border-primary" required></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nom / Pseudo</label>
+                        <input type="text" id="name" name="name" class="w-full border border-gray-300 rounded-2xl p-3">
+                    </div>
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-gray-700 mb-2">Ville (optionnel)</label>
+                        <input type="text" id="location" name="location" class="w-full border border-gray-300 rounded-2xl p-3">
+                    </div>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="submit" class="bg-primary hover:bg-secondary text-white py-3 px-6 rounded-2xl font-medium transition">
+                        Publier l'avis
+                    </button>
+                    <button type="button" id="cancelReview" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-6 rounded-2xl font-medium transition">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Liste des avis -->
+        <div id="reviewsList" class="space-y-6">
+            @forelse ($product->avis()->where('approved', true)->latest()->take(6)->get() as $review)
+                <div class="border-b border-gray-200 pb-6 last:border-0">
+                    <div class="flex items-center mb-2">
+                        <div class="flex text-yellow-400 mr-3">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fas fa-star {{ $i <= $review->rating ? '' : 'text-gray-300' }}"></i>
+                            @endfor
+                        </div>
+                        <span class="text-sm text-gray-500">{{ $review->created_at->format('d/m/Y') }}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">{{ $review->comment }}</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                            <span class="font-bold text-primary">{{ strtoupper(substr($review->name ?? 'A', 0, 1)) }}</span>
+                        </div>
+                        <div>
+                            <p class="font-medium">{{ $review->name ?? 'Anonyme' }}</p>
+                            @if($review->location)
+                                <p class="text-sm text-gray-500">{{ $review->location }}</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fas fa-comment-slash text-4xl mb-4 block"></i>
+                    <p>Aucun avis pour le moment.<br>Soyez le premier à partager votre expérience !</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+</div>
+<!-- ==================== SECTION PRODUITS SIMILAIRES ==================== -->
+<div class="mt-16 px-4">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-serif font-bold text-dark">Produits similaires</h2>
+        <a href="{{ route('categorie.produits', $product->categories->first()->slug ?? 'collection') }}"
+           class="text-primary hover:text-secondary font-medium flex items-center gap-2 transition-colors">
+            Voir toute la collection
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <!-- ROW horizontale (scrollable) -->
+    <div class="flex gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory ">
+
+        @forelse($similarProducts ?? [] as $related)
+            <div class="flex-shrink-0 w-72 snap-start">
+                <div class="group bg-white rounded-2xl shadow-sm overflow-hidden border  border-gray-100 hover:shadow-md transition-all duration-300 h-full flex flex-col">
+
+                    <!-- Image produit -->
+                    <div class="relative ">
+                        <a href="{{ route('preview-article', $related->slug) }}">
+                            <img src="{{ asset('storage/' . ($related->image_avant ?? 'default.jpg')) }}"
+                                 alt="{{ $related->name }}"
+                                 class="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500">
+                        </a>
+
+                        <!-- Badge promo -->
+                        @if($related->price_baree && $related->price_baree > $related->price)
+                            <span class="absolute top-3 left-3 bg-primary text-white text-xs px-3 py-1 rounded-2xl font-semibold shadow">
+                                -{{ round((($related->price_baree - $related->price) / $related->price_baree) * 100) }}%
+                            </span>
+                        @endif
+
+                        <!-- Badge stock limité -->
+                        @if($related->stock <= 5 && $related->stock > 0)
+                            <span class="absolute top-3 right-3 bg-red-500 text-white text-xs px-3 py-1 rounded-2xl">Stock limité</span>
+                        @endif
+                    </div>
+
+                    <!-- Contenu carte -->
+                    <div class="p-5 flex-1 flex flex-col">
+                        <a href="{{ route('preview-article', $related->slug) }}"
+                           class="font-medium text-dark hover:text-primary line-clamp-2 mb-3 transition-colors">
+                            <h2>{{ $related->name }}</h2>
+                        </a>
+
+                        <!-- Prix -->
+                        <div class="mt-auto">
+                            @if($related->price_baree && $related->price_baree > $related->price)
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-xl font-bold text-primary">{{ number_format($related->price, 2) }} DT</span>
+                                    <span class="text-sm text-gray-400 line-through">{{ number_format($related->price_baree, 2) }} DT</span>
+                                </div>
+                            @else
+                                <span class="text-xl font-bold text-primary">{{ number_format($related->price, 2) }} DT</span>
+                            @endif
+                        </div>
+
+                        <!-- Note + nombre d'avis -->
+                        @if($related->total_reviews > 0)
+                            <div class="flex items-center text-yellow-400 text-sm mt-3">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= floor($related->average_rating) ? '' : 'text-gray-300' }}"></i>
+                                @endfor
+                                <span class="text-gray-500 text-xs ml-2">({{ $related->total_reviews }})</span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="w-full text-center py-16 text-gray-400">
+                <i class="fas fa-box-open text-5xl mb-4 block"></i>
+                <p>Aucun produit similaire trouvé pour le moment.</p>
+            </div>
+        @endforelse
+
+    </div>
+</div>
     </main>
 @endsection
 
@@ -694,6 +800,30 @@
 @endsection
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<!-- Script simple pour les onglets (Tailwind ready) -->
+<script>
+    function switchTab(tab) {
+        // Masquer tous les contenus
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        // Afficher le bon contenu
+        const contentEl = document.getElementById(`content-${tab}`);
+        if (contentEl) contentEl.classList.remove('hidden');
+
+        // Activer le bon bouton
+        document.querySelectorAll('button[id^="tab-"]').forEach(btn => {
+            if (btn.id === `tab-${tab}`) {
+                btn.setAttribute('data-active', 'true');
+            } else {
+                btn.removeAttribute('data-active');
+            }
+        });
+    }
+
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -1013,22 +1143,64 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Related Products Slider (inchangé)
-    const relatedSwiper = new Swiper('.related-products', {
-        slidesPerView: 1,
-        spaceBetween: 20,
-        loop: false,
-        navigation: {
-            nextEl: '.swiper-button-next-related',
-            prevEl: '.swiper-button-prev-related',
-        },
-        breakpoints: {
-            640: { slidesPerView: 2, spaceBetween: 20 },
-            768: { slidesPerView: 3, spaceBetween: 25 },
-            1024: { slidesPerView: 4, spaceBetween: 30 }
+  // ❌ Supprime Swiper
+// const relatedSwiper = new Swiper(...)
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const container = document.querySelector('.flex.gap-6.overflow-x-auto');
+
+    if (!container) return;
+
+    let scrollAmount = 0;
+    const scrollStep = 300;
+
+    // Auto slide
+    setInterval(() => {
+        if (scrollAmount >= container.scrollWidth - container.clientWidth) {
+            scrollAmount = 0;
+        } else {
+            scrollAmount += scrollStep;
         }
+
+        container.scrollTo({
+            left: scrollAmount,
+            behavior: 'smooth'
+        });
+
+    }, 3000); // toutes les 3 secondes
+
+    // Drag avec souris (UX premium)
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener('mousedown', (e) => {
+        isDown = true;
+        container.classList.add('cursor-grabbing');
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
     });
 
+    container.addEventListener('mouseleave', () => {
+        isDown = false;
+        container.classList.remove('cursor-grabbing');
+    });
+
+    container.addEventListener('mouseup', () => {
+        isDown = false;
+        container.classList.remove('cursor-grabbing');
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+    });
+
+});
     // Notification function (inchangé)
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');

@@ -220,6 +220,9 @@
             <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-dark mb-4">
                 {{ $selectedCategory ? $selectedCategory->section_title : 'Tous les Produits' }}
             </h1>
+            <h2 class="text-xl text-gray-600 mt-4">
+    {{ $selectedCategory->name ?? 'de produits' }} en Tunisie
+</h2>
             <p class="text-gray-600 text-lg max-w-2xl mx-auto">
                 {{ $selectedCategory ? $selectedCategory->section_subtitle : 'Découvrez notre collection exclusive' }}
             </p>
@@ -241,14 +244,14 @@
             <div class="lg:w-4/4">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                    <div class="mb-4 md:mb-0">
-                        <h2 class="text-xl font-bold text-dark">
-                            {{ $selectedCategory ? $selectedCategory->name : 'Tous les produits' }}
-                        </h2>
-                        <p class="text-gray-600 text-sm">
-                            {{ $products->total() }} produits disponibles
-                        </p>
-                    </div>
+                   <div class="mb-4 md:mb-0">
+    <h2 class="text-xl font-bold text-dark">
+        Nos produits
+    </h2>
+    <p class="text-gray-600 text-sm">
+        {{ $products->total() }} produits disponibles
+    </p>
+</div>
 
 
                 </div>
